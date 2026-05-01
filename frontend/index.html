@@ -2423,6 +2423,8 @@ function placeOrder(){
     else                             sessionCourses.add('starters');
   });
   // buildReorderOptions uses sessionCourses directly — no _lastCourse needed
+  // Save all items to sessionAllItems for end-of-meal feedback
+  Object.keys(cart).forEach(function(id) { sessionAllItems[id] = cart[id]; });
   buildReorderOptions();
   document.getElementById('success').classList.add('show');
 }
@@ -2656,7 +2658,7 @@ function resetAll(){
   var tyEl = document.getElementById('tyScreen');
   if (tyEl) tyEl.classList.remove('show');
   try { sessionStorage.removeItem(SESSION_KEY); } catch(e) {}
-  sessionRound = 0; sessionCourses = new Set(); sessionMoods = new Set();
+  sessionRound = 0; sessionCourses = new Set(); sessionMoods = new Set(); sessionAllItems = {};
   _lastCourse = ''; _orderSource = 'full'; _questionsDone = false; _drinksTabIds = new Set();
   updAllBadges(); go('s0');
 }
@@ -2664,18 +2666,20 @@ function resetAll(){
 function callWaiter(btn){btn.textContent='✅ Called!';setTimeout(()=>{btn.innerHTML='📞 Call Waiter';},3000);}
 
 /* ══════════ FEEDBACK ══════════ */
-var fbStarRating = 0;
-var fbDishRatings = {};   // itemId -> true (up) | false (down) | null
-var fbRecommend   = null; // true | false | null
-var fbSessionId   = null; // set when order is placed
+var fbStarRating    = 0;
+var fbDishRatings   = {};  // itemId -> true (up) | false (down) | null
+var fbRecommend     = null;
+var fbSessionId     = null;
+var sessionAllItems = {};  // accumulates ALL items ordered in this session for feedback
 
 function showFeedback() {
   // Build dish rating list from cart
   var list = document.getElementById('dishFbList');
   if (!list) return;
   var html = '';
-  Object.keys(cart).forEach(function(id) {
-    var item = cart[id];
+  var rateSource = Object.keys(sessionAllItems).length > 0 ? sessionAllItems : cart;
+  Object.keys(rateSource).forEach(function(id) {
+    var item = rateSource[id];
     fbDishRatings[id] = null;
     html += '<div class="dish-fb" id="dish-fb-' + id + '">'
           + '<span style="font-size:1.2rem;flex-shrink:0">' + (item.e||'🍽️') + '</span>'
@@ -3114,7 +3118,7 @@ window.requestBill = function() {
   }, 1500);
 };
 
-// Fix updAllBadges to sync cn-spq 
+// Fix updAllBadges to sync cn-spq
 var _origUpdAllBadges = window.updAllBadges;
 window.updAllBadges = function() {
   _origUpdAllBadges.apply(this, arguments);
