@@ -19,7 +19,7 @@ app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 // Frontend folder sits next to backend/ — served statically
 // Structure: project-root/backend/server.js  +  project-root/frontend/
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 // ── Routes ───────────────────────────────────────────────────────
 app.use('/api/sessions',  sessionsRoute);
@@ -39,10 +39,10 @@ app.get('/api/health', async (req, res) => {
 });
 
 // ── HTML page routes ─────────────────────────────────────────────
-app.get('/admin.html',     (req, res) => res.sendFile(path.join(__dirname, '..', 'frontend', 'admin.html')));
-app.get('/kitchen.html',   (req, res) => res.sendFile(path.join(__dirname, '..', 'frontend', 'kitchen.html')));
-app.get('/dashboard.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'frontend', 'dashboard.html')));
-app.get('/bill.html',      (req, res) => res.sendFile(path.join(__dirname, '..', 'frontend', 'bill.html')));
+app.get('/admin.html',     (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'admin.html')));
+app.get('/kitchen.html',   (req, res) => res.sendFile(path.join(__dirname,  'frontend', 'kitchen.html')));
+app.get('/dashboard.html', (req, res) => res.sendFile(path.join(__dirname,  'frontend', 'dashboard.html')));
+app.get('/bill.html',      (req, res) => res.sendFile(path.join(__dirname,  'frontend', 'bill.html')));
 
 // ── API 404 — must come BEFORE the SPA catch-all ─────────────────
 // Any /api/* route that reached here wasn't matched — return JSON, not HTML
@@ -63,7 +63,7 @@ app.use((err, req, res, next) => {
 
 // ── SPA catch-all — only for non-API routes ───────────────────────
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 // ── Start ────────────────────────────────────────────────────────
