@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SUKA — Owner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0908;--bg2:#131110;--bg3:#1C1916;--bg4:#252220;
+  --ink:#F2EDE4;--ink2:#9A9490;--ink3:#5A5550;
+  --gold:#C9943A;--gold2:rgba(201,148,58,.15);--gold-glow:rgba(201,148,58,.3);
+  --green:#2D7A3A;--green2:rgba(45,122,58,.15);
+  --red:#C0392B;--amber:#F59E0B;
+  --r:12px;--bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.hdr-brand{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold);font-style:italic}
+.hdr-sub{font-size:.7rem;color:var(--ink3);margin-top:2px}
+.days-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.day-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--bdr);background:transparent;color:var(--ink3);font-size:.75rem;cursor:pointer;transition:all .15s;font-family:inherit}
+.day-btn.on{background:var(--gold);border-color:var(--gold);color:#fff}
+.day-btn:active{transform:scale(.95)}
+.main{padding:24px;max-width:1200px;margin:0 auto}
+.section-title{font-size:.58rem;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:12px;margin-top:24px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:8px}
+.stat-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:18px 20px}
+.stat-label{font-size:.68rem;color:var(--ink3);margin-bottom:6px;letter-spacing:.5px}
+.stat-val{font-size:1.8rem;font-weight:500;color:var(--ink);font-family:'Playfair Display',serif}
+.stat-sub{font-size:.68rem;color:var(--ink3);margin-top:4px}
+.stat-card.green .stat-val{color:var(--green)}
+.stat-card.amber .stat-val{color:var(--amber)}
+.stat-card.gold .stat-val{color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{text-align:left;padding:10px 12px;border-bottom:1px solid var(--bdr);color:var(--ink3);font-size:.6rem;letter-spacing:.8px;text-transform:uppercase;font-weight:500}
+td{padding:10px 12px;border-bottom:1px solid var(--bdr2);color:var(--ink2);vertical-align:top}
+tr:hover td{background:var(--bg3)}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin-bottom:24px}
+.stars{color:var(--amber);font-size:.9rem}
+.badge{display:inline-block;font-size:.58rem;font-weight:600;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px}
+.b-green{background:rgba(45,122,58,.15);color:var(--green)}
+.b-red{background:rgba(192,57,43,.15);color:var(--red)}
+.b-blue{background:rgba(29,78,216,.15);color:#93c5fd}
+.b-gray{background:var(--bg3);color:var(--ink3)}
+.pct-bar{height:4px;border-radius:2px;background:var(--bg3);margin-top:6px;overflow:hidden}
+.pct-fill{height:100%;border-radius:2px;background:var(--green);transition:width .6s}
+.loading{color:var(--ink3);font-size:.85rem;padding:40px;text-align:center}
+.error{color:var(--red);font-size:.82rem;padding:16px;text-align:center}
+.comment{font-size:.78rem;color:var(--ink3);font-style:italic;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tab-row{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--bdr);padding-bottom:0;overflow-x:auto;scrollbar-width:none}
+.tab-row::-webkit-scrollbar{display:none}
+.tab{padding:11px 18px;font-size:.8rem;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all .15s}
+.tab.on{color:var(--ink);border-bottom-color:var(--gold)}
+.panel{display:none}.panel.on{display:block}
+
+/* CALENDAR */
+.cal-month-title{font-size:.7rem;font-weight:500;color:var(--ink2);margin-bottom:8px;letter-spacing:.6px;text-transform:uppercase}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px}
+.cal-day-hdr{font-size:.62rem;color:var(--ink3);text-align:center;padding-bottom:4px}
+.cal-cell{border-radius:8px;padding:6px 4px 5px;text-align:center;cursor:pointer;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;transition:transform .1s,box-shadow .15s;border:1.5px solid transparent;position:relative}
+.cal-cell:hover{transform:scale(1.06);z-index:2}
+.cal-cell.today{border-color:var(--gold)!important}
+.cal-cell.selected{box-shadow:0 0 0 2px var(--gold);z-index:3}
+.cal-date{font-size:.68rem;color:rgba(255,255,255,.5);line-height:1}
+.cal-rev{font-size:.72rem;font-weight:600;line-height:1.1}
+.cal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;margin-bottom:24px}
+.cal-stat{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:14px;text-align:center}
+.cal-stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--ink);margin-bottom:4px}
+.cal-stat-lbl{font-size:.65rem;color:var(--ink3);letter-spacing:.4px}
+
+/* COMPARE */
+.compare-wrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:16px;margin-top:16px}
+.compare-title{font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:14px}
+.compare-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--bdr)}
+.compare-row:last-child{border-bottom:none}
+.compare-lbl{font-size:.78rem;color:var(--ink2);flex:1}
+.compare-vals{display:flex;gap:20px}
+.compare-val{font-size:.85rem;font-weight:600}
+.compare-val.a{color:var(--gold)}
+.compare-val.b{color:#93c5fd}
+
+/* REC CHART */
+.rec-bar-item{margin-bottom:10px}
+.rec-bar-name{font-size:.78rem;color:var(--ink);margin-bottom:4px;display:flex;justify-content:space-between}
+.rec-bar-track{background:var(--bg3);border-radius:4px;height:6px;overflow:hidden}
+.rec-bar-fill{height:6px;border-radius:4px;transition:width .6s}
+
+/* DATE INPUT */
+input[type=date]{background:var(--bg3);border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;color:var(--ink2);font-size:.72rem;cursor:pointer;font-family:inherit}
+input[type=date]:focus{outline:none;border-color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-brand">mesa</div>
+    <div class="hdr-sub">SUKA Mallathalli · Owner Dashboard</div>
+  </div>
+  <div class="days-row">
+    <button class="day-btn on" onclick="setToday(this)">Today</button>
+    <button class="day-btn" onclick="setDays(7,this)">7 days</button>
+    <button class="day-btn" onclick="setDays(30,this)">30 days</button>
+    <button class="day-btn" onclick="setDays(90,this)">90 days</button>
+    <div style="width:1px;height:20px;background:var(--bdr);margin:0 4px"></div>
+    <input type="date" id="date-from" onchange="setCustomRange()">
+    <span style="font-size:.72rem;color:var(--ink3)">to</span>
+    <input type="date" id="date-to" onchange="setCustomRange()">
+  </div>
+</div>
+
+<div class="main">
+  <div class="tab-row">
+    <div class="tab on" onclick="showTab('overview',this)">Overview</div>
+    <div class="tab" onclick="showTab('orders',this)">Orders</div>
+    <div class="tab" onclick="showTab('feedback',this)">Feedback</div>
+    <div class="tab" onclick="showTab('dishes',this)">Dish Ratings</div>
+    <div class="tab" onclick="showTab('calendar',this);loadCalendar()">📅 Calendar</div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="overview" class="panel on">
+    <div class="section-title">Summary</div>
+    <div class="cards" id="summary-cards"><div class="loading">Loading...</div></div>
+    <div class="section-title">Recommendation acceptance</div>
+    <div style="font-size:.72rem;color:var(--ink3);margin-bottom:10px;line-height:1.6">Items shown as top picks vs what customers actually ordered. Low acceptance = needs menu review.</div>
+    <div id="rec-acceptance"><div class="loading">Loading...</div></div>
+    <div class="section-title">Mood vs satisfaction</div>
+    <div class="tbl-wrap">
+      <table id="moods-table">
+        <thead><tr><th>Mood</th><th>Sessions</th><th>Avg rating</th></tr></thead>
+        <tbody><tr><td colspan="3" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ORDERS -->
+  <div id="orders" class="panel">
+    <div class="section-title">Recent orders</div>
+    <div class="tbl-wrap">
+      <table id="orders-table">
+        <thead><tr><th>Table</th><th>Time</th><th>Items</th><th>Total</th><th>Mood</th><th>Diet</th></tr></thead>
+        <tbody><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FEEDBACK -->
+  <div id="feedback" class="panel">
+    <div class="section-title">Customer feedback</div>
+    <div class="tbl-wrap">
+      <table id="feedback-table">
+        <thead><tr><th>Table</th><th>Time</th><th>Rating</th><th>Recommend</th><th>Comment</th></tr></thead>
+        <tbody><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DISH RATINGS -->
+  <div id="dishes" class="panel">
+    <div class="section-title">Dish approval ratings</div>
+    <div class="tbl-wrap">
+      <table id="dishes-table">
+        <thead><tr><th>Dish</th><th>Badge</th><th>Ordered</th><th>👍</th><th>👎</th><th>Approval</th></tr></thead>
+        <tbody><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="calendar" class="panel">
+    <div class="section-title">Revenue calendar — last 90 days</div>
+    <div style="font-size:.72rem;color:var(--ink3);margin-bottom:14px;line-height:1.6">Each cell shows daily revenue. Click any date to see details and compare two dates.</div>
+    <div id="cal-stats" class="cal-stats" style="display:none"></div>
+    <div id="compare-panel" style="display:none"></div>
+    <div id="cal-wrap"></div>
+  </div>
+</div>
+
+<script>
+var API='';
+var days=7;
+var activeTab='overview';
+var dateFrom=null;var dateTo=null;
+// Calendar selection state
+var calSelectedDates=[];
+var calData={};
+
+function setToday(btn){
+  var now=new Date();var ist=new Date(now.getTime()+(5.5*60*60*1000));var today=ist.toISOString().split('T')[0];
+  dateFrom=today;dateTo=today;days=1;
+  document.querySelectorAll('.day-btn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');
+  document.getElementById('date-from').value=today;document.getElementById('date-to').value=today;
+  loadAll();
+}
+function setDays(d,btn){
+  days=d;dateFrom=null;dateTo=null;
+  document.querySelectorAll('.day-btn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');
+  document.getElementById('date-from').value='';document.getElementById('date-to').value='';
+  loadAll();
+}
+function setCustomRange(){
+  var from=document.getElementById('date-from').value;var to=document.getElementById('date-to').value;
+  if(!from||!to)return;dateFrom=from;dateTo=to;days=Math.ceil((new Date(to)-new Date(from))/(1000*60*60*24))+1;
+  document.querySelectorAll('.day-btn').forEach(function(b){b.classList.remove('on');});
+  loadAll();
+}
+function apiUrl(endpoint){if(dateFrom&&dateTo)return API+endpoint+'?dateFrom='+dateFrom+'&dateTo='+dateTo;return API+endpoint+'?days='+days;}
+function showTab(id,el){
+  activeTab=id;
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  if(el)el.classList.add('on');
+  loadAll();
+}
+function fmt(ts){var d=new Date(ts);return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}
+function stars(n){if(!n)return'<span style="color:var(--ink3)">—</span>';var s='';for(var i=1;i<=5;i++)s+='<span style="color:'+(i<=n?'var(--amber)':'var(--bg3)')+'">★</span>';return s;}
+
+/* SUMMARY */
+async function loadSummary(){
+  try{
+    var d=await safeJson(apiUrl('/api/analytics/summary'));
+    var o=d.orders;var f=d.feedback;
+    var ratingPct=f.avg_rating?Math.round((f.avg_rating/5)*100):0;
+    var recPct=(f.recommend_yes&&f.total_feedback)?Math.round(f.recommend_yes/f.total_feedback*100):0;
+    document.getElementById('summary-cards').innerHTML=
+      card('Total orders','','',o.total_orders,'past '+days+' days')+
+      card('Revenue','₹','gold',Number(o.total_revenue).toLocaleString('en-IN'),'')+
+      card('Avg bill','₹','',o.total_orders?Math.round(o.total_revenue/o.total_orders).toLocaleString('en-IN'):'—','per order')+
+      card('Feedback','','green',f.total_feedback,'responses')+
+      card('Avg rating','','amber',f.avg_rating||'—',ratingPct+'% satisfaction')+
+      card('Recommend','','green',recPct+'%',f.recommend_yes+' of '+f.total_feedback+' would');
+  }catch(e){document.getElementById('summary-cards').innerHTML='<div class="error">Could not load — is the server running?</div>';}
+}
+function card(label,prefix,type,val,sub){
+  var cls=type==='green'?'green':type==='amber'?'amber':type==='gold'?'gold':'';
+  return'<div class="stat-card '+cls+'"><div class="stat-label">'+label+'</div><div class="stat-val">'+prefix+val+'</div><div class="stat-sub">'+sub+'</div></div>';
+}
+
+/* REC ACCEPTANCE */
+async function loadRecAcceptance(){
+  var el=document.getElementById('rec-acceptance');if(!el)return;
+  try{
+    var dishes=await safeJson(apiUrl('/api/analytics/dishes'));
+    if(!dishes.length){el.innerHTML='<div class="loading">No recommendation data yet.</div>';return;}
+    dishes.sort(function(a,b){return(parseFloat(a.approval_pct)||50)-(parseFloat(b.approval_pct)||50);});
+    var html='';
+    dishes.slice(0,8).forEach(function(dish){
+      var pct=parseFloat(dish.approval_pct)||0;var orders=parseInt(dish.times_ordered)||0;
+      var barColor=pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)';
+      var status=pct>=70?'✓ Well received':pct>=40?'⚠ Mixed reception':'✗ Often disliked';
+      html+='<div class="rec-bar-item"><div class="rec-bar-name"><span>'+dish.name+'</span><span style="font-weight:600;color:'+barColor+'">'+Math.round(pct)+'%</span></div><div class="rec-bar-track"><div class="rec-bar-fill" style="width:'+Math.min(100,pct)+'%;background:'+barColor+'"></div></div><div style="font-size:.68rem;color:var(--ink3);margin-top:3px">'+orders+' orders · '+status+'</div></div>';
+    });
+    el.innerHTML=html;
+  }catch(e){el.innerHTML='<div class="loading">Could not load data.</div>';}
+}
+
+/* MOODS */
+async function loadMoods(){
+  try{
+    var rows=await safeJson(apiUrl('/api/analytics/moods'));
+    var html=rows.map(function(row){return'<tr><td>'+row.mood+'</td><td>'+row.sessions+'</td><td>'+stars(row.avg_rating)+' '+row.avg_rating+'</td></tr>';}).join('');
+    document.querySelector('#moods-table tbody').innerHTML=html||'<tr><td colspan="3" style="color:var(--ink3);padding:20px">No data yet</td></tr>';
+  }catch(e){}
+}
+
+/* ORDERS */
+async function loadOrders(){
+  try{
+    var rows=await safeJson(apiUrl('/api/analytics/orders')+'&limit=100');
+    var html=rows.map(function(row){
+      var items=(row.items||[]).map(function(i){return i.name+' ×'+i.qty;}).join(', ');
+      var mood=(row.moods||[]).join(', ')||'—';
+      return'<tr><td><strong>'+row.table_number+'</strong></td><td>'+fmt(row.created_at)+'</td><td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink3)">'+items+'</td><td><strong>₹'+Number(row.order_total).toLocaleString('en-IN')+'</strong></td><td style="color:var(--ink3)">'+mood+'</td><td style="color:var(--ink3)">'+(row.diet_identity||'—')+'</td></tr>';
+    }).join('');
+    document.querySelector('#orders-table tbody').innerHTML=html||'<tr><td colspan="6" style="color:var(--ink3);padding:20px">No orders yet</td></tr>';
+  }catch(e){}
+}
+
+/* FEEDBACK */
+async function loadFeedback(){
+  try{
+    var r=await fetch(apiUrl('/api/analytics/feedback')+'&limit=100');var rows=await r.json();
+    var html=rows.map(function(row){
+      var rec=row.would_recommend===true?'<span class="badge b-green">Yes</span>':row.would_recommend===false?'<span class="badge b-red">No</span>':'<span class="badge b-gray">—</span>';
+      return'<tr><td><strong>'+row.table_number+'</strong></td><td>'+fmt(row.created_at)+'</td><td>'+stars(row.overall_rating)+'</td><td>'+rec+'</td><td class="comment">'+(row.comment||'<span style="color:var(--ink3)">—</span>')+'</td></tr>';
+    }).join('');
+    document.querySelector('#feedback-table tbody').innerHTML=html||'<tr><td colspan="5" style="color:var(--ink3);padding:20px">No feedback yet</td></tr>';
+  }catch(e){}
+}
+
+/* DISHES */
+async function loadDishes(){
+  try{
+    var rows=await safeJson(apiUrl('/api/analytics/dishes'));
+    var html=rows.map(function(row){
+      var pct=row.approval_pct||0;
+      var badgeHtml=row.badge?'<span class="badge b-blue">'+row.badge+'</span>':'<span class="badge b-gray">—</span>';
+      var barColor=pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--red)';
+      return'<tr><td><strong>'+row.name+'</strong></td><td>'+badgeHtml+'</td><td>'+row.times_ordered+'</td><td style="color:var(--green)">'+row.thumbs_up+'</td><td style="color:var(--red)">'+row.thumbs_down+'</td><td style="min-width:100px"><div style="font-size:.78rem;margin-bottom:3px;color:'+(pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)')+'">'+((pct||'—')+(pct?'%':''))+'</div><div class="pct-bar"><div class="pct-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div></td></tr>';
+    }).join('');
+    document.querySelector('#dishes-table tbody').innerHTML=html||'<tr><td colspan="6" style="color:var(--ink3);padding:20px">No ratings yet</td></tr>';
+  }catch(e){}
+}
+
+/* CALENDAR — airline-style with click to compare */
+async function loadCalendar(){
+  var wrap=document.getElementById('cal-wrap');
+  wrap.innerHTML='<div class="loading">Loading calendar...</div>';
+  try{
+    var calRows=await safeJson(API+'/api/analytics/calendar?days=90');
+    calData={};
+    calRows.forEach(function(row){
+      var key=(row.date||row.snap_date||'').split('T')[0];
+      if(key) calData[key]=parseFloat(row.revenue||row.total_revenue||0);
+    });
+    var today=new Date();
+    var allDays=[];
+    for(var i=89;i>=0;i--){
+      var dt=new Date(today);dt.setDate(today.getDate()-i);
+      var key=dt.toISOString().split('T')[0];
+      allDays.push({date:key,val:calData[key]||0,dt:dt});
+    }
+    var maxVal=Math.max.apply(null,allDays.map(function(d){return d.val;}))||1;
+    var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var todayKey=today.toISOString().split('T')[0];
+    // Revenue level colors — dark to light gold
+    function getColor(v){
+      if(!v)return{bg:'var(--bg3)',tc:'var(--ink3)'};
+      var p=v/maxVal;
+      if(p<0.2)return{bg:'rgba(201,148,58,.12)',tc:'rgba(201,148,58,.6)'};
+      if(p<0.4)return{bg:'rgba(201,148,58,.22)',tc:'rgba(201,148,58,.8)'};
+      if(p<0.6)return{bg:'rgba(201,148,58,.35)',tc:'#C9943A'};
+      if(p<0.8)return{bg:'rgba(201,148,58,.5)',tc:'#C9943A'};
+      return{bg:'var(--gold)',tc:'#fff'};
+    }
+    function fmtRev(v){if(!v)return'';if(v>=100000)return'₹'+Math.round(v/1000)+'k';if(v>=10000)return'₹'+Math.round(v/1000)+'k';return'₹'+Math.round(v);}
+    // Group into months
+    var months={};
+    allDays.forEach(function(day){
+      var mk=day.dt.getFullYear()+'-'+day.dt.getMonth();
+      if(!months[mk])months[mk]={label:MONTHS[day.dt.getMonth()]+' '+day.dt.getFullYear(),days:[]};
+      months[mk].days.push(day);
+    });
+    var html='';
+    Object.values(months).forEach(function(month){
+      html+='<div style="margin-bottom:24px"><div class="cal-month-title">'+month.label+'</div>';
+      html+='<div class="cal-grid">';
+      ['M','T','W','T','F','S','S'].forEach(function(d){html+='<div class="cal-day-hdr">'+d+'</div>';});
+      var fdow=month.days[0].dt.getDay();var pad=fdow===0?6:fdow-1;
+      for(var p=0;p<pad;p++)html+='<div></div>';
+      month.days.forEach(function(day){
+        var c=getColor(day.val);var rev=fmtRev(day.val);var isToday=day.date===todayKey;
+        html+='<div class="cal-cell" data-date="'+day.date+'" data-rev="'+(day.val||0)+'" onclick="calClickDate(this)"'
+          +' style="background:'+c.bg+';border-color:'+(isToday?'var(--gold)':'transparent')+'">'
+          +'<span class="cal-date" style="color:'+(day.val?'rgba(255,255,255,.5)':'var(--ink3)')+'">'+day.dt.getDate()+'</span>'
+          +'<span class="cal-rev" style="color:'+c.tc+'">'+(rev||'')+'</span>'
+          +'</div>';
+      });
+      html+='</div></div>';
+    });
+    wrap.innerHTML=html;
+    // Show summary stats
+    var totalRev=allDays.reduce(function(s,d){return s+d.val;},0);
+    var dwo=allDays.filter(function(d){return d.val>0;}).length;
+    var peak=allDays.reduce(function(a,b){return b.val>a.val?b:a;},allDays[0]);
+    var statsEl=document.getElementById('cal-stats');
+    statsEl.style.display='grid';
+    statsEl.innerHTML='<div class="cal-stat"><div class="cal-stat-val">₹'+Math.round(totalRev).toLocaleString('en-IN')+'</div><div class="cal-stat-lbl">90-day revenue</div></div>'
+      +'<div class="cal-stat"><div class="cal-stat-val">₹'+Math.round(dwo?totalRev/dwo:0).toLocaleString('en-IN')+'</div><div class="cal-stat-lbl">avg per service day</div></div>'
+      +'<div class="cal-stat" style="border-color:rgba(201,148,58,.3)"><div class="cal-stat-val" style="color:var(--gold)">'+peak.dt.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+'</div><div class="cal-stat-lbl">best day</div></div>';
+  }catch(e){
+    var w=document.getElementById('cal-wrap');
+    if(w)w.innerHTML='<div class="loading">No orders yet — start serving to see the calendar.</div>';
+  }
+}
+
+function calClickDate(el){
+  var date=el.dataset.date;var rev=parseFloat(el.dataset.rev)||0;
+  if(calSelectedDates.includes(date)){
+    calSelectedDates=calSelectedDates.filter(function(d){return d!==date;});
+    el.classList.remove('selected');
+  }else{
+    if(calSelectedDates.length>=2){
+      // Deselect oldest
+      var old=calSelectedDates.shift();
+      var oldEl=document.querySelector('.cal-cell[data-date="'+old+'"]');
+      if(oldEl)oldEl.classList.remove('selected');
+    }
+    calSelectedDates.push(date);el.classList.add('selected');
+  }
+  showCalDetail();
+}
+
+function showCalDetail(){
+  var panel=document.getElementById('compare-panel');
+  if(!calSelectedDates.length){panel.style.display='none';return;}
+  panel.style.display='block';
+  if(calSelectedDates.length===1){
+    var d=calSelectedDates[0];var v=calData[d]||0;
+    var dt=new Date(d);
+    panel.innerHTML='<div class="compare-wrap"><div class="compare-title">'+dt.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})+'</div>'
+      +'<div class="compare-row"><span class="compare-lbl">Revenue</span><span class="compare-val a">₹'+(v?v.toLocaleString('en-IN'):'No orders')+'</span></div>'
+      +'<div style="font-size:.72rem;color:var(--ink3);margin-top:8px">Click another date to compare →</div>'
+      +'</div>';
+  }else{
+    var d1=calSelectedDates[0];var d2=calSelectedDates[1];
+    var v1=calData[d1]||0;var v2=calData[d2]||0;
+    var dt1=new Date(d1);var dt2=new Date(d2);
+    var diff=v2-v1;var pct=v1?Math.round((diff/v1)*100):null;
+    panel.innerHTML='<div class="compare-wrap"><div class="compare-title">Comparing two dates</div>'
+      +'<div class="compare-row"><span class="compare-lbl">Date</span><span class="compare-val a">'+dt1.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+'</span><span class="compare-val b">'+dt2.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+'</span></div>'
+      +'<div class="compare-row"><span class="compare-lbl">Revenue</span><span class="compare-val a">₹'+(v1?v1.toLocaleString('en-IN'):'—')+'</span><span class="compare-val b">₹'+(v2?v2.toLocaleString('en-IN'):'—')+'</span></div>'
+      +'<div class="compare-row"><span class="compare-lbl">Difference</span><span class="compare-val" style="color:'+(diff>=0?'var(--green)':'var(--red)')+'">'+( diff>=0?'+':'')+'₹'+Math.abs(diff).toLocaleString('en-IN')+(pct!==null?' ('+( diff>=0?'+':'')+pct+'%)':'')+'</span></div>'
+      +'</div>';
+  }
+}
+
+function loadAll(){
+  if(activeTab==='overview'){loadSummary();loadRecAcceptance();loadMoods();}
+  else if(activeTab==='orders')loadOrders();
+  else if(activeTab==='feedback')loadFeedback();
+  else if(activeTab==='dishes')loadDishes();
+}
+loadAll();
+setInterval(loadAll,30000);
+
+// Safe JSON fetch — never throws 'Unexpected token <'
+async function safeJson(url, opts) {
+  var r = await fetch(url, opts || {});
+  var ct = r.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) {
+    var text = await r.text();
+    var preview = text.replace(/<[^>]+>/g,'').trim().slice(0,100);
+    throw new Error('Server error ' + r.status + (preview ? ': ' + preview : ''));
+  }
+  var data = await r.json();
+  if (!r.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+</script>
+</body>
+</html>

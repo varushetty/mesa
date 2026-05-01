@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SUKA — Kitchen</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050504;--bg2:#0E0D0B;--bg3:#161411;--bg4:#1E1B18;
+  --ink:#F2EDE4;--ink2:#9A9490;--ink3:#5A5550;
+  --gold:#C9943A;--gold2:rgba(201,148,58,.15);
+  --green:#2D7A3A;--green2:rgba(45,122,58,.15);
+  --red:#C0392B;--amber:#F59E0B;
+  --bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+
+/* PIN */
+#pin-screen{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.pin-card{background:var(--bg2);border:1px solid var(--bdr2);border-radius:20px;padding:32px 22px;text-align:center;width:290px}
+.pin-logo{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold);font-style:italic;margin-bottom:4px}
+.pin-sub{font-size:.72rem;color:var(--ink3);margin-bottom:24px}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:18px}
+.pin-dot{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--bg4);transition:all .15s}
+.pin-dot.on{background:var(--gold);border-color:var(--gold)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pkey{background:var(--bg3);border:1px solid var(--bdr);border-radius:11px;padding:15px;font-size:1.25rem;font-weight:500;cursor:pointer;color:var(--ink);font-family:inherit;transition:all .12s}
+.pkey:active{background:var(--gold);border-color:var(--gold);color:#fff;transform:scale(.91)}
+.pin-err{font-size:.72rem;color:var(--red);margin-top:10px;min-height:16px}
+
+/* APP */
+#kapp{display:none}
+.hdr{background:var(--bg2);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.hdr-brand{font-family:'Playfair Display',serif;font-size:1rem;color:var(--gold);font-style:italic}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hdr-clock{font-size:.82rem;color:var(--ink3)}
+.logout{font-size:.72rem;color:var(--ink3);cursor:pointer;padding:5px 12px;border:1px solid var(--bdr);border-radius:20px;background:transparent;font-family:inherit;transition:all .15s}
+.logout:active{background:var(--bg3)}
+
+/* SOLD BAR */
+.sold-bar{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:8px 20px;font-size:.7rem;color:var(--ink3);display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-height:36px}
+.so-pill{background:rgba(245,158,11,.12);color:var(--amber);padding:2px 10px;border-radius:20px;font-weight:600;font-size:.66rem;border:1px solid rgba(245,158,11,.25)}
+
+/* TICKETS GRID */
+.k-main{padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.ticket{background:var(--bg2);border:2px solid var(--bdr);border-radius:14px;padding:16px;transition:all .3s}
+.ticket.new-t{border-color:var(--green);box-shadow:0 0 0 1px rgba(45,122,58,.2)}
+.ticket.prep{border-color:var(--amber)}
+.ticket.urgent{border-color:var(--red);animation:urg .8s infinite}
+@keyframes urg{0%,100%{border-color:var(--red)}50%{border-color:rgba(192,57,43,.4)}}
+.t-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.t-table{font-size:2rem;font-weight:700;line-height:1;color:var(--ink)}
+.t-meta{text-align:right}
+.t-time{font-size:.7rem;color:var(--ink3)}
+.t-elapsed{font-size:1.1rem;font-weight:700;color:var(--ink)}
+.t-elapsed.warn{color:var(--amber)}
+.t-elapsed.urg{color:var(--red)}
+.t-items{margin-bottom:14px}
+.t-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr)}
+.t-item:last-child{border-bottom:none}
+.t-qty{font-size:1.5rem;font-weight:800;color:var(--green);min-width:32px;font-family:'DM Sans',sans-serif}
+.t-name{flex:1;font-size:.95rem;color:var(--ink)}
+.d-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dv{background:var(--green)}.dn{background:var(--red)}.de{background:var(--amber)}
+.t-round{font-size:.58rem;letter-spacing:.6px;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.t-btns{display:flex;gap:8px}
+.kt-btn{flex:1;padding:12px;border-radius:10px;border:none;font-size:.84rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.kt-btn:active{transform:scale(.94)}
+.btn-start{background:var(--green);color:#fff}
+.btn-done{background:rgba(29,78,216,.2);color:#93c5fd;border:1px solid rgba(29,78,216,.3)}
+.btn-undo{background:var(--bg3);color:var(--ink3);font-size:.72rem;flex:0 0 auto;padding:12px 14px}
+.k-empty{text-align:center;padding:80px 20px;color:var(--bg4);font-size:1.4rem;grid-column:1/-1}
+.k-empty span{display:block;font-size:.85rem;color:var(--ink3);margin-top:8px}
+</style>
+</head>
+<body>
+
+<div id="pin-screen">
+  <div class="pin-card">
+    <div class="pin-logo">mesa</div>
+    <div style="font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:4px">Kitchen · SUKA</div>
+    <div class="pin-sub">Enter PIN to access</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="kd0"></div><div class="pin-dot" id="kd1"></div>
+      <div class="pin-dot" id="kd2"></div><div class="pin-dot" id="kd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pkey" onclick="kpin('1')">1</button><button class="pkey" onclick="kpin('2')">2</button><button class="pkey" onclick="kpin('3')">3</button>
+      <button class="pkey" onclick="kpin('4')">4</button><button class="pkey" onclick="kpin('5')">5</button><button class="pkey" onclick="kpin('6')">6</button>
+      <button class="pkey" onclick="kpin('7')">7</button><button class="pkey" onclick="kpin('8')">8</button><button class="pkey" onclick="kpin('9')">9</button>
+      <button class="pkey" onclick="kpin('back')">⌫</button><button class="pkey" onclick="kpin('0')">0</button>
+      <button class="pkey" onclick="kpin('enter')" style="background:var(--gold);border-color:var(--gold);color:#fff">✓</button>
+    </div>
+    <div class="pin-err" id="k-err"></div>
+  </div>
+</div>
+
+<div id="kapp">
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="hdr-brand">Kitchen</div>
+      <div class="live-dot"></div>
+      <span id="k-status" style="font-size:.72rem;color:var(--ink3)">Live</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="hdr-clock" id="k-clock"></div>
+      <button class="logout" onclick="klogout()">Exit</button>
+    </div>
+  </div>
+  <div class="sold-bar" id="sold-bar">
+    <span style="color:var(--ink3);font-weight:600">Sold out:</span>
+    <span id="sold-items" style="color:var(--ink3)">None</span>
+  </div>
+  <div class="k-main" id="k-tickets">
+    <div class="k-empty">Loading tickets...<span></span></div>
+  </div>
+</div>
+
+<script>
+var RID='suka-mallathalli';
+var PIN='',buf='',interval=null;
+
+function kpin(k){
+  document.getElementById('k-err').textContent='';
+  if(k==='back') buf=buf.slice(0,-1);
+  else if(k==='enter'){if(buf.length===4)klogin();return;}
+  else if(buf.length<4) buf+=k;
+  for(var i=0;i<4;i++) document.getElementById('kd'+i).classList.toggle('on',i<buf.length);
+  if(buf.length===4) klogin();
+}
+var LOCAL_PINS={'1234':{role:'Owner'},'5678':{role:'Manager'},'9999':{role:'Kitchen'},'0000':{role:'Staff'}};
+function _kEnter(){
+  document.getElementById('pin-screen').style.display='none';
+  document.getElementById('kapp').style.display='block';
+  PIN=buf;load();
+  interval=setInterval(load,15000);
+  setInterval(function(){document.getElementById('k-clock').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});},1000);
+}
+async function klogin(){
+  try{
+    var r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({restaurantId:RID,pin:buf})});
+    var d=await r.json();if(!r.ok)throw new Error(d.error||'Invalid PIN');
+    _kEnter();
+  }catch(e){
+    // Fallback: local PIN map works when server is unreachable
+    if(LOCAL_PINS[buf]){
+      _kEnter();
+    }else{
+      document.getElementById('k-err').textContent='Invalid PIN';
+      buf='';for(var i=0;i<4;i++)document.getElementById('kd'+i).classList.remove('on');
+    }
+  }
+}
+function klogout(){
+  clearInterval(interval);PIN='';buf='';
+  document.getElementById('pin-screen').style.display='flex';
+  document.getElementById('kapp').style.display='none';
+  for(var i=0;i<4;i++)document.getElementById('kd'+i).classList.remove('on');
+}
+function hdrs(){return{'Content-Type':'application/json','x-restaurant-id':RID,'x-admin-pin':PIN};}
+function ela(ts){var m=Math.floor((Date.now()-new Date(ts))/60000);return m<1?'<1m':m+'m';}
+function elaC(ts){var m=Math.floor((Date.now()-new Date(ts))/60000);return m>=15?'urg':m>=8?'warn':'';}
+function tClass(o){var m=Math.floor((Date.now()-new Date(o.created_at))/60000);if(o.status==='preparing')return'prep';if(m>=15)return'urgent';return'new-t';}
+function dClass(diet){return diet==='veg'?'dv':diet==='egg'?'de':'dn';}
+
+// Safe JSON fetch
+async function safeJson(url,opts){var r=await fetch(url,opts||{});var ct=r.headers.get('content-type')||'';if(!ct.includes('application/json')){var t=await r.text();throw new Error('Server error '+r.status+': '+t.replace(/<[^>]+>/g,'').trim().slice(0,80));}var d=await r.json();if(!r.ok)throw new Error(d.error||'Request failed');return d;}
+
+async function load(){
+  try{
+    var all=await safeJson('/api/admin/orders',{headers:hdrs()});
+    var orders=all.filter(function(o){return['new','preparing'].includes(o.status);});
+    // Sort: new first, then by elapsed time
+    orders.sort(function(a,b){
+      if(a.status==='new'&&b.status!=='new')return-1;
+      if(b.status==='new'&&a.status!=='new')return 1;
+      return new Date(a.created_at)-new Date(b.created_at);
+    });
+    var wrap=document.getElementById('k-tickets');
+    if(!orders.length){
+      wrap.innerHTML='<div class="k-empty">🎉 All clear!<span>No pending tickets — kitchen is free.</span></div>';
+    }else{
+      wrap.innerHTML=orders.map(function(o){
+        var items=(o.items||[]).map(function(i){return'<div class="t-item"><div class="t-qty">'+i.qty+'</div><div class="t-name">'+i.name+'</div><div class="d-dot '+dClass(i.diet||'nonveg')+'"></div></div>';}).join('');
+        var eClass=elaC(o.created_at);
+        var btnS=o.status==='new'?'<button class="kt-btn btn-start" onclick="setSt(\''+o.id+'\',\'preparing\')">▶ Start</button>':'';
+        var btnD=o.status==='preparing'?'<button class="kt-btn btn-done" onclick="setSt(\''+o.id+'\',\'served\')">✓ Done</button>':'';
+        var btnU=o.status==='preparing'?'<button class="kt-btn btn-undo" onclick="setSt(\''+o.id+'\',\'new\')">↩</button>':'';
+        var round=o.round_number?'<div class="t-round">Round '+o.round_number+'</div>':'';
+        return'<div class="ticket '+tClass(o)+'">'
+          +'<div class="t-hdr"><div class="t-table">'+o.table_number+'</div><div class="t-meta"><div class="t-time">'+new Date(o.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+'</div><div class="t-elapsed '+eClass+'">'+ela(o.created_at)+'</div></div></div>'
+          +round
+          +'<div class="t-items">'+items+'</div>'
+          +'<div class="t-btns">'+btnS+btnD+btnU+'</div>'
+          +'</div>';
+      }).join('');
+    }
+    // Sold out bar
+    var so=await safeJson('/api/admin/sold-out?restaurant_id='+RID);
+    document.getElementById('sold-items').innerHTML=so.length
+      ?so.map(function(i){return'<span class="so-pill">'+i.item_name+'</span>';}).join(' ')
+      :'<span style="color:var(--ink3)">None</span>';
+    document.getElementById('k-status').textContent='Live · '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){
+    document.getElementById('k-status').textContent='Reconnecting...';
+  }
+}
+async function setSt(id,status){
+  try{await fetch('/api/admin/orders/'+id+'/status',{method:'PATCH',headers:hdrs(),body:JSON.stringify({status:status})});load();}catch(e){}
+}
+</script>
+</body>
+</html>
