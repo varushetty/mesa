@@ -1,0 +1,3133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SUKA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+:root{
+  --bg:#FAF7F2;--bg2:#F2EDE4;--bg3:#E8E0D3;--cream:#FEFCF8;
+  --ink:#0C0B09;--ink2:#4A4540;--ink3:#9A9490;
+  --dark:#141210;
+  --gold:#C9943A;--gold2:rgba(201,148,58,.15);--gold3:rgba(201,148,58,.08);--gold-glow:rgba(201,148,58,.35);
+  --green:#2D7A3A;--green2:rgba(45,122,58,.15);--green3:rgba(45,122,58,.08);
+  --red:#D63B3B;--egg:#C98A1A;
+  --gz1:#FF6B6B;--gz2:#FF3CAC;--gz3:#C77DFF;
+  --accent:#2D7A3A;--as:rgba(45,122,58,.12);--ad:rgba(45,122,58,.28);
+  --black:#0C0B09;--W:#FEFCF8;--off:#F2EDE4;
+  --bdr:#E8E0D3;--bdr-d:rgba(255,255,255,.08);
+  --r:14px;--rl:20px;--rpill:50px;
+  --sh-sm:0 1px 3px rgba(0,0,0,.08);--sh-md:0 4px 20px rgba(0,0,0,.1);--sh-lg:0 8px 40px rgba(0,0,0,.15);
+  --sh-glow:0 0 0 3px rgba(201,148,58,.2);
+  --surf:#FEFCF8;--surf2:#F2EDE4;--ink-w:#FEFCF8;
+  --i2:#4A4540;--i3:#9A9490;
+  --i2-d:rgba(254,252,248,.5);--i3-d:rgba(254,252,248,.3);
+  --accent-l:rgba(45,122,58,.12);--accent-glow:rgba(45,122,58,.3);
+  --gold-l:rgba(201,148,58,.15);
+  --blue:#1D4ED8;--blue-l:#EFF6FF;--pink:#BE123C;--pink-l:#FFF1F2;
+  --veg:#22A15A;--nv:#D63B3B;
+  --bg-dark:#0D0D0D;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
+.screen{display:none;min-height:100dvh;flex-direction:column}.screen.show{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.au{animation:fadeUp .3s cubic-bezier(.16,1,.3,1) both}
+
+/* WELCOME */
+#s0{background:var(--dark);align-items:center;justify-content:center;text-align:center;padding:52px 24px;position:relative;overflow:hidden}
+#s0::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(201,148,58,.18),transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(45,122,58,.08),transparent 50%);pointer-events:none}
+#s0::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(255,255,255,.012) 60px,rgba(255,255,255,.012) 61px);pointer-events:none}
+.logo-ring{width:72px;height:72px;border-radius:50%;border:1px solid rgba(201,148,58,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;position:relative;z-index:1}
+.logo-ring::before{content:'';position:absolute;inset:5px;border-radius:50%;border:1px solid rgba(201,148,58,.2)}
+.logo-m{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--gold);font-style:italic;line-height:1}
+.wlogo{display:none}
+.wtable{font-size:.6rem;letter-spacing:3.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:24px;position:relative;z-index:1}
+.wheading{font-family:'Playfair Display',serif;font-size:1.9rem;color:#FEFCF8;line-height:1.2;margin-bottom:8px;position:relative;z-index:1}
+.wsub{font-size:.82rem;color:rgba(255,255,255,.38);line-height:1.7;margin-bottom:36px;position:relative;z-index:1;max-width:280px}
+/* WELCOME BUTTONS — luxury style */
+.pop-btn{width:100%;max-width:320px;display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px 18px;cursor:pointer;color:#FEFCF8;transition:all .2s;margin-bottom:10px;position:relative;z-index:1;backdrop-filter:blur(10px);text-align:left}
+.pop-btn.primary-btn{background:linear-gradient(135deg,rgba(201,148,58,.25),rgba(201,148,58,.1));border-color:rgba(201,148,58,.5)}
+.pop-btn:active{transform:scale(.97)}
+.pop-btn-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;background:rgba(201,148,58,.15)}
+.pop-btn-text{text-align:left;flex:1}
+.pop-btn-title{font-size:.9rem;font-weight:500;letter-spacing:.1px;margin-bottom:2px;color:#FEFCF8}
+.pop-btn-sub{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.4}
+.w-or{font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.25);margin:4px 0 6px;position:relative;z-index:1}
+
+/* PLAN PICKER */
+#splan{background:var(--bg);align-items:stretch}
+.plan-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 20px;gap:10px;max-width:400px;margin:0 auto;width:100%}
+.plan-heading{font-family:'Playfair Display',serif;font-size:1.65rem;color:var(--ink);line-height:1.2;margin-bottom:4px}
+.plan-sub{font-size:.82rem;color:var(--ink2);margin-bottom:16px;line-height:1.5}
+.plan-choice-btn{display:flex;align-items:center;gap:14px;width:100%;padding:15px 18px;background:var(--cream);border:1.5px solid var(--bg3);border-radius:var(--r);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .18s;text-align:left}
+.plan-choice-btn:active{transform:scale(.98);background:var(--bg2)}
+.plan-choice-btn .pce{font-size:1.5rem;flex-shrink:0}
+.plan-choice-btn .pct{font-size:.88rem;font-weight:500;color:var(--ink);margin-bottom:2px}
+.plan-choice-btn .pcs{font-size:.7rem;color:var(--ink3)}
+.plan-back{background:none;border:none;color:var(--ink3);font-size:.75rem;margin-top:4px;cursor:pointer;font-family:inherit;padding:8px}
+
+/* HEADER */
+.hdr{background:var(--cream);border-bottom:1px solid var(--bg3);flex-shrink:0;position:sticky;top:0;z-index:10}
+.hdr-top{display:flex;align-items:center;gap:10px;padding:13px 16px 9px}
+.back-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--bg3);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--ink2);cursor:pointer;flex-shrink:0;transition:all .15s}
+.back-btn:active{background:var(--bg2)}
+.hdr-brand{font-family:'Playfair Display',serif;font-size:1.05rem;flex:1;text-align:center;color:var(--ink);font-style:italic}
+.pref-btn{background:transparent;border:1px solid var(--bg3);border-radius:var(--rpill);padding:4px 10px;font-size:.65rem;color:var(--ink3);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.pref-btn:active{background:var(--bg2)}
+.waiter-btn{display:flex;align-items:center;gap:5px;font-size:.69rem;font-weight:500;color:var(--ink2);background:var(--bg2);border:1.5px solid var(--bg3);padding:5px 10px;border-radius:20px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.cart-btn-hdr{position:relative;width:34px;height:34px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer;flex-shrink:0;color:#fff;border:none;font-family:inherit}
+
+/* STEPPER */
+.stepper{display:flex;align-items:center;padding:8px 14px 11px;overflow-x:auto;scrollbar-width:none}
+.stepper::-webkit-scrollbar{display:none}
+.stp{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;position:relative;min-width:36px}
+.stp:not(:last-child)::after{content:'';position:absolute;top:9px;left:calc(50% + 11px);right:calc(-50% + 11px);height:1px;background:var(--bg3);transition:background .3s}
+.stp.done::after,.stp.act::after{background:var(--gold)}
+.stp-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--bg3);background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:.55rem;transition:all .25s;color:var(--ink3)}
+.stp.done .stp-dot{background:var(--gold);border-color:var(--gold);color:#fff}
+.stp.act .stp-dot{border-color:var(--gold);color:var(--gold);box-shadow:0 0 0 3px rgba(201,148,58,.15)}
+.stp-lbl{font-size:.5rem;color:var(--ink3);font-weight:500;text-align:center;transition:color .25s;letter-spacing:.3px}
+.stp.act .stp-lbl{color:var(--gold)}
+
+/* QUESTION SCREENS */
+.q-top{font-family:'Playfair Display',serif;font-size:1.55rem;color:var(--ink);line-height:1.2;padding:20px 18px 4px}
+.q-top em{color:var(--gold);font-style:italic}
+.q-hint{font-size:.8rem;color:var(--ink2);padding:0 18px 14px;line-height:1.5}
+.tile-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 14px 14px;flex:1}
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 8px;background:var(--cream);border:1.5px solid var(--bg3);border-radius:var(--r);cursor:pointer;text-align:center;transition:all .18s;min-height:90px;position:relative}
+.tile:active{transform:scale(.96)}
+.tile.on{border-color:var(--gold);background:linear-gradient(135deg,rgba(201,148,58,.1),rgba(201,148,58,.04))}
+.tile-ck{display:none;position:absolute;top:7px;right:9px;width:16px;height:16px;border-radius:50%;background:var(--gold);align-items:center;justify-content:center;font-size:.55rem;color:#fff;font-weight:700}
+.tile.on .tile-ck{display:flex}
+.tile-em{font-size:1.5rem;margin-bottom:5px}
+.tile-lbl{font-size:.82rem;font-weight:500;color:var(--ink)}
+.tile-sub{font-size:.63rem;color:var(--ink3);margin-top:2px;line-height:1.3}
+.q-cta-wrap{padding:12px 14px calc(12px + env(safe-area-inset-bottom,0));background:var(--cream);border-top:1px solid var(--bg3);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.q-count{font-size:.75rem;color:var(--ink2);flex:1}
+.q-cta{padding:11px 22px;border-radius:var(--rpill);border:none;background:var(--gold);color:#fff;font-size:.86rem;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;box-shadow:0 4px 14px var(--gold-glow)}
+.q-cta.go{opacity:1}
+.q-cta:not(.go){opacity:.4;pointer-events:none}
+.q-cta:active{transform:scale(.97)}
+
+/* CHOICES */
+.qcard-body{flex:1;overflow-y:auto;padding:24px 18px 14px}
+.qcard-em{font-size:2.2rem;margin-bottom:10px}
+.qcard-title{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--ink);line-height:1.2;margin-bottom:4px}
+.qcard-title em{color:var(--gold);font-style:italic}
+.qcard-sub{font-size:.8rem;color:var(--ink2);margin-bottom:20px;line-height:1.5}
+.choice-list{display:flex;flex-direction:column;gap:8px}
+.choice{display:flex;align-items:center;gap:13px;padding:13px 15px;background:var(--cream);border:1.5px solid var(--bg3);border-radius:var(--r);cursor:pointer;transition:all .18s}
+.choice:active{transform:scale(.98)}
+.choice.on{border-color:var(--gold);background:linear-gradient(135deg,rgba(201,148,58,.1),rgba(201,148,58,.04))}
+.choice-em{font-size:1.25rem;flex-shrink:0}
+.choice-text{flex:1}
+.choice-lbl{font-size:.86rem;font-weight:500;color:var(--ink)}
+.choice-sub{font-size:.68rem;color:var(--ink3);margin-top:1px}
+.choice-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--bg3);flex-shrink:0;transition:all .18s}
+.choice.on .choice-check{background:var(--gold);border-color:var(--gold)}
+/* legacy aliases */
+.choice-ttl{font-size:.86rem;font-weight:500;color:var(--ink)}
+.choice-chk{display:none}
+.qcard-foot{padding:12px 18px calc(12px + env(safe-area-inset-bottom,0));background:var(--cream);border-top:1px solid var(--bg3);flex-shrink:0}
+.qcard-btn{width:100%;padding:13px;border-radius:var(--rpill);border:none;background:var(--gold);color:#fff;font-size:.9rem;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:0 4px 14px var(--gold-glow);margin-bottom:8px}
+.qcard-btn:active{transform:scale(.98)}
+.qcard-skip{display:block;text-align:center;font-size:.74rem;color:var(--ink3);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px}
+
+/* CHIPS */
+.diet-chip{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--cream);border:1.5px solid var(--bg3);border-radius:var(--r);cursor:pointer;transition:all .15s;font-family:inherit}
+.diet-chip:active{transform:scale(.97)}
+.diet-chip.on{border-color:var(--gold);background:linear-gradient(135deg,rgba(201,148,58,.1),rgba(201,148,58,.04))}
+.dc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dc-text{flex:1}
+.dc-lbl{font-size:.85rem;font-weight:500;color:var(--ink);margin-bottom:1px}
+.dc-sub{font-size:.68rem;color:var(--ink3)}
+.dc-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--bg3);flex-shrink:0;transition:all .18s}
+.diet-chip.on .dc-check{background:var(--gold);border-color:var(--gold)}
+/* cuisine chips in grid */
+.cuisine-grid{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 16px}
+
+/* DRINK STYLE */
+#sdr{background:var(--bg)}
+.drink-style-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px}
+.drink-style-tile{background:var(--cream);border:1.5px solid var(--bg3);border-radius:var(--r);padding:18px 12px;text-align:center;cursor:pointer;transition:all .18s}
+.drink-style-tile:active{transform:scale(.95)}
+.drink-style-tile.on{border-color:var(--gold);background:linear-gradient(135deg,rgba(201,148,58,.1),rgba(201,148,58,.04))}
+.flavor-chip{padding:8px 14px;border-radius:var(--rpill);border:1.5px solid var(--bg3);background:transparent;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .15s;color:var(--ink2);font-family:'DM Sans',sans-serif}
+.flavor-chip.on{border-color:var(--gold);color:var(--gold);background:var(--gold2)}
+.flavor-chip:active{transform:scale(.93)}
+
+/* COURSE BODY */
+.cs-body{flex:1;overflow-y:auto;padding:12px 13px 120px;background:var(--bg)}
+.cs-intro{padding:4px 2px 12px}
+.mood-pills{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.mpill{font-size:.62rem;font-weight:600;letter-spacing:.4px;padding:3px 9px;border-radius:var(--rpill);background:var(--gold2);color:var(--gold);border:1px solid rgba(201,148,58,.25)}
+.info-pill{font-size:.62rem;font-weight:600;letter-spacing:.4px;padding:3px 9px;border-radius:var(--rpill);background:var(--bg2);color:var(--ink2);border:1px solid var(--bg3)}
+.cs-title{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--ink);line-height:1.2;margin-bottom:3px}
+.cs-title em{color:var(--gold);font-style:italic}
+.cs-sub{font-size:.78rem;color:var(--ink2);margin-bottom:4px;line-height:1.5}
+.drink-hint{background:rgba(201,148,58,.07);border-left:2px solid var(--gold);border-radius:0 10px 10px 0;padding:9px 12px;margin:8px 13px 6px;font-size:.76rem;color:var(--gold);line-height:1.5;font-weight:500}
+
+/* REC CARD */
+.rc{display:flex;align-items:flex-start;gap:11px;padding:13px;background:var(--cream);border:1px solid var(--bg3);border-radius:var(--r);margin-bottom:8px;transition:border-color .15s}
+.rc.toprec{border-color:var(--gold);background:linear-gradient(135deg,rgba(201,148,58,.07),var(--cream))}
+.rc.picked{border-color:var(--green);background:rgba(45,122,58,.04)}
+.rc-l{flex:1;min-width:0}
+.rc-tags{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px}
+.badge{display:inline-block;font-size:.57rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2px 7px;border-radius:var(--rpill)}
+.b-top{background:var(--gold);color:#fff}
+.b-share{background:var(--gold2);color:var(--gold);border:1px solid rgba(201,148,58,.3)}
+.b-trend{background:var(--dark);color:#fff}
+.dsq{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.dsq.v{background:var(--veg)}.dsq.n{background:var(--nv)}.dsq.e{background:var(--egg)}
+.rc-name{font-size:.9rem;font-weight:500;color:var(--ink);margin-bottom:2px;line-height:1.3}
+.rc-desc{font-size:.7rem;color:var(--ink2);line-height:1.4;margin-bottom:3px}
+.rc-why{font-size:.68rem;color:var(--gold);font-weight:500;margin-bottom:3px}
+.rc-price{font-size:.88rem;font-weight:600;color:var(--ink)}
+.rc-r{display:flex;flex-direction:column;align-items:center;gap:7px;flex-shrink:0}
+.rc-img{width:68px;height:60px;border-radius:10px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:1.8rem;overflow:hidden}
+.rc-img img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.rc-add{width:34px;height:34px;border-radius:50%;background:var(--gold);border:none;color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px var(--gold-glow);transition:all .15s;font-family:inherit}
+.rc-add:active{transform:scale(.88)}
+.rc-add.done{background:var(--green);font-size:.85rem}
+.see-all{width:100%;padding:10px;border-radius:var(--r);border:1px dashed var(--bg3);background:transparent;font-size:.75rem;color:var(--ink2);cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:8px;transition:all .15s}
+.see-all:active{background:var(--bg2)}
+.soft-notice{font-size:.7rem;color:var(--ink3);text-align:center;padding:8px 12px;background:var(--bg2);border-radius:8px;margin-top:4px}
+.rev-empty{text-align:center;padding:28px 16px;color:var(--ink3);font-size:.83rem;line-height:1.6}
+
+/* DIET BAR */
+.diet-bar{display:flex;gap:6px;padding:7px 13px;border-bottom:1px solid var(--bg3);background:var(--cream);overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.diet-bar::-webkit-scrollbar{display:none}
+.db-chip{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--rpill);border:1.5px solid var(--bg3);background:var(--cream);font-size:.72rem;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .15s;color:var(--ink2)}
+.db-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.db-chip.vv{border-color:var(--veg);color:var(--veg);background:rgba(34,161,90,.07)}
+.db-chip.nn{border-color:var(--nv);color:var(--nv);background:rgba(214,59,59,.07)}
+.db-chip.ee{border-color:var(--egg);color:var(--egg);background:rgba(201,138,26,.07)}
+
+/* DRINK TABS */
+.dtabs{display:flex;gap:0;border-bottom:2px solid var(--bg3);overflow-x:auto;scrollbar-width:none;background:var(--cream);flex-shrink:0}
+.dtabs::-webkit-scrollbar{display:none}
+.dtab{padding:10px 13px;font-size:.75rem;font-weight:500;color:var(--ink3);cursor:pointer;white-space:nowrap;border-bottom:2.5px solid transparent;margin-bottom:-2px;transition:all .15s;flex-shrink:0}
+.dtab.on{color:var(--gold);border-bottom-color:var(--gold);font-weight:600}
+
+/* NAV BAR */
+.cnav{background:var(--cream);border-top:1px solid var(--bg3);padding:10px 13px calc(10px + env(safe-area-inset-bottom,0));display:flex;gap:9px;align-items:center;flex-shrink:0}
+.skip-lnk{font-size:.75rem;color:var(--ink3);cursor:pointer;text-decoration:underline;text-underline-offset:3px;flex-shrink:0;background:none;border:none;font-family:'DM Sans',sans-serif}
+.next-btn{flex:1;padding:12px 16px;border-radius:var(--rpill);border:none;background:var(--gold);color:#fff;font-size:.86rem;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;text-align:center;box-shadow:0 4px 14px var(--gold-glow)}
+.next-btn:active{transform:scale(.97)}
+.cart-icon{position:relative;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;width:38px;height:38px;background:var(--dark);border-radius:50%;color:#fff;flex-shrink:0}
+.cart-n{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;background:var(--nv);color:#fff;border-radius:20px;font-size:.58rem;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 4px;border:1.5px solid var(--cream)}
+.cart-n.show{display:flex}
+
+/* POPULAR CARD */
+.pop-section-title{font-size:.6rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.pop-section-title::after{content:'';flex:1;height:1px;background:var(--bg3)}
+.pop-card{display:flex;align-items:center;gap:11px;padding:12px 13px;background:var(--cream);border:1px solid var(--bg3);border-radius:var(--r);margin-bottom:8px}
+.pop-card-badge{display:inline-block;font-size:.55rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:var(--rpill);background:var(--dark);color:#fff;margin-bottom:3px}
+.pop-card-info{flex:1;min-width:0}
+.pop-card-name{font-weight:500;font-size:.88rem;color:var(--ink);margin-bottom:2px;line-height:1.3}
+.pop-card-desc{font-size:.7rem;color:var(--ink2);line-height:1.3}
+.pop-card-price{font-size:.84rem;font-weight:600;color:var(--ink);margin-top:3px}
+.pop-add{width:34px;height:34px;border-radius:50%;background:var(--gold);border:none;color:#fff;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;box-shadow:0 2px 8px var(--gold-glow)}
+.pop-add:active{transform:scale(.84)}
+.pop-add.done{background:var(--green);font-size:.76rem}
+
+/* REVIEW */
+.rev-body{flex:1;overflow-y:auto;padding:14px 15px 8px;background:var(--bg)}
+.rev-sec{font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bg3)}
+.rev-sec-title{font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bg3)}
+.rev-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bg3)}
+.rev-row:last-child{border-bottom:none}
+.rev-em{font-size:1.25rem;flex-shrink:0}
+.rev-name{flex:1;font-size:.85rem;font-weight:500;color:var(--ink);line-height:1.3}
+.rev-price{font-size:.84rem;font-weight:600;color:var(--ink);white-space:nowrap}
+.qty{display:flex;align-items:center;gap:7px}
+.qb{width:26px;height:26px;border-radius:50%;border:1px solid var(--bg3);background:var(--cream);font-size:.85rem;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit}
+.qb:active{background:var(--bg2)}
+.qn{font-size:.88rem;font-weight:600;color:var(--ink);min-width:16px;text-align:center}
+.rev-foot{background:var(--cream);border-top:1px solid var(--bg3);padding:14px 15px calc(14px + env(safe-area-inset-bottom,0));flex-shrink:0}
+.rev-total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--bg3)}
+.rev-total-lbl{font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--ink3)}
+.rev-total-val{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--ink)}
+.rev-note{font-size:.68rem;color:var(--ink3);margin-bottom:10px;line-height:1.5}
+.rev-more{width:100%;padding:11px;border-radius:var(--rpill);border:1px solid var(--bg3);background:transparent;color:var(--ink2);font-size:.84rem;font-family:'DM Sans',sans-serif;cursor:pointer;margin-bottom:8px;transition:all .15s}
+.rev-more:active{background:var(--bg2)}
+.rev-confirm,.order-btn,.confirm-btn{width:100%;padding:14px;border-radius:var(--rpill);border:none;background:var(--gold);color:#fff;font-size:.9rem;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:0 4px 16px var(--gold-glow);transition:all .15s;letter-spacing:.2px}
+.rev-confirm:active,.order-btn:active,.confirm-btn:active{transform:scale(.98)}
+
+/* SUCCESS */
+.success{display:none;position:fixed;inset:0;z-index:400;background:var(--cream);flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:36px 24px}
+.success.show{display:flex}
+.suc-icon{font-size:2.4rem;margin-bottom:4px}
+.suc-h{font-family:'Playfair Display',serif;font-size:1.55rem;color:var(--ink);line-height:1.2;margin-bottom:4px}
+.suc-p{font-size:.8rem;color:var(--ink2);line-height:1.6;margin-bottom:14px;max-width:280px}
+.suc-btn{display:block;width:100%;max-width:300px;margin:0 auto 7px;padding:13px 18px;border-radius:var(--rpill);border:1.5px solid var(--bg3);background:var(--cream);color:var(--ink);font-size:.86rem;font-weight:500;cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;transition:all .15s}
+.suc-btn:active{transform:scale(.97)}
+.suc-btn.drinks-round{background:var(--dark);border-color:var(--dark);color:#fff}
+.suc-btn.dessert-upsell{background:#B8968A;border-color:#B8968A;color:#fff;box-shadow:0 3px 10px rgba(184,150,138,.3)}
+.suc-btn.continue-order{background:var(--gold);border-color:var(--gold);color:#fff;box-shadow:0 4px 14px var(--gold-glow)}
+.suc-btn.review-order{background:var(--dark);border-color:var(--dark);color:#fff}
+.suc-btn.ghost{background:transparent;border-color:transparent;color:var(--ink3);font-size:.82rem;padding:8px}
+.suc-link{color:var(--ink3);font-size:.75rem;text-align:center;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:6px;display:block;max-width:300px;margin:0 auto}
+
+/* DESSERTS — GEN Z DARK */
+/* DESSERTS — Style A: Warm Slate + Dusty Rose */
+--ds-bg:#1A1714;--ds-bg2:#1F1C19;--ds-bg3:#211E1B;--ds-bg4:#241F1B;
+--ds-rose:#B8968A;--ds-rose2:rgba(184,150,138,.25);--ds-rose3:rgba(184,150,138,.08);
+--ds-ink:#EDE8E0;--ds-ink2:rgba(237,232,224,.45);--ds-ink3:rgba(237,232,224,.28);
+#s4{background:#1A1714}
+#s4 .hdr{background:#1F1C19;border-bottom:1px solid rgba(255,255,255,.05)}
+#s4 .hdr-brand{color:#EDE8E0}
+#s4 .back-btn{background:#211E1B;border-color:rgba(255,255,255,.08);color:rgba(237,232,224,.5)}
+#s4 .cs-body{background:#1A1714}
+#s4 .cs-title{color:#EDE8E0}
+#s4 .cs-sub{color:rgba(237,232,224,.42)}
+#s4 .cs-title em{color:#C9A89A;font-style:italic}
+#s4 .mpill{background:rgba(184,150,138,.12);color:#C9A89A;border-color:rgba(184,150,138,.22)}
+#s4 .info-pill{background:rgba(255,255,255,.06);color:rgba(237,232,224,.45);border-color:rgba(255,255,255,.08)}
+#s4 .rc{background:#211E1B;border-color:rgba(255,255,255,.06)}
+#s4 .rc.toprec{border-color:rgba(184,150,138,.32);background:#241F1B}
+#s4 .rc.picked{border-color:#2D7A3A;background:rgba(45,122,58,.08)}
+#s4 .rc-name{color:#EDE8E0}
+#s4 .rc-desc{color:rgba(237,232,224,.38)}
+#s4 .rc-price{color:#C9A89A}
+#s4 .rc-why{color:#B8968A}
+#s4 .rc-add{background:#B8968A;box-shadow:0 2px 8px rgba(184,150,138,.3)}
+#s4 .rc-add.done{background:#2D7A3A}
+#s4 .rc-img{background:#2A2522}
+#s4 .see-all{border-color:rgba(255,255,255,.08);color:rgba(237,232,224,.35);background:transparent}
+#s4 .diet-bar{background:#1F1C19;border-bottom-color:rgba(255,255,255,.05)}
+#s4 .db-chip{background:#211E1B;border-color:rgba(255,255,255,.07);color:rgba(237,232,224,.45)}
+#s4 .cnav{background:#1F1C19;border-top-color:rgba(255,255,255,.05)}
+#s4 .skip-lnk{color:rgba(237,232,224,.25)}
+#s4 .next-btn{background:#B8968A;box-shadow:0 3px 12px rgba(184,150,138,.28)}
+#s4 .cart-btn-hdr{background:#2A2320;border:1px solid rgba(184,150,138,.22)}
+#s4 .pref-btn{border-color:rgba(255,255,255,.08);color:rgba(237,232,224,.35)}
+#s4 .soft-notice{background:#211E1B;color:rgba(237,232,224,.38)}
+#s4 .badge.b-top{background:#B8968A}
+.dessert-gz-tag{font-size:.68rem;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;padding:3px 10px;border-radius:var(--rpill);background:rgba(184,150,138,.14);color:#C9A89A;border:1px solid rgba(184,150,138,.25);display:inline-block;margin-bottom:10px}
+
+/* THANK YOU */
+.thankyou-screen{display:none;position:fixed;inset:0;z-index:400;background:var(--dark);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px}
+.thankyou-screen.show{display:flex}
+.ty-icon{font-size:3rem;margin-bottom:4px}
+.ty-h{font-family:'Playfair Display',serif;font-size:1.9rem;color:#FEFCF8;margin-bottom:8px;line-height:1.2}
+.ty-sub{font-size:.83rem;color:rgba(255,255,255,.38);line-height:1.6;margin-bottom:28px;max-width:280px}
+.ty-bill-btn{padding:14px 36px;border-radius:var(--rpill);border:none;background:var(--gold);color:#fff;font-size:.92rem;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:0 4px 20px var(--gold-glow);letter-spacing:.2px;margin-bottom:12px}
+.ty-feedback-link{color:rgba(255,255,255,.3);font-size:.75rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px;background:none;border:none;font-family:'DM Sans',sans-serif}
+
+/* FEEDBACK */
+.fb-screen{display:none;position:fixed;inset:0;z-index:500;background:var(--cream);flex-direction:column;overflow-y:auto}
+.fb-screen.show{display:flex}
+.fb-body{padding:28px 20px;flex:1}
+.fb-foot{position:sticky;bottom:0;padding:13px 20px calc(13px + env(safe-area-inset-bottom,0));background:var(--cream);border-top:1px solid var(--bg3)}
+.star{font-size:1.8rem;cursor:pointer;transition:transform .15s;display:inline-block;color:var(--bg3)}
+.star:active{transform:scale(.85)}
+.star.on{color:var(--gold)}
+.star-row{display:flex;gap:6px;margin-bottom:20px}
+.thumb{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bg3);background:var(--cream);font-size:1.1rem;cursor:pointer;transition:all .15s}
+.thumb.on.up{background:#F0FDF4;border-color:var(--veg)}
+.thumb.on.dn{background:#FEF2F2;border-color:var(--nv)}
+.dish-fb{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bg3)}
+.dish-fb-name{flex:1;font-size:.85rem;color:var(--ink)}
+#recYes.on,#recNo.on{border-color:var(--gold);background:var(--gold2);color:var(--gold)}
+.submit-btn{width:100%;padding:14px;border-radius:var(--rpill);border:none;background:var(--dark);color:#fff;font-size:.92rem;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer}
+.fb-status{min-height:18px;font-size:.78rem;margin-top:8px}
+
+/* TOAST */
+#toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0));left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:#FEFCF8;padding:9px 18px;border-radius:var(--rpill);font-size:.79rem;font-weight:500;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;pointer-events:none;box-shadow:var(--sh-lg)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.err{background:#DC2626}
+
+/* SPQ SUBTABS */
+.spq-tabs{display:flex;gap:0;border-bottom:2px solid var(--bg3);background:var(--cream);flex-shrink:0}
+.spq-tab{flex:1;padding:13px 8px;text-align:center;font-size:.75rem;font-weight:500;color:var(--ink3);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-2px;transition:all .15s}
+.spq-tab.on{color:var(--gold);border-bottom-color:var(--gold);font-weight:600}
+
+/* SCREEN BACKGROUNDS */
+html,body{background:var(--bg);color:var(--ink)}
+#s0,#tyScreen{background:var(--dark)}
+.screen{background:var(--bg)}
+#splan{background:var(--bg)}
+#sdr{background:var(--bg)}
+</style>
+</head>
+<body>
+
+<!-- ══ S0: WELCOME ══ -->
+<div class="screen show" id="s0">
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:370px;margin:0 auto">
+    <div class="logo-ring au"><span class="logo-m">m</span></div>
+    <div class="wtable au" style="animation-delay:.06s" id="welcome-table-num">Table AA-14</div>
+    <div class="wheading au" style="animation-delay:.1s">Welcome to SUKA.<br>What's the plan?</div>
+    <div class="wsub au" style="animation-delay:.14s">Your table. Your experience. Let's find your perfect order.</div>
+    <button class="pop-btn primary-btn au" style="animation-delay:.16s" onclick="goPopularQuick()">
+      <div class="pop-btn-icon">🔥</div>
+      <div class="pop-btn-text">
+        <div class="pop-btn-title">What's popular tonight?</div>
+        <div class="pop-btn-sub">Most ordered dishes — add and order in seconds</div>
+      </div>
+      <span style="color:rgba(250,250,248,.5);font-size:.9rem">→</span>
+    </button>
+    <div style="width:100%;max-width:320px;text-align:center;margin:10px 0 6px">
+      <div style="font-size:.7rem;color:rgba(250,250,248,.3);letter-spacing:.8px;text-transform:uppercase">or</div>
+    </div>
+    <button class="pop-btn au" style="animation-delay:.20s;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.18)" onclick="startBuildOrder()">
+      <div class="pop-btn-icon" style="background:rgba(255,255,255,.08)">✦</div>
+      <div class="pop-btn-text">
+        <div class="pop-btn-title">Build my perfect order</div>
+        <div class="pop-btn-sub">Tell us your taste — we'll recommend the right dishes</div>
+      </div>
+      <span style="color:rgba(250,250,248,.5);font-size:.9rem">→</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══ PLAN PICKER ══ -->
+<div class="screen" id="splan">
+  <div style="padding:32px 20px;text-align:center;background:#FAFAF8;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <div style="font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--ink);margin-bottom:6px;line-height:1.2">What are you<br><em style="color:var(--accent)">in the mood for?</em></div>
+    <div style="font-size:.83rem;color:var(--i2);margin-bottom:28px">We'll ask a few quick questions to personalise your suggestions</div>
+    <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px">
+      <button class="plan-choice-btn" data-plan="both" onclick="pickPlanAndStart(this)">
+        <span style="font-size:1.4rem">🍽️</span>
+        <div style="text-align:left;flex:1"><div style="font-weight:600;color:var(--ink)">Food + Drinks</div><div style="font-size:.75rem;color:var(--i3)">Drinks first, then food recommendations</div></div>
+        <span style="color:var(--i3)">→</span>
+      </button>
+      <button class="plan-choice-btn" data-plan="drinks" onclick="pickPlanAndStart(this)">
+        <span style="font-size:1.4rem">🍺</span>
+        <div style="text-align:left;flex:1"><div style="font-weight:600;color:var(--ink)">Drinks only</div><div style="font-size:.75rem;color:var(--i3)">Craft beer, cocktails, bar bites pairing</div></div>
+        <span style="color:var(--i3)">→</span>
+      </button>
+      <button class="plan-choice-btn" data-plan="food" onclick="pickPlanAndStart(this)">
+        <span style="font-size:1.4rem">🥘</span>
+        <div style="text-align:left;flex:1"><div style="font-weight:600;color:var(--ink)">Just food</div><div style="font-size:.75rem;color:var(--i3)">Starters, mains, desserts</div></div>
+        <span style="color:var(--i3)">→</span>
+      </button>
+    </div>
+    <button onclick="go('s0')" style="background:none;border:none;color:var(--i3);font-size:.78rem;margin-top:20px;cursor:pointer">← Back</button>
+  </div>
+</div>
+
+<!-- ══ SPQ: POPULAR QUICK VIEW ══ -->
+<div class="screen" id="spq">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="go('s0')">←</button>
+      <div class="hdr-brand">mesa</div>
+      <button class="cart-btn-hdr" onclick="goReview()">🛒<span class="cart-n" id="cn-spq"></span></button>
+    </div>
+    <div class="spq-tabs">
+      <div class="spq-tab on" id="spq-tab-popular" onclick="switchSpqTab('popular')">🔥 Popular Tonight</div>
+      <div class="spq-tab" id="spq-tab-recs" onclick="switchSpqTab('recs')">✦ Recommendations</div>
+    </div>
+  </div>
+  <div class="cs-body" id="body-spq" style="padding-bottom:110px"></div>
+  <div class="cnav">
+    <button class="next-btn" id="spq-confirm-btn" onclick="spqConfirmOrder()" style="display:none">✦ Confirm Order →</button>
+    <button class="next-btn" id="spq-next-btn" onclick="startBuildOrder()">Get Recommendations →</button>
+  </div>
+</div>
+
+<!-- ══ SPO: POPULAR DISHES ══ -->
+<div class="screen" id="spo">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="go('s0')">←</button>
+      <div class="hdr-brand">mesa</div>
+    </div>
+    <div class="stepper" id="stp-spo"></div>
+  </div>
+  <div class="cs-body" id="body-spo" style="padding-bottom:100px"></div>
+  <div class="cnav">
+    <span class="skip-lnk" onclick="goQ('s1')">Skip →</span>
+    <button class="next-btn" onclick="goQ('s1')">Continue →</button>
+  </div>
+</div>
+
+<!-- ══ S1: MOOD ══ -->
+<div class="screen" id="s1">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="go('s0')">←</button>
+      <div class="hdr-brand">mesa</div>
+    </div>
+    <div class="stepper" id="stp-s1"></div>
+  </div>
+  <div class="q-top au" id="mood-q-top">What's your<br>vibe tonight?</div>
+  <div class="q-hint au" style="animation-delay:.05s" id="mood-q-hint">Pick 1 or 2 — we build your order around it</div>
+  <div class="tile-grid au" style="animation-delay:.08s" id="tile-grid"></div>
+  <div class="q-cta-wrap">
+    <div class="q-count" id="moodCnt">Tap a tile to begin</div>
+    <button class="q-cta" id="moodBtn" onclick="goQ('sg')">Continue →</button>
+  </div>
+</div>
+
+<!-- ══ SG: GROUP SIZE ══ -->
+<div class="screen" id="sg">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="backFrom('sg')">←</button>
+      <div class="hdr-brand">mesa</div>
+    </div>
+    <div class="stepper" id="stp-sg"></div>
+  </div>
+  <div class="qcard-body">
+    <div class="qcard-em au">👥</div>
+    <div class="qcard-title au" style="animation-delay:.04s">Who are you<br><em>dining with?</em></div>
+    <div class="qcard-sub au" style="animation-delay:.08s">Helps us suggest the right portions and sharing dishes.</div>
+    <div class="choice-list au" style="animation-delay:.1s" id="groupChoices">
+      <div class="choice" data-val="solo"  onclick="pickChoice('group','solo',this)"><span class="choice-em">🙋</span><div class="choice-text"><div class="choice-lbl">Just me</div><div class="choice-sub">Solo dining</div></div><div class="choice-check"></div></div>
+      <div class="choice" data-val="couple" onclick="pickChoice('group','couple',this)"><span class="choice-em">👫</span><div class="choice-text"><div class="choice-lbl">Two of us</div><div class="choice-sub">A couple or a friend</div></div><div class="choice-check"></div></div>
+      <div class="choice on" data-val="small"  onclick="pickChoice('group','small',this)"><span class="choice-em">👨‍👩‍👧</span><div class="choice-text"><div class="choice-lbl">Small group</div><div class="choice-sub">3–4 people</div></div><div class="choice-check"></div></div>
+      <div class="choice" data-val="large"  onclick="pickChoice('group','large',this)"><span class="choice-em">🎊</span><div class="choice-text"><div class="choice-lbl">Large group</div><div class="choice-sub">5 or more</div></div><div class="choice-check"></div></div>
+    </div>
+  </div>
+  <div class="qcard-foot">
+    <button class="qcard-btn" onclick="goQ('scu')">Continue →</button>
+    <span class="qcard-skip" onclick="goQ('scu')">Skip this question</span>
+  </div>
+</div>
+
+<!-- ══ SCU: CUISINE ADVENTURE ══ -->
+<div class="screen" id="scu">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="backFrom('scu')">←</button>
+      <div class="hdr-brand">mesa</div>
+    </div>
+    <div class="stepper" id="stp-scu"></div>
+  </div>
+  <div class="qcard-body" style="padding:20px 18px 12px">
+    <div class="qcard-em au" style="font-size:2rem;margin-bottom:8px">🌏</div>
+    <div class="qcard-title au" style="animation-delay:.04s;font-size:1.45rem">Want to explore<br>something <em>different?</em></div>
+    <div class="qcard-sub au" style="animation-delay:.08s;margin-bottom:18px">Select cuisines you're in the mood for — we'll bring those forward in your recommendations.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="cuisine-chips">
+      <div class="diet-chip" data-cu="thai"         onclick="toggleCuisine(this)">
+        <div class="dc-text"><div class="dc-lbl">Thai</div><div class="dc-sub">Curry, Pad Thai</div></div><div class="dc-check"></div>
+      </div>
+      <div class="diet-chip" data-cu="chinese"      onclick="toggleCuisine(this)">
+        <div class="dc-text"><div class="dc-lbl">Chinese</div><div class="dc-sub">Dim Sum, Noodles</div></div><div class="dc-check"></div>
+      </div>
+      <div class="diet-chip" data-cu="japanese"     onclick="toggleCuisine(this)">
+        <div class="dc-text"><div class="dc-lbl">Japanese</div><div class="dc-sub">Sushi rolls</div></div><div class="dc-check"></div>
+      </div>
+      <div class="diet-chip" data-cu="italian"      onclick="toggleCuisine(this)">
+        <div class="dc-text"><div class="dc-lbl">Italian</div><div class="dc-sub">Pasta, Pizza</div></div><div class="dc-check"></div>
+      </div>
+      <div class="diet-chip" data-cu="western"      onclick="toggleCuisine(this)">
+        <div class="dc-text"><div class="dc-lbl">Western</div><div class="dc-sub">Burgers, Grilled mains</div></div><div class="dc-check"></div>
+      </div>
+      <div class="diet-chip" data-cu="mexican"      onclick="toggleCuisine(this)">
+        <div class="dc-text"><div class="dc-lbl">Mexican</div><div class="dc-sub">Tacos</div></div><div class="dc-check"></div>
+      </div>
+      <div class="diet-chip" data-cu="middleeastern" onclick="toggleCuisine(this)">
+        <div class="dc-text"><div class="dc-lbl">Middle Eastern</div><div class="dc-sub">Pita, Falafel</div></div><div class="dc-check"></div>
+      </div>
+      <div class="diet-chip" data-cu="coastal"      onclick="toggleCuisine(this)">
+        <div class="dc-text"><div class="dc-lbl">Coastal Indian</div><div class="dc-sub">Seafood, Tawa fry</div></div><div class="dc-check"></div>
+      </div>
+    </div>
+  </div>
+  <div class="qcard-foot">
+    <button class="qcard-btn" onclick="goQ('sdt')">Continue →</button>
+    <span class="qcard-skip" onclick="goQ('sdt')">Keep it classic — show everything</span>
+  </div>
+</div>
+
+<!-- ══ SDT: DIETARY ══ -->
+<div class="screen" id="sdt">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="backFrom('sdt')">←</button>
+      <div class="hdr-brand">mesa</div>
+    </div>
+    <div class="stepper" id="stp-sdt"></div>
+  </div>
+  <div class="qcard-body" style="padding:24px 18px 12px">
+    <div class="qcard-em au" style="font-size:2rem;margin-bottom:10px">🍽️</div>
+    <div class="qcard-title au" style="animation-delay:.04s;font-size:1.5rem">What do you eat?</div>
+    <div class="qcard-sub au" style="animation-delay:.08s;margin-bottom:24px">We only show dishes that match your choice.</div>
+    <div style="display:flex;flex-direction:column;gap:10px" id="diet-identity">
+      <div class="diet-chip on" data-val="all" onclick="pickIdentity(this,'all')">
+        <div class="dc-dot" style="background:linear-gradient(135deg,var(--veg) 0%,var(--egg) 50%,var(--nv) 100%);border-radius:50%"></div>
+        <div class="dc-text"><div class="dc-lbl">Everything</div><div class="dc-sub">All dishes, no restrictions</div></div>
+        <div class="dc-check"></div>
+      </div>
+      <div class="diet-chip" data-val="nonveg" onclick="pickIdentity(this,'nonveg')">
+        <div class="dc-dot" style="background:var(--nv)"></div>
+        <div class="dc-text"><div class="dc-lbl">Non-Vegetarian</div><div class="dc-sub">Meat and seafood dishes</div></div>
+        <div class="dc-check"></div>
+      </div>
+      <div class="diet-chip" data-val="veg" onclick="pickIdentity(this,'veg')">
+        <div class="dc-dot" style="background:var(--veg)"></div>
+        <div class="dc-text"><div class="dc-lbl">Vegetarian</div><div class="dc-sub">Pure veg only — no egg, no meat</div></div>
+        <div class="dc-check"></div>
+      </div>
+      <div class="diet-chip" data-val="eggok" onclick="pickIdentity(this,'eggok')">
+        <div class="dc-dot" style="background:var(--egg)"></div>
+        <div class="dc-text"><div class="dc-lbl">Vegetarian + Egg</div><div class="dc-sub">Veg dishes and egg-based dishes</div></div>
+        <div class="dc-check"></div>
+      </div>
+    </div>
+  </div>
+  <div class="qcard-foot">
+    <button class="qcard-btn" onclick="startFlow()">See My Recommendations →</button>
+    <span class="qcard-skip" onclick="startFlow()">Skip — show everything</span>
+  </div>
+</div>
+
+<!-- ══ SD: DRINKS ══ -->
+
+<div class="screen" id="sdr">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="backFrom('sdr')">←</button>
+      <div class="hdr-brand">mesa</div>
+    </div>
+    <div class="stepper" id="stp-sdr"></div>
+  </div>
+  <div class="qcard" style="padding:28px 20px 24px">
+    <div class="qcard-title" style="font-size:1.35rem">What's your <em>drink style</em>?</div>
+    <div class="qcard-sub" style="margin-bottom:22px">We'll suggest the best options for you</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px" id="drinkStyleGrid">
+      <div class="drink-style-tile" data-style="beer"     onclick="setDrinkStyle(this)">
+        <div style="font-size:2rem">🍺</div>
+        <div style="font-weight:600;font-size:.95rem;margin-top:6px">Beer lover</div>
+        <div style="font-size:.72rem;color:#888;margin-top:3px">Lager, craft, wheat</div>
+      </div>
+      <div class="drink-style-tile" data-style="cocktail" onclick="setDrinkStyle(this)">
+        <div style="font-size:2rem">🍸</div>
+        <div style="font-weight:600;font-size:.95rem;margin-top:6px">Cocktail explorer</div>
+        <div style="font-size:.72rem;color:#888;margin-top:3px">Fun, creative, colourful</div>
+      </div>
+      <div class="drink-style-tile" data-style="spirits"  onclick="setDrinkStyle(this)">
+        <div style="font-size:2rem">🥃</div>
+        <div style="font-weight:600;font-size:.95rem;margin-top:6px">Spirits & classics</div>
+        <div style="font-size:.72rem;color:#888;margin-top:3px">Whisky, gin, premium</div>
+      </div>
+      <div class="drink-style-tile" data-style="mocktail" onclick="setDrinkStyle(this)">
+        <div style="font-size:2rem">🍊</div>
+        <div style="font-weight:600;font-size:.95rem;margin-top:6px">Non-alcoholic</div>
+        <div style="font-size:.72rem;color:#888;margin-top:3px">Mocktails, juices, sodas</div>
+      </div>
+    </div>
+    <div id="drinkFlavorSection" style="display:none">
+      <div class="qcard-sub" style="margin-bottom:12px;font-size:.85rem" id="drinkFlavorLabel">What flavors call you?</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" id="drinkFlavorGrid"></div>
+    </div>
+    <div style="margin-top:20px">
+      <button class="qcard-btn" id="drinkStyleBtn" onclick="goQ('sd')" style="opacity:.4;pointer-events:none">Show my drinks →</button>
+      <div class="qcard-skip" onclick="goQ('sd')" style="margin-top:10px">Skip — show everything →</div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="sd">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="backFrom('sd')">←</button>
+      <div class="hdr-brand">mesa</div>
+    </div>
+    <div class="stepper" id="stp-sd"></div>
+  </div>
+  <div class="diet-bar" id="dbar-sd"></div>
+  <div class="cs-body" id="body-sd"></div>
+  <div class="cnav">
+    <button class="cart-btn-hdr" style="font-size:.85rem" onclick="goReview()">🛒<span class="cart-n" id="cn-sd"></span></button>
+    <span class="skip-lnk" id="skip-sd" onclick="nextFrom('sd')">Skip →</span>
+    <button class="next-btn" id="next-sd" onclick="nextFrom('sd')">Review Order →</button>
+  </div>
+</div>
+
+<!-- ══ S2: STARTERS ══ -->
+<div class="screen" id="s2">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="backFrom('s2')">←</button>
+      <div class="hdr-brand">mesa</div>
+    </div>
+    <div class="stepper" id="stp-s2"></div>
+  </div>
+  <div class="diet-bar" id="dbar-s2"></div>
+  <div class="cs-body" id="body-s2"></div>
+  <div class="cnav">
+    <button class="cart-btn-hdr" style="font-size:.85rem" onclick="goReview()">🛒<span class="cart-n" id="cn-s2"></span></button>
+    <span class="skip-lnk" onclick="nextFrom('s2')">Skip →</span>
+    <button class="next-btn" onclick="nextFrom('s2')">Review order →</button>
+  </div>
+</div>
+
+<!-- ══ S3: MAINS ══ -->
+<div class="screen" id="s3">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="backFrom('s3')">←</button>
+      <div class="hdr-brand">mesa</div>
+    </div>
+    <div class="stepper" id="stp-s3"></div>
+  </div>
+  <div class="diet-bar" id="dbar-s3"></div>
+  <div class="cs-body" id="body-s3"></div>
+  <div class="cnav">
+    <button class="cart-btn-hdr" style="font-size:.85rem" onclick="goReview()">🛒<span class="cart-n" id="cn-s3"></span></button>
+    <span class="skip-lnk" onclick="nextFrom('s3')">Skip →</span>
+    <button class="next-btn" onclick="nextFrom('s3')">Next: Desserts →</button>
+  </div>
+</div>
+
+<!-- ══ S4: DESSERTS ══ -->
+<div class="screen" id="s4">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="backFrom('s4')">←</button>
+      <div class="hdr-brand">mesa</div>
+    </div>
+    <div class="stepper" id="stp-s4"></div>
+  </div>
+  <div class="diet-bar" id="dbar-s4"></div>
+  <div class="cs-body" id="body-s4"></div>
+  <div class="cnav">
+    <button class="cart-btn-hdr" style="font-size:.85rem" onclick="goReview()">🛒<span class="cart-n" id="cn-s4"></span></button>
+    <span class="skip-lnk" id="skip-s4" onclick="nextFrom('s4')">Skip →</span>
+    <button class="next-btn" id="next-s4" onclick="nextFrom('s4')">Review Order →</button>
+  </div>
+</div>
+
+<!-- ══ S6: REVIEW ══ -->
+<div class="screen" id="s6">
+  <div class="hdr">
+    <div class="hdr-top">
+      <button class="back-btn" onclick="backFrom('s6')">←</button>
+      <div class="hdr-brand">mesa</div>
+    </div>
+    <div class="stepper" id="stp-s6"></div>
+  </div>
+  <div class="rev-body" id="rev-body"></div>
+  <div class="rev-foot">
+    <div class="rev-total-row"><span class="rev-total-lbl">TOTAL</span><span class="rev-total-val" id="rev-total">₹0</span></div>
+    <div class="rev-note">Waiter brings the bill after your meal · 3% service charge applies</div>
+    <button class="rev-more" onclick="backFrom('s6')">← Add More Dishes</button>
+    <button class="rev-confirm" onclick="placeOrder()">✦ Confirm Order</button>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success" id="success">
+  <div class="suc-icon" id="suc-icon">✅</div>
+  <div class="suc-h" id="suc-h">Order placed!</div>
+  <div class="suc-p" id="suc-p">Your order is with the kitchen. Sit back — it's on its way.</div>
+  <div id="reorder-options" style="width:100%;margin-top:4px"></div>
+  <div id="feedback-cta" style="margin-top:4px"></div>
+</div>
+
+<!-- ══ THANK YOU SCREEN ══ -->
+<div class="thankyou-screen" id="tyScreen">
+  <div class="ty-icon">🙏</div>
+  <div class="ty-h">Thank you for<br>dining with us</div>
+  <div class="ty-sub">Your bill is being prepared. It was a pleasure serving you tonight.</div>
+  <button class="ty-bill-btn" onclick="requestBill()">📋 Generate & Print Bill</button>
+  <button class="ty-feedback-link" onclick="tyFeedback()">Rate your experience →</button>
+</div>
+
+<!-- ══ FEEDBACK SCREEN ══ -->
+<div class="fb-screen" id="fbScreen">
+  <div class="fb-body">
+    <div style="font-family:'DM Serif Display',serif;font-size:1.7rem;line-height:1.2;margin-bottom:6px">How was your<br><em style="font-style:italic;color:var(--accent)">experience?</em></div>
+    <div style="font-size:.8rem;color:var(--i3);margin-bottom:24px">Takes 30 seconds. Helps us get better.</div>
+
+    <div style="font-size:.68rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--i3);margin-bottom:4px">Overall experience</div>
+    <div class="star-row" id="starRow">
+      <span class="star" data-v="1" onclick="rateStar(1)">★</span>
+      <span class="star" data-v="2" onclick="rateStar(2)">★</span>
+      <span class="star" data-v="3" onclick="rateStar(3)">★</span>
+      <span class="star" data-v="4" onclick="rateStar(4)">★</span>
+      <span class="star" data-v="5" onclick="rateStar(5)">★</span>
+    </div>
+
+    <div style="font-size:.68rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--i3);margin-bottom:8px">Rate what you ordered</div>
+    <div id="dishFbList"></div>
+
+    <div style="margin-top:18px">
+      <div style="font-size:.68rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--i3);margin-bottom:8px">Would you recommend Suka?</div>
+      <div style="display:flex;gap:10px">
+        <button id="recYes" class="thumb up" style="width:auto;border-radius:10px;padding:8px 20px;font-size:.85rem;font-weight:500" onclick="pickRecommend(true)">Yes, definitely</button>
+        <button id="recNo"  class="thumb dn" style="width:auto;border-radius:10px;padding:8px 20px;font-size:.85rem;font-weight:500" onclick="pickRecommend(false)">Not this time</button>
+      </div>
+    </div>
+
+    <div style="margin-top:18px">
+      <div style="font-size:.68rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--i3);margin-bottom:8px">Anything else? <span style="font-weight:400;text-transform:none">(optional)</span></div>
+      <textarea id="fbComment" placeholder="What did you love? What can we improve?" style="width:100%;min-height:80px;padding:10px 12px;border:1.5px solid var(--bdr);border-radius:10px;font-family:inherit;font-size:.85rem;background:var(--off);color:var(--ink);resize:none;box-sizing:border-box"></textarea>
+    </div>
+    <div class="fb-status" id="fbStatus"></div>
+  </div>
+  <div class="fb-foot">
+    <button onclick="submitFeedback()" style="width:100%;background:var(--black);color:#fff;border:none;border-radius:12px;padding:14px;font-family:inherit;font-weight:600;font-size:.96rem;cursor:pointer">Submit feedback</button>
+    <div style="text-align:center;margin-top:8px;font-size:.73rem;color:var(--i3);cursor:pointer" onclick="resetAll()">Skip — order more</div>
+  </div>
+</div>
+
+<script>
+/* ══════════ RESTAURANT CONFIG ══════════ */
+// Read table + restaurant from QR URL (?table=AA-14&restaurant=suka-mallathalli)
+var _urlP = new URLSearchParams(window.location.search);
+var _urlTable = _urlP.get('table') || 'AA-14';
+var _urlResto = _urlP.get('restaurant') || 'suka-mallathalli';
+
+const RESTAURANT = {
+  id: _urlResto,
+  name: "SUKA", tagline: "Flavours of Good Times",
+  table: _urlTable, location: "Mallathalli", accent: "#2D7A3A",
+};
+
+// ── Cloudinary image CDN ──────────────────────────────────────────
+// Replace YOUR_CLOUD_NAME with your actual Cloudinary cloud name
+// Leave as empty string if you haven't set up Cloudinary yet
+const CDN_CLOUD = '';  // e.g. 'dxyz1234'
+const CDN_BASE  = CDN_CLOUD
+  ? 'https://res.cloudinary.com/' + CDN_CLOUD + '/image/upload/f_auto,q_auto,w_400'
+  : '';
+
+// Get image URL for a menu item
+// Folder structure: mesa/{restaurant_id}/{category}/{item_id}
+// Falls back gracefully to emoji if no CDN or no photo uploaded yet
+function getImgUrl(item, category) {
+  if (!CDN_BASE) return null;                    // No CDN set up yet → use emoji
+  var cat = category || item.category || 'misc';
+  var path = 'mesa/' + RESTAURANT.id + '/' + cat + '/' + item.id;
+  return CDN_BASE + '/' + path;
+}
+
+/* ══════════ MENU DATA ══════════ */
+const MENU = {
+  food:{
+    recommended:[
+      {id:'rec1',name:'Madras Chicken Kari Kuzhambu With Idli',e:'🍲',price:496,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','hearty','aromatic','comfort'],desc:'Highly flavorful South Indian chicken curry, served with soft idli',why:'spicy,hearty',spice:2},
+    ],
+    all_day_snacks:[
+      {id:'ads1',name:'French Fries Classic',e:'🍟',price:249,diet:'veg',seafood:false,redmeat:false,tags:['light','drinky','snack','veg'],desc:'Crispy golden fries, light seasoning',why:'drinky,light',spice:0},
+      {id:'ads2',name:'Masala Papad',e:'🫓',price:149,diet:'veg',seafood:false,redmeat:false,tags:['drinky','snack','veg','light'],desc:'Crispy papad with spiced onion topping',why:'drinky,light',spice:1},
+      {id:'ads3',name:'Loaded Nachos',e:'🌮',price:349,diet:'veg',seafood:false,redmeat:false,tags:['drinky','sharing','veg'],desc:'Corn chips, salsa, sour cream, jalapeños',why:'drinky',spice:1,sharing:true},
+      {id:'ads4',name:'Bread Basket',e:'🍞',price:199,diet:'veg',seafood:false,redmeat:false,tags:['light','comfort','veg'],desc:'Assorted breads with dips',why:'light',spice:0},
+    ],
+    special_appetizers:[
+      {id:'spa1',name:'Spicy Mango Chili Wings',e:'🍗',price:496,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','tangy','celebrate','sharing'],desc:'Tangy mango chili glaze on crispy wings — great to share',why:'spicy,celebrate',spice:2,sharing:true},
+      {id:'spa2',name:'Curry Leaf Pesto Fish Tikka',e:'🐟',price:524,diet:'nonveg',seafood:true,redmeat:false,tags:['light','umami','fresh'],desc:'Nutty curry leaf pesto on tender fish tikka',why:'light',spice:1},
+      {id:'spa3',name:'Raw Mango & Peanut Salad',e:'🥗',price:392,diet:'veg',seafood:false,redmeat:false,tags:['spicy','tangy','light','fresh','veg'],desc:'A spicy, tangy salad with raw mango and crunchy peanuts',why:'spicy,light',spice:2},
+    ],
+    suka_signature:[
+      {id:'sig1',name:'Anjal Tawa Fry',e:'🐟',price:670,diet:'nonveg',seafood:true,redmeat:false,tags:['spicy','smoky','hearty'],desc:'Aromatic South Indian style tawa-fried kingfish',why:'spicy,hearty',spice:2},
+      {id:'sig2',name:'Boneless Mutton Junglee Mass',e:'🍖',price:690,diet:'nonveg',seafood:false,redmeat:true,tags:['spicy','hearty','rich'],desc:'Traditional Rajasthani style boneless mutton, bold spices',why:'spicy,hearty',spice:2},
+      {id:'sig3',name:'Crab Sukka Rasam With Idli & Raw Mango',e:'🦀',price:881,diet:'nonveg',seafood:true,redmeat:false,tags:['spicy','hearty','celebrate','umami'],desc:'Combines fresh crab sukka, tangy rasam served with idli',why:'spicy,celebrate',spice:2},
+    ],
+    soup:[
+      {id:'sou1',name:'Chicken Mosambi Coriander Soup',e:'🥣',price:361,diet:'nonveg',seafood:false,redmeat:false,tags:['light','fresh','comfort'],desc:'Refreshing tangy chicken broth with mosambi and coriander',why:'light',spice:1},
+      {id:'sou2',name:'Mosambi Coriander Vegetable Soup',e:'🥣',price:298,diet:'veg',seafood:false,redmeat:false,tags:['light','fresh','comfort','veg'],desc:'Refreshing citrus-coriander broth with seasonal vegetables',why:'light',spice:1},
+      {id:'sou3',name:'Pumpkin Soup',e:'🎃',price:298,diet:'veg',seafood:false,redmeat:false,tags:['light','comfort','veg'],desc:'Silky pumpkin broth, roasted spice swirl, cream',why:'light',spice:0},
+      {id:'sou4',name:'Cream of Broccoli',e:'🥦',price:298,diet:'veg',seafood:false,redmeat:false,tags:['light','comfort','veg'],desc:'Silky broccoli cream soup, garlic croutons',why:'light',spice:0},
+      {id:'sou5',name:'Tom Yum Prawn',e:'🍜',price:349,diet:'nonveg',seafood:true,redmeat:false,tags:['spicy','light','fresh'],desc:'Classic Thai hot & sour prawn soup, lemongrass',why:'spicy,light',spice:2},
+    ],
+    salad:[
+      {id:'sal1',name:'Raw Mango Salad',e:'🥗',price:407,diet:'veg',seafood:false,redmeat:false,tags:['light','fresh','tangy','veg'],desc:'Shredded raw mango, peanuts, herbs',why:'light',spice:1},
+      {id:'sal2',name:'Very Peri Bowl Salad',e:'🥗',price:430,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','light','fresh'],desc:'Peri peri grilled chicken on fresh greens',why:'spicy,light',spice:2},
+      {id:'sal3',name:'Greek Salad',e:'🥗',price:349,diet:'veg',seafood:false,redmeat:false,tags:['light','fresh','veg'],desc:'Cucumber, tomato, olives, feta, oregano dressing',why:'light',spice:0},
+      {id:'sal4',name:'Watermelon Feta Mint',e:'🍉',price:369,diet:'veg',seafood:false,redmeat:false,tags:['light','fresh','veg'],desc:'Chilled watermelon, crumbled feta, mint, balsamic',why:'light',spice:0},
+    ],
+    bar_bites:[
+      {id:'bar1',name:'Tempura Batter Prawn Pops',e:'🍤',price:540,diet:'nonveg',seafood:true,redmeat:false,tags:['drinky','light','crispy'],desc:'Bite-sized prawns in crispy tempura batter',why:'drinky,light',spice:1},
+      {id:'bar2',name:'Chilli Cheese Toast',e:'🧀',price:249,diet:'veg',seafood:false,redmeat:false,tags:['drinky','snack','veg'],desc:'Toasted bread, melted cheddar, green chilli',why:'drinky,veg',spice:1},
+      {id:'bar3',name:'Chicken Satay (4 pcs)',e:'🍡',price:349,diet:'nonveg',seafood:false,redmeat:false,tags:['drinky','light','sharing'],desc:'Grilled chicken skewers, peanut satay sauce',why:'drinky,light',spice:1,sharing:true},
+      {id:'bar4',name:'Masala Peanuts',e:'🥜',price:149,diet:'veg',seafood:false,redmeat:false,tags:['drinky','snack','veg','light'],desc:'Spiced roasted peanuts, perfect with drinks',why:'drinky,light',spice:1},
+    ],
+    veg_starter:[
+      {id:'vs1',name:'Babycorn Pepper Fry (South Style)',e:'🌽',price:416,diet:'veg',seafood:false,redmeat:false,tags:['spicy','crispy','veg'],desc:'Crispy babycorn tossed with black pepper, curry leaves',why:'spicy,veg',spice:2},
+      {id:'vs2',name:'Paneer Tikka',e:'🧀',price:439,diet:'veg',seafood:false,redmeat:false,tags:['spicy','veg'],desc:'Tandoor-smoked paneer, mint chutney, pickled onion',why:'spicy,veg',spice:1},
+      {id:'vs3',name:'Crispy Crumbs Onion Rings',e:'🧅',price:393,diet:'veg',seafood:false,redmeat:false,tags:['crispy','drinky','veg'],desc:'Crispy crumb-coated onion rings, sriracha dip',why:'drinky,veg',spice:1},
+      {id:'vs4',name:'Falafel With Tadka Beet Hummus',e:'🟤',price:416,diet:'veg',seafood:false,redmeat:false,tags:['light','fresh','veg'],desc:'Crispy golden falafel on smoky beetroot hummus',why:'light,veg',spice:1},
+      {id:'vs5',name:'Fiery Cheese Toasties',e:'🍞',price:320,diet:'veg',seafood:false,redmeat:false,tags:['spicy','drinky','veg'],desc:'Crispy french toasties with fiery cheese filling',why:'spicy,drinky',spice:2},
+      {id:'vs6',name:'Mushroom Chilli',e:'🍄',price:416,diet:'veg',seafood:false,redmeat:false,tags:['spicy','umami','veg'],desc:'Indo-Chinese stir-fried mushrooms, capsicum, soy',why:'spicy,veg',spice:2},
+      {id:'vs7',name:'Hariyali Paneer Tikka',e:'🟢',price:449,diet:'veg',seafood:false,redmeat:false,tags:['spicy','fresh','veg'],desc:'Green herb-marinated paneer on skewers',why:'spicy,veg',spice:1},
+      {id:'vs8',name:'Cheese Corn Balls',e:'🧀',price:399,diet:'veg',seafood:false,redmeat:false,tags:['crispy','drinky','veg'],desc:'Golden fried corn & cheese balls, sriracha dip',why:'drinky,veg',spice:1},
+    ],
+    non_veg_starter:[
+      {id:'nv1',name:'Chicken Seekh Ghee Roast',e:'🍗',price:540,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','smoky','hearty'],desc:'Tender seekh, ghee-basted, Mangalore spices',why:'spicy,hearty',spice:2},
+      {id:'nv2',name:'Country Chilli Chicken',e:'🍗',price:474,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','dry','hearty'],desc:'Rustic Kongu-style bone chilli chicken',why:'spicy,hearty',spice:2},
+      {id:'nv3',name:'Gongura Chicken Roast',e:'🍗',price:485,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','tangy','hearty'],desc:'Marinated chicken in tangy gongura sauce',why:'spicy,hearty',spice:2},
+      {id:'nv4',name:'Spicy BBQ Chicken Wings',e:'🍗',price:474,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','tangy','drinky'],desc:'Spicy and tangy BBQ glazed chicken wings',why:'spicy,drinky',spice:2},
+      {id:'nv5',name:'Chicken Lollipop (6 pcs)',e:'🍗',price:496,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','crispy','drinky'],desc:'Classic lollipops, house sauce, slaw',why:'spicy,drinky',spice:2},
+      {id:'nv6',name:'Lamb Chops (2 pcs)',e:'🍖',price:748,diet:'nonveg',seafood:false,redmeat:true,tags:['hearty','rich','celebrate'],desc:'Rosemary-smoked lamb chops, mint jus',why:'hearty,celebrate',spice:1},
+      {id:'nv7',name:'Butter Garlic Prawns',e:'🦐',price:591,diet:'nonveg',seafood:true,redmeat:false,tags:['hearty','rich'],desc:'Prawns in butter-garlic sauce, toasted bread',why:'hearty',spice:1},
+      {id:'nv8',name:'Chicken Tikka (Classic)',e:'🍗',price:449,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','hearty'],desc:'Tandoor-smoked chicken chunks, pudina chutney',why:'spicy,hearty',spice:1},
+    ],
+    taco:[
+      {id:'tac1',name:'Citrus Chili Prawn Tacos',e:'🌮',price:483,diet:'nonveg',seafood:true,redmeat:false,tags:['spicy','tangy','light'],desc:'Juicy prawns, citrus chili slaw, soft shell',why:'spicy,light',spice:2},
+      {id:'tac2',name:'Korean BBQ Chicken Taco',e:'🌮',price:449,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','tangy','drinky'],desc:'Gochujang chicken, kimchi slaw, sesame',why:'spicy,drinky',spice:2},
+      {id:'tac3',name:'Paneer & Avocado Taco',e:'🌮',price:399,diet:'veg',seafood:false,redmeat:false,tags:['light','fresh','veg'],desc:'Spiced paneer, smashed avocado, pickled jalapeño',why:'light,veg',spice:1},
+    ],
+    dim_sum:[
+      {id:'ds1',name:'Chicken Chettinadu Dim Sum (4 pcs)',e:'🥟',price:459,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','umami'],desc:'Chettinadu chicken steamed dumplings, bold spice',why:'spicy',spice:2},
+      {id:'ds2',name:'Chicken Xiangcai Dim Sum (4 pcs)',e:'🥟',price:429,diet:'nonveg',seafood:false,redmeat:false,tags:['light','umami'],desc:'Tender chicken with Xiangcai herb filling, steamed',why:'light',spice:1},
+      {id:'ds3',name:'Prawn Har Gow (4 pcs)',e:'🥟',price:472,diet:'nonveg',seafood:true,redmeat:false,tags:['light','umami'],desc:'Translucent steamed prawn dumplings, soy dip',why:'light',spice:0},
+      {id:'ds4',name:'Veg Crystal Dim Sum (4 pcs)',e:'🥟',price:399,diet:'veg',seafood:false,redmeat:false,tags:['light','umami','veg'],desc:'Mixed vegetable crystal dumplings, chilli oil',why:'light,veg',spice:1},
+    ],
+    sushi:[
+      {id:'su1',name:'Truffle Edamame Uramaki (8 pcs)',e:'🍣',price:452,diet:'veg',seafood:false,redmeat:false,tags:['light','umami','veg'],desc:'Edamame mash, avocado, truffle oil, sesame inside-out roll',why:'light',spice:0},
+      {id:'su2',name:'Spicy Tuna Crunch Roll (8 pcs)',e:'🍣',price:572,diet:'nonveg',seafood:true,redmeat:false,tags:['spicy','light','umami'],desc:'Tuna, sriracha mayo, cucumber, crispy crunch',why:'spicy,light',spice:2},
+      {id:'su3',name:'Prawn Tempura Roll (8 pcs)',e:'🍣',price:524,diet:'nonveg',seafood:true,redmeat:false,tags:['light','crispy','umami'],desc:'Crispy prawn tempura, cucumber, spicy mayo',why:'light',spice:1},
+      {id:'su4',name:'Veg Rainbow Maki (8 pcs)',e:'🍣',price:399,diet:'veg',seafood:false,redmeat:false,tags:['light','fresh','veg'],desc:'Avocado, cucumber, carrot, cream cheese',why:'light,veg',spice:0},
+    ],
+    pasta:[
+      {id:'pas1',name:'Veg Lasagna',e:'🍝',price:429,diet:'veg',seafood:false,redmeat:false,tags:['hearty','rich','veg'],desc:'Fusion lasagna with Indian-inspired vegetable filling',why:'hearty,veg',spice:1},
+      {id:'pas2',name:'Penne Arrabbiata',e:'🍝',price:416,diet:'veg',seafood:false,redmeat:false,tags:['spicy','veg'],desc:'Penne in spicy tomato-garlic sauce, parmesan',why:'spicy,veg',spice:2},
+      {id:'pas3',name:'Chicken Pesto Pasta',e:'🍝',price:472,diet:'nonveg',seafood:false,redmeat:false,tags:['light','fresh','hearty'],desc:'Penne, grilled chicken, house basil pesto, cherry tomato',why:'light,hearty',spice:0},
+      {id:'pas4',name:'Pink Sauce Prawn Pasta',e:'🍝',price:524,diet:'nonveg',seafood:true,redmeat:false,tags:['rich','hearty','celebrate'],desc:'Linguine in rose sauce, sautéed prawns, parmesan',why:'hearty,celebrate',spice:1},
+    ],
+    burger:[
+      {id:'bur1',name:'Oak Wood Cheddar Chicken Burger',e:'🍔',price:452,diet:'nonveg',seafood:false,redmeat:false,tags:['hearty','smoky','drinky'],desc:'Juicy chicken patty, aged cheddar, pickles, house fries',why:'hearty,drinky',spice:1},
+      {id:'bur2',name:'Classic Veg Burger',e:'🍔',price:369,diet:'veg',seafood:false,redmeat:false,tags:['hearty','veg','drinky'],desc:'Aloo tikki patty, lettuce, tomato, mustard, fries',why:'hearty,drinky',spice:1},
+      {id:'bur3',name:'Lamb Smash Burger',e:'🍔',price:548,diet:'nonveg',seafood:false,redmeat:true,tags:['hearty','smoky','celebrate'],desc:'Double smash lamb patty, cheese, caramelised onion, fries',why:'hearty,celebrate',spice:1},
+    ],
+    pizza:[
+      {id:'piz1',name:'Cottage Cheese Tikka Pizza',e:'🍕',price:544,diet:'veg',seafood:false,redmeat:false,tags:['spicy','rich','veg'],desc:'Spiced paneer tikka on pizza base, mozzarella, peppers',why:'spicy,veg',spice:2},
+      {id:'piz2',name:'Exotic Veg Pizza',e:'🍕',price:507,diet:'veg',seafood:false,redmeat:false,tags:['light','fresh','veg'],desc:'Charred zucchini, exotic vegetables, fresh herbs',why:'light,veg',spice:0},
+      {id:'piz3',name:'BBQ Chicken Pizza',e:'🍕',price:499,diet:'nonveg',seafood:false,redmeat:false,tags:['hearty','smoky','drinky'],desc:'BBQ pulled chicken, red onion, jalapeño, mozzarella',why:'hearty,drinky',spice:1},
+      {id:'piz4',name:'Margherita',e:'🍕',price:399,diet:'veg',seafood:false,redmeat:false,tags:['light','veg'],desc:'San Marzano tomato, fresh mozzarella, basil',why:'light,veg',spice:0},
+    ],
+    pita:[
+      {id:'pit1',name:'Falafel Pita',e:'🫓',price:369,diet:'veg',seafood:false,redmeat:false,tags:['light','fresh','veg'],desc:'Crispy falafel, hummus, fattoush salad in warm pita',why:'light,veg',spice:1},
+      {id:'pit2',name:'Grilled Chicken Pita',e:'🫓',price:449,diet:'nonveg',seafood:false,redmeat:false,tags:['light','hearty'],desc:'Shawarma-spiced chicken, garlic sauce, pickled vegetables',why:'light,hearty',spice:1},
+    ],
+    seafood:[
+      {id:'sf1',name:'Apollo Prawns',e:'🦐',price:591,diet:'nonveg',seafood:true,redmeat:false,tags:['spicy','hearty','umami'],desc:'Plump juicy prawns in spicy Apollo-style masala',why:'spicy,hearty',spice:2},
+      {id:'sf2',name:'Curry Leaf Prawns',e:'🦐',price:565,diet:'nonveg',seafood:true,redmeat:false,tags:['spicy','aromatic'],desc:'Prawns tossed with fresh curry leaves and spices',why:'spicy',spice:2},
+      {id:'sf3',name:'Butter Garlic Fish Fillet',e:'🐟',price:548,diet:'nonveg',seafood:true,redmeat:false,tags:['hearty','rich','light'],desc:'Pan-seared fish fillet, lemon caper butter, greens',why:'hearty,light',spice:0},
+      {id:'sf4',name:'Crab Cakes (2 pcs)',e:'🦀',price:624,diet:'nonveg',seafood:true,redmeat:false,tags:['celebrate','hearty','crispy'],desc:'Crispy crab cakes, sriracha aioli, micro herbs',why:'celebrate,hearty',spice:1},
+      {id:'sf5',name:'Calamari Fritti',e:'🦑',price:524,diet:'nonveg',seafood:true,redmeat:false,tags:['light','crispy','drinky'],desc:'Crispy fried calamari rings, marinara, lemon',why:'light,drinky',spice:0},
+      {id:'sf6',name:'Anjal Tawa Fry',e:'🐟',price:670,diet:'nonveg',seafood:true,redmeat:false,tags:['spicy','smoky','hearty'],desc:'Aromatic South Indian tawa-fried kingfish',why:'spicy,hearty',spice:2},
+      {id:'sf7',name:'Crab Sukka Rasam With Idli',e:'🦀',price:881,diet:'nonveg',seafood:true,redmeat:false,tags:['spicy','celebrate','umami'],desc:'Fresh crab sukka with tangy rasam, served with idli',why:'spicy,celebrate',spice:2},
+      {id:'sf8',name:'Tempura Batter Prawn Pops',e:'🍤',price:540,diet:'nonveg',seafood:true,redmeat:false,tags:['crispy','light','drinky'],desc:'Bite-sized prawns in crispy tempura batter',why:'light,drinky',spice:1},
+    ],
+    thai:[
+      {id:'th1',name:'Curry Leaf Thai Curry Veg',e:'🥘',price:452,diet:'veg',seafood:false,redmeat:false,tags:['spicy','aromatic','veg'],desc:'Aromatic Thai green curry with curry leaf twist — veg',why:'spicy,veg',spice:2},
+      {id:'th2',name:'Curry Leaf Green Chicken Curry',e:'🥘',price:507,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','aromatic','hearty'],desc:'Aromatic Thai green curry with curry leaf twist — chicken',why:'spicy,hearty',spice:2},
+      {id:'th3',name:'Pad Thai Noodles Veg',e:'🍜',price:416,diet:'veg',seafood:false,redmeat:false,tags:['light','tangy','veg'],desc:'Rice noodles, tofu, bean sprouts, peanuts, tamarind',why:'light,veg',spice:1},
+      {id:'th4',name:'Pad Thai Noodles Chicken',e:'🍜',price:472,diet:'nonveg',seafood:false,redmeat:false,tags:['light','tangy','hearty'],desc:'Rice noodles, chicken, egg, peanuts, tamarind',why:'light,hearty',spice:1},
+    ],
+    noodles:[
+      {id:'noo1',name:'Classic Hakka Noodles Veg',e:'🍜',price:369,diet:'veg',seafood:false,redmeat:false,tags:['light','umami','veg'],desc:'Stir-fried noodles, mixed vegetables, soy sauce',why:'light,veg',spice:1},
+      {id:'noo2',name:'Hakka Noodles Chicken',e:'🍜',price:429,diet:'nonveg',seafood:false,redmeat:false,tags:['light','umami','hearty'],desc:'Stir-fried noodles with shredded chicken, soy',why:'light,hearty',spice:1},
+      {id:'noo3',name:'Ramen Bowl Chicken',e:'🍜',price:524,diet:'nonveg',seafood:false,redmeat:false,tags:['hearty','umami','comfort'],desc:'Tonkotsu-style broth, soft egg, bamboo shoots, nori',why:'hearty',spice:1},
+    ],
+    fried_rice:[
+      {id:'fr1',name:'Classic Fried Rice Veg',e:'🍚',price:393,diet:'veg',seafood:false,redmeat:false,tags:['light','umami','veg'],desc:'Fragrant jasmine rice with vegetables and soy',why:'light,veg',spice:1},
+      {id:'fr2',name:'Classic Fried Rice Egg',e:'🍚',price:416,diet:'egg',seafood:false,redmeat:false,tags:['light','umami'],desc:'Fragrant jasmine rice with egg, spring onion, soy',why:'light',spice:1},
+      {id:'fr3',name:'Classic Fried Rice Chicken',e:'🍚',price:429,diet:'nonveg',seafood:false,redmeat:false,tags:['light','umami','hearty'],desc:'Fragrant jasmine rice with chicken, soy',why:'light,hearty',spice:1},
+      {id:'fr4',name:'Schezwan Fried Rice Veg',e:'🍚',price:406,diet:'veg',seafood:false,redmeat:false,tags:['spicy','umami','veg'],desc:'Spicy Szechwan fried rice with mixed vegetables',why:'spicy,veg',spice:2},
+      {id:'fr5',name:'Prawn Fried Rice',e:'🍚',price:499,diet:'nonveg',seafood:true,redmeat:false,tags:['light','umami','hearty'],desc:'Wok-tossed jasmine rice with prawns and vegetables',why:'light,hearty',spice:1},
+    ],
+    global_mains:[
+      {id:'gm1',name:'Grilled Herb Chicken',e:'🍗',price:496,diet:'nonveg',seafood:false,redmeat:false,tags:['light','hearty','fresh'],desc:'Herb marinated grilled chicken, seasonal sides',why:'light,hearty',spice:1},
+      {id:'gm2',name:'Mushroom Stroganoff',e:'🍄',price:439,diet:'veg',seafood:false,redmeat:false,tags:['hearty','rich','veg'],desc:'Creamy Russian-style mushroom stroganoff, buttered pasta',why:'hearty,veg',spice:0},
+      {id:'gm3',name:'Grilled Salmon',e:'🐟',price:748,diet:'nonveg',seafood:true,redmeat:false,tags:['light','celebrate','fresh'],desc:'Herb-crusted salmon, lemon beurre blanc, sautéed greens',why:'light,celebrate',spice:0},
+      {id:'gm4',name:'Beef Lasagne',e:'🍝',price:548,diet:'nonveg',seafood:false,redmeat:true,tags:['hearty','rich'],desc:'Layered minced beef, béchamel, tomato, mozzarella',why:'hearty',spice:0},
+    ],
+    indian_gravy:[
+      {id:'ig1',name:'Paneer Tikka Masala 2.0',e:'🧀',price:439,diet:'veg',seafood:false,redmeat:false,tags:['spicy','rich','veg','hearty'],desc:'Tandoor paneer in signature spiced tomato gravy',why:'spicy,veg',spice:2},
+      {id:'ig2',name:'Dal Makhani',e:'🫕',price:369,diet:'veg',seafood:false,redmeat:false,tags:['hearty','rich','comfort','veg'],desc:'Slow-cooked black lentils, butter, cream',why:'hearty,veg',spice:1},
+      {id:'ig3',name:'Murgh Tikka Masala',e:'🍗',price:462,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','rich','hearty'],desc:'Juicy chicken tikka in rich tomato-cashew gravy',why:'spicy,hearty',spice:2},
+      {id:'ig4',name:'Mutton Laal Maans',e:'🍲',price:690,diet:'nonveg',seafood:false,redmeat:true,tags:['spicy','hearty','rich'],desc:'Tender mutton in fiery Rajasthani laal maans',why:'spicy,hearty',spice:2},
+      {id:'ig5',name:'Palak Paneer',e:'🌿',price:399,diet:'veg',seafood:false,redmeat:false,tags:['light','hearty','veg'],desc:'Cottage cheese in creamy spinach gravy',why:'hearty,veg',spice:1},
+      {id:'ig6',name:'Butter Chicken',e:'🍗',price:499,diet:'nonveg',seafood:false,redmeat:false,tags:['hearty','rich','comfort'],desc:'Classic makhani gravy, tender chicken, kasuri methi',why:'hearty',spice:1},
+      {id:'ig7',name:'Kadai Chicken',e:'🍗',price:499,diet:'nonveg',seafood:false,redmeat:false,tags:['spicy','hearty','aromatic'],desc:'Chicken in robust kadai masala with peppers & tomatoes',why:'spicy,hearty',spice:2},
+      {id:'ig8',name:'Ghar-Ki-Dal Palak Khichdi',e:'🍲',price:396,diet:'veg',seafood:false,redmeat:false,tags:['comfort','light','veg'],desc:'A comforting blend of dal, spinach and khichdi',why:'light,veg',spice:1},
+    ],
+    rice_breads:[
+      {id:'rb1',name:'Ghee Rice',e:'🍚',price:262,diet:'veg',seafood:false,redmeat:false,tags:['comfort','veg','light'],desc:'Fragrant basmati rice cooked in ghee',why:'light',spice:0},
+      {id:'rb2',name:'Jeera Rice',e:'🍚',price:232,diet:'veg',seafood:false,redmeat:false,tags:['light','veg'],desc:'Aromatic basmati rice tempered with cumin',why:'light',spice:0},
+      {id:'rb3',name:'Kulcha',e:'🫓',price:99,diet:'veg',seafood:false,redmeat:false,tags:['light','veg'],desc:'Soft leavened bread',why:'light',spice:0},
+      {id:'rb4',name:'Garlic Naan',e:'🫓',price:79,diet:'veg',seafood:false,redmeat:false,tags:['light','veg'],desc:'Leavened bread with garlic butter',why:'light',spice:0},
+      {id:'rb5',name:'Butter Roti',e:'🫓',price:59,diet:'veg',seafood:false,redmeat:false,tags:['light','veg'],desc:'Whole wheat bread with butter',why:'light',spice:0},
+    ],
+    biryanis:[
+      {id:'bir1',name:'Suka Signature Veg Biryani',e:'🍛',price:419,diet:'veg',seafood:false,redmeat:false,tags:['hearty','aromatic','veg'],desc:'Mix veg biryani with Suka house spice blend',why:'hearty,veg',spice:1},
+      {id:'bir2',name:'Chicken Dum Biryani',e:'🍛',price:499,diet:'nonveg',seafood:false,redmeat:false,tags:['hearty','aromatic','spicy'],desc:'Lucknawi dum biryani, raita, shorba',why:'hearty,spicy',spice:2},
+      {id:'bir3',name:'Mutton Dum Biryani',e:'🍛',price:572,diet:'nonveg',seafood:false,redmeat:true,tags:['hearty','aromatic','rich'],desc:'Tender mutton, aged basmati, dum-cooked, raita',why:'hearty,rich',spice:2},
+      {id:'bir4',name:'Prawn Biryani',e:'🍛',price:572,diet:'nonveg',seafood:true,redmeat:false,tags:['hearty','aromatic','spicy'],desc:'Coastal-style prawn biryani, coconut raita',why:'hearty,spicy',spice:2},
+    ],
+    desserts:[
+      {id:'des1',name:'Biscoff Tres Leches',e:'🍮',price:429,diet:'egg',seafood:false,redmeat:false,tags:['sweet','celebrate','indulgent'],desc:'Biscoff crumble on soaked tres leches sponge',why:'celebrate',spice:0},
+      {id:'des2',name:'Cashewnut Brownie',e:'🍫',price:369,diet:'egg',seafood:false,redmeat:false,tags:['sweet','hearty','indulgent'],desc:'Warm fudge brownie, chocolate sauce, ice cream',why:'hearty',spice:0},
+      {id:'des3',name:'Black Rice Kheer Coconut Pannacotta',e:'🍚',price:406,diet:'veg',seafood:false,redmeat:false,tags:['sweet','light','veg'],desc:'Traditional Indian kheer meets Italian pannacotta',why:'light,veg',spice:0},
+      {id:'des4',name:'Gulab Jamun (2 pcs)',e:'🍡',price:249,diet:'veg',seafood:false,redmeat:false,tags:['sweet','comfort','veg'],desc:'Soft milk dumplings in rose-saffron syrup',why:'light,veg',spice:0},
+      {id:'des5',name:'Tiramisu',e:'☕',price:399,diet:'egg',seafood:false,redmeat:false,tags:['sweet','celebrate','light'],desc:'Classic mascarpone, espresso, cocoa',why:'celebrate',spice:0},
+      {id:'des6',name:'Mango Sorbet',e:'🥭',price:249,diet:'veg',seafood:false,redmeat:false,tags:['sweet','light','fresh','veg'],desc:'Alphonso mango sorbet, house-made',why:'light,veg',spice:0},
+    ],
+  },
+  drinks:{
+    beer:[
+      {id:'br1',name:'Hoegaarden Craft Beer 330ML',e:'🍺',price:570,diet:'veg',tags:['drinky','light','celebrate'],desc:'Belgian white ale, light and refreshing',why:'drinky,light'},
+      {id:'br2',name:'Hoegaarden Craft Beer 500ML',e:'🍺',price:850,diet:'veg',tags:['drinky','celebrate'],desc:'Belgian white ale, larger pour',why:'drinky'},
+      {id:'br3',name:'Heineken Craft Beer 330ML',e:'🍺',price:360,diet:'veg',tags:['drinky','light'],desc:'Crisp premium lager',why:'drinky,light'},
+      {id:'br4',name:'Heineken Craft Beer 500ML',e:'🍺',price:500,diet:'veg',tags:['drinky','hearty'],desc:'Crisp premium lager, larger pour',why:'drinky,hearty'},
+      {id:'br5',name:'KF Ultra Craft Beer 500ML',e:'🍺',price:460,diet:'veg',tags:['drinky','light'],desc:'Kingfisher premium craft lager',why:'drinky,light'},
+      {id:'br6',name:'Soul Surfer Craft 330ML',e:'🍻',price:320,diet:'veg',tags:['drinky','light'],desc:'Artisanal craft beer, smooth finish',why:'drinky,light'},
+      {id:'br7',name:'Soul Surfer Craft 500ML',e:'🍻',price:470,diet:'veg',tags:['drinky','hearty'],desc:'Artisanal craft beer, larger pour',why:'drinky,hearty'},
+    ],
+    wine_spirits:[
+      {id:'ws1',name:'Apple Soju (BTL)',e:'🍶',price:2316,diet:'veg',tags:['celebrate','drinky'],desc:'Premium Korean apple soju, full bottle',why:'celebrate'},
+      {id:'ws2',name:'Chum Churum Apple',e:'🍶',price:2316,diet:'veg',tags:['celebrate','drinky'],desc:'Korean soju, apple flavour',why:'celebrate'},
+      {id:'ws3',name:'Napoleon Finest 30ML',e:'🥃',price:220,diet:'veg',tags:['hearty','drinky'],desc:'Classic Cognac / Brandy, neat or on the rocks',why:'hearty,drinky'},
+      {id:'ws4',name:'Paul John XO 30ML',e:'🥃',price:1136,diet:'veg',tags:['celebrate','hearty'],desc:'Premium XO Cognac, complex and rich',why:'celebrate'},
+      {id:'ws5',name:'Bombay Sapphire Gin 30ML',e:'🫙',price:485,diet:'veg',tags:['light','drinky'],desc:'London Dry gin, botanicals-forward',why:'light,drinky'},
+      {id:'ws6',name:'Greater Than Gin 30ML',e:'🫙',price:276,diet:'veg',tags:['light','drinky'],desc:'Indian craft gin, contemporary',why:'light,drinky'},
+      {id:'ws7',name:'Hapusa Gin 30ML',e:'🫙',price:496,diet:'veg',tags:['light','celebrate'],desc:'Himalayan gin with juniper, citrus notes',why:'light,celebrate'},
+      {id:'ws8',name:"Hendrick's Gin 30ML",e:'🫙',price:727,diet:'veg',tags:['celebrate','light'],desc:'Scottish gin with cucumber & rose',why:'celebrate,light'},
+      {id:'ws9',name:'Jaisalmer Gin 30ML',e:'🫙',price:496,diet:'veg',tags:['light','drinky'],desc:'Indian craft gin, aromatic botanicals',why:'light,drinky'},
+      {id:'ws10',name:"Teacher's Highland Cream BTL",e:'🥃',price:8887,diet:'veg',tags:['hearty','celebrate'],desc:'Blended Scotch whisky, full bottle',why:'hearty,celebrate'},
+      {id:'ws11',name:'Single Malt — Bottle (20 varieties)',e:'🥃',price:0,diet:'veg',tags:['celebrate','hearty'],desc:'Ask your server — 20 single malts by bottle',why:'celebrate'},
+      {id:'ws12',name:'Single Malt — 30ML (23 options)',e:'🥃',price:0,diet:'veg',tags:['celebrate','hearty','drinky'],desc:'Ask your server — 23 single malts by the peg',why:'celebrate'},
+      {id:'ws13',name:'Sambuca 30ML',e:'🥃',price:485,diet:'veg',tags:['drinky','celebrate'],desc:'Italian anise liqueur, served chilled',why:'celebrate'},
+      {id:'ws14',name:'Ti Connie Coffee Liqueur 30ML',e:'🥃',price:254,diet:'veg',tags:['drinky','light'],desc:'Rich coffee liqueur',why:'drinky,light'},
+      {id:'ws15',name:'Ti Connie Peachy Liqueur 30ML',e:'🥃',price:254,diet:'veg',tags:['light','drinky'],desc:'Peachy fruit liqueur, light and sweet',why:'light,drinky'},
+    ],
+    cocktails:[
+      {id:'ck1',name:'Beachside Day Dream',e:'🍹',price:524,diet:'veg',tags:['light','celebrate','drinky'],desc:'Suka summer special — refreshing tropical cocktail',why:'celebrate,light'},
+      {id:'ck2',name:'Sunset Peral',e:'🍹',price:572,diet:'veg',tags:['celebrate','light'],desc:'Suka summer special signature cocktail',why:'celebrate'},
+      {id:'ck3',name:'Rose Wine Sangria',e:'🍷',price:563,diet:'veg',tags:['celebrate','light','fresh'],desc:'Rose wine, vodka, orange — sharing pitcher',why:'celebrate,light'},
+      {id:'ck4',name:'Whisky Sour',e:'🥃',price:674,diet:'veg',tags:['hearty','drinky'],desc:'Whiskey, lime juice, sugar syrup, froth',why:'hearty,drinky'},
+      {id:'ck5',name:'White Wine Sangria',e:'🍷',price:524,diet:'veg',tags:['celebrate','light'],desc:'White wine sangria, citrus, soda',why:'celebrate,light'},
+      {id:'ck6',name:'Berry Voltage Ice Tea',e:'🫐',price:786,diet:'veg',tags:['celebrate','drinky','hearty'],desc:'Five white spirits, berry — the LIIT',why:'celebrate'},
+      {id:'ck7',name:'Cane & Spice Ice Tea',e:'🌿',price:786,diet:'veg',tags:['celebrate','spicy','drinky'],desc:'Five white spirits, cane, spice — LIIT',why:'celebrate,spicy'},
+      {id:'ck8',name:'Twin Apple Twist',e:'🍸',price:563,diet:'veg',tags:['light','drinky'],desc:'Desmondji Mahua, apple, house bitters',why:'light,drinky'},
+      {id:'ck9',name:'Wild Herb Mist',e:'🍸',price:557,diet:'veg',tags:['light','fresh'],desc:'Desmondji Mahua, fresh herbs, citrus',why:'light'},
+      {id:'ck10',name:'Fiery Forest',e:'🍸',price:563,diet:'veg',tags:['spicy','drinky'],desc:'Desmondji Mahua, jalapeño, lime, agave',why:'spicy,drinky'},
+      {id:'ck11',name:'Jungle Flame',e:'🍸',price:541,diet:'veg',tags:['spicy','drinky'],desc:'Desmondji Mahua, lime, chilli, fire notes',why:'spicy,drinky'},
+      {id:'ck12',name:'Blush Royale',e:'🥂',price:801,diet:'veg',tags:['celebrate','light'],desc:'Strawberry jello, prosecco, elderflower',why:'celebrate,light'},
+      {id:'ck13',name:'Green Orchard Fizz',e:'🥂',price:801,diet:'veg',tags:['celebrate','fresh'],desc:'Green apple jello, prosecco, mint',why:'celebrate'},
+      {id:'ck14',name:'Violet Dream Drop',e:'🥂',price:801,diet:'veg',tags:['celebrate','light'],desc:'Grape jello, grape sparkling, violet bloom',why:'celebrate'},
+      {id:'ck15',name:'Ruby Jello Shot',e:'🎯',price:475,diet:'veg',tags:['drinky','celebrate'],desc:'Strawberry jello shot — fun and fruity',why:'drinky,celebrate'},
+      {id:'ck16',name:'Sunset Jello Shot',e:'🎯',price:475,diet:'veg',tags:['drinky','celebrate'],desc:'Mango jello, lime juice',why:'drinky,celebrate'},
+      {id:'ck17',name:'Jager Bomb',e:'💥',price:699,diet:'veg',tags:['drinky','celebrate','hearty'],desc:'Jagermeister, Redbull — energy shot',why:'celebrate,drinky'},
+      {id:'ck18',name:'Classic Margarita',e:'🍋',price:499,diet:'veg',tags:['light','fresh','drinky'],desc:'Tequila, triple sec, lime, salted rim',why:'light,drinky'},
+      {id:'ck19',name:'Spicy Jalapeño Margarita',e:'🌶️',price:524,diet:'veg',tags:['spicy','drinky'],desc:'Tequila, jalapeño, lime, agave',why:'spicy,drinky'},
+    ],
+    mocktails:[
+      {id:'mk1',name:'Zesty Kaffir Fizz',e:'🍊',price:335,diet:'veg',tags:['light','fresh','drinky'],desc:'Lime juice, kaffir lime leaves, soda, mint',why:'light,drinky'},
+      {id:'mk2',name:'Watermelon Cooler',e:'🍉',price:299,diet:'veg',tags:['light','fresh','drinky'],desc:'Fresh watermelon, basil, lime, soda',why:'light,drinky'},
+      {id:'mk3',name:'Virgin Mojito',e:'🌿',price:285,diet:'veg',tags:['light','fresh','drinky'],desc:'Mint, lime, sugar, soda',why:'light,drinky'},
+      {id:'mk4',name:'Blue Lagoon',e:'💙',price:299,diet:'veg',tags:['light','celebrate','drinky'],desc:'Blue curacao syrup, lemonade, pineapple',why:'celebrate,light'},
+    ],
+    milkshakes_smoothies:[
+      {id:'ms1',name:'Chocolate Caramel Milkshake',e:'🍫',price:335,diet:'veg',tags:['sweet','hearty','indulgent'],desc:'Chocolate and caramel blended milkshake',why:'hearty'},
+      {id:'ms2',name:'Nutty Velvet Delight',e:'🥤',price:346,diet:'veg',tags:['sweet','hearty','indulgent'],desc:'Pista crush, caramel, rich and nutty shake',why:'hearty'},
+      {id:'ms3',name:'Safron Delight',e:'🥤',price:309,diet:'veg',tags:['sweet','light'],desc:'Curd, kesar badam, creamy and aromatic',why:'light'},
+      {id:'ms4',name:'Mango Smoothie',e:'🥭',price:299,diet:'veg',tags:['sweet','light','fresh'],desc:'Fresh Alphonso mango, yogurt, honey',why:'light'},
+      {id:'ms5',name:'Mixed Berry Smoothie',e:'🍓',price:299,diet:'veg',tags:['sweet','light','fresh'],desc:'Strawberry, blueberry, raspberry, milk',why:'light'},
+    ],
+    soft_drinks:[
+      {id:'sd1',name:'Coca-Cola',e:'🥤',price:120,diet:'veg',tags:['drinky','light'],desc:'330ML',why:'drinky,light'},
+      {id:'sd2',name:'Sprite',e:'🥤',price:120,diet:'veg',tags:['drinky','light'],desc:'330ML',why:'drinky,light'},
+      {id:'sd3',name:'Soda Water',e:'💧',price:80,diet:'veg',tags:['drinky','light'],desc:'200ML, premium',why:'drinky,light'},
+      {id:'sd4',name:'Fresh Lime Soda',e:'🍋',price:149,diet:'veg',tags:['drinky','light','fresh'],desc:'Sweet or salty, your choice',why:'light,drinky'},
+      {id:'sd5',name:'Iced Tea Lemon',e:'🍵',price:199,diet:'veg',tags:['drinky','light','fresh'],desc:'Chilled lemon iced tea, lightly sweetened',why:'light,drinky'},
+    ],
+    hot_drinks:[
+      {id:'hd1',name:'Masala Chai',e:'🫖',price:80,diet:'veg',tags:['light','comfort'],desc:'House-spiced fresh brewed chai',why:'light'},
+      {id:'hd2',name:'Filter Coffee',e:'☕',price:90,diet:'veg',tags:['light','comfort'],desc:'South Indian drip coffee, frothy',why:'light'},
+      {id:'hd3',name:'Hot Chocolate',e:'🍫',price:160,diet:'veg',tags:['hearty','sweet','comfort'],desc:'Thick Belgian chocolate, steamed milk',why:'hearty'},
+      {id:'hd4',name:'Ginger Lemon Honey Tea',e:'🍵',price:120,diet:'veg',tags:['light','fresh','comfort'],desc:'Fresh ginger, lemon, honey',why:'light'},
+      {id:'hd5',name:'Classic Hot Toddy',e:'♨️',price:449,diet:'veg',tags:['celebrate','hearty','drinky'],desc:'Whiskey, honey, lemon, warm water, spices',why:'celebrate'},
+    ],
+    bar_bites:[
+      {id:'bb1',name:'Bar Bites Platter',e:'🍢',price:349,diet:'nonveg',tags:['drinky','sharing','hearty'],desc:'Chicken satay, chilli toast, masala peanuts',why:'drinky',sharing:true},
+      {id:'bb2',name:'Masala Papad',e:'🫓',price:149,diet:'veg',tags:['drinky','snack','veg','light'],desc:'Crispy papad with spiced onion topping',why:'drinky,light'},
+      {id:'bb3',name:'Chilli Cheese Toast',e:'🧀',price:249,diet:'veg',tags:['drinky','snack','veg'],desc:'Toasted bread, melted cheddar, green chilli',why:'drinky,veg'},
+      {id:'bb4',name:'Loaded Nachos',e:'🌮',price:349,diet:'veg',tags:['drinky','sharing','veg'],desc:'Corn chips, salsa, sour cream, jalapeños',why:'drinky,veg',sharing:true},
+      {id:'bb5',name:'Tempura Batter Prawn Pops',e:'🍤',price:540,diet:'nonveg',tags:['drinky','light','crispy'],desc:'Bite-sized prawns in crispy tempura batter',why:'drinky,light'},
+    ],
+  },
+};
+
+/* ══════════ STRUCTURE CONSTANTS ══════════ */
+// All food item IDs that can appear on the drinks screen as pairings.
+// These should be classified as 'drinks' not 'starters' in course detection.
+// Includes: MENU.food.bar_bites (bar1-bar4), common pairing suggestions from
+// getDrinkBiteIds/DRINK_BITES_MAP, and MENU.drinks.bar_bites (bb1-bb5).
+const DRINKS_PAIRING_IDS = new Set([
+  // MENU.food.bar_bites
+  'bar1','bar2','bar3','bar4',
+  // MENU.drinks.bar_bites
+  'bb1','bb2','bb3','bb4','bb5',
+  // all_day_snacks that appear as pairings
+  'ads1','ads2','ads3','ads4',
+  // common pairing suggestions from DRINK_BITES_MAP / BAR_BITES_PAIRING
+  'nv4','nv5','vs3','vs8','tac3','su1','ds4',
+]);
+
+const DRINK_TABS = [
+  {key:'beer',                label:'🍺 Beer'},
+  {key:'wine_spirits',        label:'🍷 Wine & Spirits'},
+  {key:'cocktails',           label:'🍸 Cocktails'},
+  {key:'mocktails',           label:'🍊 Mocktails'},
+  {key:'milkshakes_smoothies',label:'🥤 Smoothies'},
+  {key:'soft_drinks',         label:'💧 Soft Drinks'},
+  {key:'hot_drinks',          label:'☕ Hot Drinks'},
+  {key:'bar_bites',           label:'🍢 Bar Bites'},
+];
+
+const COURSE_MAP = {
+  starters:['recommended','all_day_snacks','special_appetizers','suka_signature','soup','salad','bar_bites','veg_starter','non_veg_starter','taco','dim_sum','sushi'],
+  mains:   ['pasta','burger','pizza','pita','seafood','thai','noodles','fried_rice','global_mains','indian_gravy','rice_breads','biryanis'],
+  desserts:['desserts'],
+};
+
+/* Flatten MENU into FOOD/DRINKS for engine */
+const FOOD = {};
+Object.keys(MENU.food).forEach(k => { FOOD[k] = MENU.food[k]; });
+const DRINKS = {};
+Object.keys(MENU.drinks).forEach(k => { DRINKS[k] = MENU.drinks[k]; });
+
+const MOOD_META = {
+  spicy:    {tags:['spicy','tangy','dry'],                        label:'Bold & Spicy 🔥'},
+  light:    {tags:['light','fresh','umami'],                      label:'Light & Fresh 🌿'},
+  hearty:   {tags:['hearty','rich','comfort','smoky','aromatic'], label:'Rich & Hearty 🍖'},
+  celebrate:{tags:['celebrate','sharing','special','indulgent'],  label:'Celebrating 🎉'},
+  drinky:   {tags:['drinky','snack'],                             label:'Drinks Night 🍺'},
+  veg:      {tags:['veg'],                                        label:'Just Veg 🌱'},
+};
+
+const DRINK_HINT = {
+  spicy:    '🌶️ Spicy food pairs best with something cold — lager, jalapeño margarita, or kaffir fizz.',
+  light:    '🌿 Light dishes work beautifully with a mocktail, crisp wine, or a fresh cocktail.',
+  hearty:   '🍖 Rich food calls for something bold — craft beer, red wine cocktail, or a full pour.',
+  celebrate:'🎉 Tonight calls for something special — Blush Royale, Sangria, or the Berry LIIT.',
+  drinky:   '🍺 Drinks night! Grab your favourite and add a bar bites platter alongside.',
+  veg:      '🌱 Great veg pairings — mocktail, white wine sangria, or a fresh smoothie.',
+  default:  "Here's what pairs well with your choices tonight.",
+};
+
+const CUISINE_BY_SUBCAT = {
+  recommended:'indian', all_day_snacks:'global', special_appetizers:'indian',
+  suka_signature:'indian', soup:'global', salad:'global', bar_bites:'global',
+  veg_starter:'indian', non_veg_starter:'indian', taco:'mexican',
+  dim_sum:'chinese', sushi:'japanese', pasta:'italian', burger:'western',
+  pizza:'italian', pita:'middleeastern', seafood:'indian', thai:'thai',
+  noodles:'chinese', fried_rice:'chinese', global_mains:'western',
+  indian_gravy:'indian', rice_breads:'indian', biryanis:'indian', desserts:'global',
+};
+
+const CUISINE_LABELS = {
+  indian:'Indian', chinese:'Chinese / Asian', thai:'Thai',
+  japanese:'Japanese', italian:'Italian', western:'Western',
+  mexican:'Mexican', middleeastern:'Middle Eastern', global:'All cuisines',
+};
+const POPULAR = {
+  most_ordered: [
+    // Based on: Recommended tab in POS + universal crowd pleasers at Suka price point
+    {id:'nv2',  badge:'🔥 Most Ordered'},   // Country Chilli Chicken
+    {id:'bir2', badge:'🔥 Most Ordered'},   // Chicken Dum Biryani
+    {id:'ig6',  badge:'🔥 Most Ordered'},   // Butter Chicken
+    {id:'ig2',  badge:'🔥 Most Ordered'},   // Dal Makhani
+    {id:'nv4',  badge:'🔥 Most Ordered'},   // Spicy BBQ Wings
+  ],
+  chefs_pick: [
+    // Based on: Suka Signature tab + Recommended tab = chef-curated
+    {id:'rec1', badge:"Chef Pick"},   // Madras Chicken Kari Kuzhambu
+    {id:'sig1', badge:"Chef Pick"},   // Anjal Tawa Fry
+    {id:'sig2', badge:"Chef Pick"},   // Boneless Mutton Junglee Mass
+    {id:'sig3', badge:"Chef Pick"},   // Crab Sukka Rasam
+    {id:'nv3',  badge:"Chef Pick"},   // Gongura Chicken Roast
+    {id:'vs4',  badge:"Chef Pick"},   // Falafel With Tadka Beet Hummus
+  ],
+  trending: [
+    // Based on: What young Koramangala crowd wants — fusion, photogenic, unique to Suka
+    {id:'su1',  badge:'✨ Trending'},        // Truffle Edamame Uramaki
+    {id:'su2',  badge:'✨ Trending'},        // Spicy Tuna Crunch Roll
+    {id:'ds1',  badge:'✨ Trending'},        // Chicken Chettinadu Dim Sum
+    {id:'tac1', badge:'✨ Trending'},        // Citrus Chili Prawn Taco
+    {id:'ck12', badge:'✨ Trending'},        // Blush Royale
+    {id:'ck6',  badge:'✨ Trending'},        // Berry Voltage LIIT
+    {id:'spa3', badge:'✨ Trending'},        // Raw Mango & Peanut Salad
+  ],
+};
+
+// Build flat lookup: id → badge text
+const POPULAR_BADGE = {};
+Object.values(POPULAR).flat().forEach(p => { POPULAR_BADGE[p.id] = p.badge; });
+
+// IDs the customer has expressed interest in (from popular screen)
+let interestedIds = new Set();
+
+
+
+const COURSE_CFG = {
+  s2:{keys:COURSE_MAP.starters, title:'Your <em>starters</em>',    sub:'Recommended for you — pick what you like',   allLabel:'All Starters'},
+  s3:{keys:COURSE_MAP.mains,    title:'Your <em>main course</em>',  sub:"Pick your main — or skip if you're sorted",  allLabel:'All Mains'},
+  s4:{keys:COURSE_MAP.desserts, title:'End on a <em>high?</em>',    sub:'Something sweet to finish',                  allLabel:'All Desserts'},
+};
+
+const STP_LABELS = {s1:'Vibe',sg:'Group',scu:'Cuisine',sdt:'Diet',sd:'Drinks',s2:'Starters',s3:'Mains',s4:'Desserts',s6:'Review'};
+
+
+/* ══════════ SOLD OUT — fetched from server on load ══════════ */
+var SOLD_OUT_IDS = new Set();
+
+function loadSoldOut() {
+  return fetch('/api/admin/sold-out?restaurant_id=suka-mallathalli')
+    .then(function(r){ return r.json(); })
+    .then(function(items){
+      SOLD_OUT_IDS = new Set(items.map(function(i){ return i.item_id; }));
+    })
+    .catch(function(){}); // silent fail — works offline
+}
+
+// Call on page load
+loadSoldOut();
+
+// ── Session persistence via sessionStorage ──────────────────
+// Survives tab close and QR rescan on same device
+var SESSION_KEY = 'mesa_session_' + RESTAURANT.id + '_' + RESTAURANT.table;
+
+function saveSession() {
+  try {
+    var state = {
+      plan: plan,
+      moods: Array.from(moods),
+      group: group,
+      dietIdentity: dietIdentity,
+      drinkStyles: Array.from(drinkStyles),
+      drinkFlavors: Array.from(drinkFlavors),
+      sessionRound: sessionRound,
+      sessionCourses: Array.from(sessionCourses),
+      sessionMoods: Array.from(sessionMoods),
+      _lastCourse: _lastCourse,
+      _orderSource: _orderSource,
+      _questionsDone: _questionsDone,
+      ts: Date.now()
+    };
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(state));
+  } catch(e) {}
+}
+
+function restoreSession() {
+  try {
+    var raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return false;
+    var s = JSON.parse(raw);
+    // Expire after 4 hours (a restaurant session)
+    if (Date.now() - s.ts > 4 * 60 * 60 * 1000) {
+      sessionStorage.removeItem(SESSION_KEY);
+      return false;
+    }
+    // Only restore if at least one order was placed
+    if (!s.sessionRound || s.sessionRound < 1) return false;
+    // Restore state
+    plan = s.plan || null;
+    moods = new Set(s.moods || []);
+    group = s.group || 'small';
+    dietIdentity = s.dietIdentity || 'all';
+    drinkStyles = new Set(s.drinkStyles || []);
+    drinkFlavors = new Set(s.drinkFlavors || []);
+    sessionRound = s.sessionRound || 0;
+    sessionCourses = new Set(s.sessionCourses || []);
+    sessionMoods = new Set(s.sessionMoods || []);
+    _lastCourse = s._lastCourse || '';
+    _orderSource = s._orderSource || 'full';
+    _questionsDone = s._questionsDone || false;
+    return true;
+  } catch(e) { return false; }
+}
+
+// Attempt to restore previous session on load
+(function() {
+  if (restoreSession()) {
+    // Show resume screen instead of welcome
+    showResumeSession();
+  }
+})();
+
+// ONE persistent click listener for reorder buttons on success screen
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('[data-course]');
+  if (!btn) return;
+  var course = btn.getAttribute('data-course');
+  if (course === 'reset')    { resetAll(); return; }
+  if (course === 'pick')     { continueOrder(); return; }
+  if (course === 'done')     { document.getElementById('success').classList.remove('show'); requestBillAndFeedback(); return; }
+  if (course === 'review')   {
+    document.getElementById('success').classList.remove('show');
+    goReview();
+    return;
+  }
+  if (course === 'thankyou') {
+    document.getElementById('success').classList.remove('show');
+    requestBillAndFeedback();
+    return;
+  }
+  if (course === 'spq-recs') {
+    // Go to recommendations — start with s1 (mood) since preferences needed
+    document.getElementById('success').classList.remove('show');
+    cart = {};
+    if (sessionMoods.size) { moods = new Set(sessionMoods); }
+    dietIdentity = sessionDiet || 'all';
+    // Go to starters directly if preferences already set, else start from mood
+    if (sessionMoods.size > 0) {
+      renderCourse('s2'); go('s2');
+    } else {
+      renderMoodTiles(); go('s1');
+    }
+    return;
+  }
+  if (course === 'spq-more') {
+    document.getElementById('success').classList.remove('show');
+    cart = {};
+    updAllBadges();
+    _orderSource = 'spq';
+    goPopularQuick();
+    return;
+  }
+  if (course === 'rec-questions') {
+    // Full recommendation flow — always starts fresh from plan picker
+    document.getElementById('success').classList.remove('show');
+    cart = {};
+    _orderSource = 'full';
+    _questionsDone = false;  // will be set true when startFlow() runs
+    // Keep saved moods as defaults so tiles are pre-selected
+    if (sessionMoods.size) moods = new Set(sessionMoods);
+    dietIdentity = sessionDiet || 'all';
+    updAllBadges();
+    renderMoodTiles();
+    go('splan');
+    return;
+  }
+  if (course === 'food-saved') {
+    // Straight to starters — preferences already known, no questions
+    document.getElementById('success').classList.remove('show');
+    cart = {};
+    _orderSource = 'full';  // mark as rec session going forward
+    // Restore saved preferences silently
+    if (sessionMoods.size) moods = new Set(sessionMoods);
+    dietIdentity = sessionDiet || 'all';
+    if (sessionDrinkSt.size) drinkStyles = new Set(sessionDrinkSt);
+    updAllBadges();
+    renderCourse('s2');
+    renderStepper('s2');
+    go('s2');
+    return;
+  }
+  if (course === 'starters') { quickOrderCourse('starters'); return; }
+  if (course === 'mains')    { quickOrderCourse('mains'); return; }
+  if (course)                { quickOrderCourse(course); return; }
+});
+
+// ONE persistent click listener for drink tabs — survives all innerHTML resets
+// Uses event delegation on document so it always works regardless of re-renders
+document.addEventListener('click', function(e) {
+  var tab = e.target.closest('[data-tab]');
+  if (!tab) return;
+  var key = tab.dataset.tab;
+  if (key) switchDTab(key);
+});
+
+// Table session check: if this table has active orders, we may need context
+// If table was recently closed and re-scanned, clear any stale state
+(function checkTableSession() {
+  fetch('/api/orders/table-status?table=' + encodeURIComponent(RESTAURANT.table) + '&restaurant=' + RESTAURANT.id)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      // If table was just closed (within 10 min) and cart has items, clear cart
+      if (d.lastStatus === 'closed' && d.closedMinutesAgo < 10) {
+        if (Object.keys(cart).length > 0) {
+          cart = {}; updAllBadges();
+        }
+      }
+    })
+    .catch(function(){}); // silent — don't block if API down
+})();
+
+// Update table display with dynamic value from URL
+(function() {
+  var t = RESTAURANT.table;
+  var el = document.getElementById('welcome-table-num');
+  if (el) el.textContent = 'Table ' + t;
+})();
+
+/* ══════════ STATE ══════════ */
+let plan    = null;
+let moods   = new Set();
+let group   = 'small';
+let dietQ   = new Set();      // veg, eggok, noseafood, noredmeat
+let cart    = {};
+let allOpen = {};
+let dTab    = 'beer';
+let drinkStyles  = new Set(); // multiple: 'beer','cocktail','spirits','mocktail'
+let drinkFlavors = new Set(); // multiple flavor preferences
+
+// Session memory — survives between order rounds
+let sessionRound     = 0;
+let _orderSource     = 'full'; // 'spq' | 'full'
+let _questionsDone   = false;  // true once they've completed the preference questions
+let _lastCourse      = '';    // last course ordered: 'drinks','starters','mains','desserts'
+let sessionCourses   = new Set();
+let _drinksTabIds    = new Set(); // IDs of items shown on the drinks screen (including food pairings)
+let sessionMoods     = new Set();
+let sessionDiet      = 'all';
+let sessionDrinkSt   = new Set();
+
+// Items already shown as bar bites recommendations on drinks screen
+// These are excluded from starters to avoid repetition
+let shownAsBarBites  = new Set();
+
+/* ══════════ FLOW LOGIC ══════════ */
+// Q flow is always: s0 → s1 → sg → sdt → then courses
+// Course order depends on plan
+function getCourseFlow() {
+  // 'both' plan: go to drinks first, food is chosen later from success screen
+  if (plan === 'both')   return ['sdr','sd','s6'];
+  if (plan === 'drinks') return ['sdr','sd','s6'];
+  // food only: start at starters, success screen handles mains/desserts progression
+  return ['s2','s6'];
+}
+
+function getFullFlow() {
+  return ['s0','s1','sg','scu','sdt',...getCourseFlow()];
+}
+
+function prevOf(sid) {
+  const f = getFullFlow(); const i = f.indexOf(sid); return i>0 ? f[i-1] : 's0';
+}
+function nextOf(sid) {
+  const f = getFullFlow(); const i = f.indexOf(sid);
+  return (i>=0 && i<f.length-1) ? f[i+1] : 's6';
+}
+
+/* ══════════ NAV ══════════ */
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+  window.scrollTo(0,0);
+}
+
+function pickPlan(el) {
+  document.querySelectorAll('.plan-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on'); plan = el.dataset.plan;
+  setTimeout(()=>{ renderMoodTiles(); renderStepper('s1'); go('s1'); }, 200);
+}
+
+function skipAll() {
+  plan='both'; moods=new Set(['hearty']); group='small';
+  renderMoodTiles(); startFlow();
+}
+
+function goQ(sid) {
+  if (sid === 's1') renderMoodTiles();
+  if (sid === 'sd') {
+    // When arriving from sdr with drink style selections, start on Bar Bites tab
+    if (drinkStyles.size > 0) dTab = 'bar_bites';
+    renderDrinks(); renderStepper(sid); go(sid); return;
+  }
+  if (['s2','s3','s4'].includes(sid)) { renderCourse(sid); renderStepper(sid); go(sid); return; }
+  renderStepper(sid); go(sid);
+}
+
+function backFrom(sid) {
+  const p = prevOf(sid);
+  if (['sd','s2','s3','s4'].includes(p)) { renderCourse(p); renderStepper(p); go(p); }
+  else { renderStepper(p); go(p); }
+}
+
+function nextFrom(sid) {
+  const n = nextOf(sid);
+  if (n==='s6') { renderReview(); renderStepper('s6'); go('s6'); }
+  else if (n==='sd') { renderDrinks(); renderStepper('sd'); go('sd'); }
+  else { renderCourse(n); renderStepper(n); go(n); }
+}
+
+function startFlow() {
+  _questionsDone = true;   // questions completed
+  _orderSource = 'full';   // regardless of how they arrived, this is now a rec session
+  // Sync veg mood tile → identity filter
+  if (moods.has('veg') && dietIdentity === 'all') dietIdentity = 'veg';
+  // Pick default drink tab based on mood
+  if (moods.has('celebrate')) dTab='cocktails';
+  else if (moods.has('light')) dTab='mocktails';
+  else if (moods.has('drinky')) dTab='bar_bites';
+  else dTab='beer';
+
+  const first = getCourseFlow()[0];
+  if (first==='sd') { renderDrinks(); renderStepper('sd'); go('sd'); }
+  else { renderCourse(first); renderStepper(first); go(first); }
+
+  // update drinks "next" label
+  const n = nextOf('sd');
+  const lbl = n==='s6' ? 'Review Order →' : 'Next: Starters →';
+  const btn = document.getElementById('next-sd');
+  if (btn) btn.textContent = lbl;
+
+  // update desserts "next" label
+  const nd = nextOf('s4');
+  const dBtn = document.getElementById('next-s4');
+  if (dBtn) dBtn.textContent = nd==='sd' ? 'Next: Drinks →' : 'Review Order →';
+}
+
+function goReview() { renderReview(); renderStepper('s6'); go('s6'); }
+
+/* ══════════ STEPPER ══════════ */
+function renderStepper(sid) {
+  const flow = getFullFlow().filter(s=>s!=='s0');
+  const ci = flow.indexOf(sid);
+  const el = document.getElementById('stp-'+sid); if(!el) return;
+  el.innerHTML = flow.map((s,i)=>`
+    <div class="stp ${i<ci?'done':i===ci?'act':''}">
+      <div class="stp-dot">${i<ci?'✓':i+1}</div>
+      <div class="stp-lbl">${STP_LABELS[s]||s}</div>
+    </div>`).join('');
+}
+
+/* ══════════ MOOD ══════════ */
+function toggleTile(el) {
+  const id = el.dataset.id;
+  if (moods.has(id)) { moods.delete(id); el.classList.remove('on'); }
+  else {
+    if (moods.size>=2) {
+      const first=[...moods][0]; moods.delete(first);
+      document.querySelector(`.tile[data-id="${first}"]`)?.classList.remove('on');
+    }
+    moods.add(id); el.classList.add('on');
+  }
+  const n=moods.size;
+  const cnt=document.getElementById('moodCnt');
+  const btn=document.getElementById('moodBtn');
+  if(!n){cnt.textContent='Tap a tile to begin';btn.classList.remove('go');}
+  else{cnt.textContent=n===1?'1 picked — tap another or continue':'Ready — let\'s go!';btn.classList.add('go');}
+}
+
+/* ══════════ GROUP ══════════ */
+function pickChoice(type, val, el) {
+  el.closest('.choice-list').querySelectorAll('.choice').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  if (type==='group') group = val;
+}
+
+/* ══════════ MOOD TILES — dynamic based on plan ══════════ */
+const ALL_TILES = [
+  {id:'spicy',    e:'🔥', lbl:'Bold & Spicy',  sub:'Big flavours, bring the heat',   plans:['both','food','drinks']},
+  {id:'light',    e:'🌿', lbl:'Light & Fresh',  sub:'Clean, crisp, easy',             plans:['both','food','drinks']},
+  {id:'hearty',   e:'🍖', lbl:'Rich & Hearty',  sub:'Comfort food, proper full',      plans:['both','food','drinks']},
+  {id:'celebrate',e:'🎉', lbl:'Celebrating',    sub:'Special night, share everything',plans:['both','food','drinks']},
+  {id:'drinky',   e:'🍺', lbl:'Drinks Night',   sub:'Bar bites, keep it easy',        plans:['both','drinks']},
+  {id:'veg',      e:'🌱', lbl:'Just Veg',       sub:'Plant-based, still delicious',   plans:['both','food','drinks']},
+];
+
+/* ══════════ POPULAR QUICK VIEW ══════════ */
+// Curated top picks per course — the definitive Suka must-tries
+const QUICK_PICKS = {
+  starters: [
+    {id:'nv2',  badge:'Most Ordered',  why:'The table always orders this'},
+    {id:'sig1', badge:"Chef's Special", why:'Unique to Suka — kingfish, tawa-fired'},
+    {id:'su1',  badge:'Trending',       why:'Truffle edamame uramaki — try something different'},
+  ],
+  mains: [
+    {id:'bir2', badge:'Most Ordered',  why:'Lucknawi dum biryani — Suka signature prep'},
+    {id:'rec1', badge:"Chef's Special", why:'Madras chicken kari with idli — bold South Indian'},
+    {id:'ig6',  badge:'Crowd Favourite',why:'Butter chicken — the one everyone comes back for'},
+  ],
+  desserts: [
+    {id:'des1', badge:'Most Ordered',  why:'Biscoff tres leches — the dessert people fight over'},
+    {id:'des2', badge:'Trending',       why:'Warm brownie + ice cream — the classic finish'},
+    {id:'des3', badge:"Chef's Special", why:'Black rice kheer meets coconut pannacotta'},
+  ],
+};
+
+const BAR_BITES_PAIRING = {
+  beer:         ['bar4','bar3','nv4','nv5','bb2','bb1'],   // Masala Peanuts, Satay, BBQ Wings, Lollipop, Papad, Platter
+  wine_spirits: ['bb3','vs2','vs7','nv6','bar1','bb5'],    // Cheese Toast, Paneer Tikka, Hariyali Paneer, Lamb Chops, Prawn Pops
+  cocktails:    ['su1','bar1','bb4','ds4','tac3','bb3'],   // Edamame Sushi, Prawn Pops, Nachos, Dim Sum, Paneer Taco
+  mocktails:    ['ads3','bar2','vs4','ads2','tac3','bb2'], // Nachos, Papad, Falafel Hummus, Papad, Paneer Taco
+  milkshakes_smoothies: ['ads1','vs8','ads3','bar2'],      // Fries, Cheese Corn Balls, Nachos
+  soft_drinks:  ['ads1','ads2','bar2','vs3','vs8'],        // Fries, Papad, Cheese Toast, Onion Rings
+};
+
+const QUICK_LABELS = {
+  starters: 'Starters',
+  mains:    'Mains',
+  desserts: 'Desserts',
+};
+
+function pickPlanAndStart(btn) {
+  var p = btn.getAttribute('data-plan');
+  plan = p;
+  _orderSource = 'full';   // entering rec questions — mark as full flow
+  _questionsDone = false;  // reset so questions completion is tracked fresh
+  renderMoodTiles();
+  renderStepper('s1');
+  go('s1');
+}
+
+function startBuildOrder() {
+  // Show plan picker: Food+Drinks / Drinks only / Food only
+  // This replaces the 3 plan buttons that were on the welcome screen
+  // Plan is chosen here, then flows into the preference questions
+  go('splan');
+}
+
+function goPopularQuick() {
+  // Reload sold-out list first so popular picks are current
+  loadSoldOut().then(function() {
+    renderPopularQuick();
+    updAllBadges();
+    go('spq');
+  });
+}
+
+function renderPopularQuick() {
+  const body = document.getElementById('body-spq');
+  if (!body) return;
+
+  const allItems = {};
+  Object.values(MENU.food).flat().forEach(function(i){ allItems[i.id] = i; });
+
+  let html = '<div style="padding:2px 0 16px">'
+    + '<div style="font-family:DM Serif Display,serif;font-size:1.55rem;line-height:1.2;margin-bottom:4px">'
+    + 'Most popular <em style="font-style:italic;color:var(--accent)">tonight</em></div>'
+    + '<div style="font-size:.78rem;color:var(--i3);line-height:1.5;margin-bottom:4px">'
+    + 'Top 3 picks per course — most ordered, chef-loved, trending at Suka.</div>'
+    + '</div>';
+
+  Object.keys(QUICK_PICKS).forEach(function(course) {
+    const picks = QUICK_PICKS[course];
+    html += '<div class="pop-section-title">' + QUICK_LABELS[course] + '</div>';
+
+    picks.forEach(function(pick) {
+      const item = allItems[pick.id];
+      if (!item) return;
+      // Skip sold-out items in popular picks
+      if (SOLD_OUT_IDS && SOLD_OUT_IDS.has(item.id)) return;
+      const inCart = cart[item.id] && cart[item.id].qty > 0;
+      const dc = item.diet === 'veg' ? 'v' : item.diet === 'nonveg' ? 'n' : 'e';
+      const dietLabel = item.diet === 'veg' ? 'Veg' : item.diet === 'egg' ? 'Egg' : 'Non-Veg';
+
+      html += '<div class="pop-card">';
+      html += '<div class="pop-card-info">';
+      html += '<span class="pop-card-badge">' + pick.badge + '</span>';
+      html += '<div class="pop-card-name">' + item.name + '</div>';
+      html += '<div class="pop-card-desc">' + pick.why + '</div>';
+      html += '<div style="display:flex;align-items:center;gap:6px;margin-top:5px">';
+      html += '<div class="dsq ' + dc + '"></div>';
+      html += '<span style="font-size:.62rem;color:var(--i3)">' + dietLabel + '</span>';
+      html += '<span style="font-size:.86rem;font-weight:600;color:var(--ink)">&#8377;' + (item.price||0).toLocaleString('en-IN') + '</span>';
+      html += '</div></div>';
+      var safeName = item.name.replace(/'/g, '').replace(/"/g, '');
+      var safeEmoji = (item.e || '').replace(/'/g, '');
+      var onclickAttr = "addCartQuick('" + item.id + "'," + (item.price||0) + ",'" + safeName + "','" + safeEmoji + "')";
+      html += '<button class="pop-add' + (inCart ? ' done' : '') + '" id="qpop-' + item.id + '"'
+            + ' onclick="' + onclickAttr + '">'
+            + (inCart ? '✓' : '+') + '</button>';
+      html += '</div>';
+    });
+  });
+
+  // Add top drinks section for brewery
+  var topDrinks = [
+    {id:'br1', name:'Hoegaarden 330ML', e:'🍺', price:570, badge:'Craft beer'},
+    {id:'br4', name:'Heineken 500ML',   e:'🍺', price:500, badge:'Bestseller'},
+    {id:'ck1', name:'Beachside Day Dream', e:'🍹', price:524, badge:'Top cocktail'},
+  ].filter(function(d){ return !SOLD_OUT_IDS || !SOLD_OUT_IDS.has(d.id); });
+
+  if (topDrinks.length) {
+    html += '<div class="pop-section-title">🍺 Drinks</div>';
+    topDrinks.forEach(function(drink) {
+      var inCart = cart[drink.id] && cart[drink.id].qty > 0;
+      html += '<div class="pop-card">';
+      html += '<div class="pop-card-info">';
+      html += '<span class="pop-card-badge" style="background:#EFF6FF;color:#1D4ED8">' + drink.badge + '</span>';
+      html += '<div class="pop-card-name">' + drink.name + '</div>';
+      html += '<div style="display:flex;align-items:center;gap:6px;margin-top:5px">';
+      html += '<span style="font-size:.86rem;font-weight:600;color:var(--ink)">&#8377;' + drink.price + '</span>';
+      html += '</div></div>';
+      html += '<button class="pop-add' + (inCart?' done':'') + '" id="qpop-' + drink.id + '"'
+            + ' data-did="' + drink.id + '" data-dprice="' + drink.price + '" data-dname="' + drink.name + '" data-demo="' + drink.e + '"'
+            + ' onclick="window._addDQ(this)">'
+            + (inCart?'✓':'+') + '</button>';
+      html += '</div>';
+    });
+  }
+
+  html += '<div style="background:var(--as);border:1.5px solid var(--ad);border-radius:var(--r);padding:11px 13px;margin-top:8px;font-size:.75rem;color:var(--i2);line-height:1.6">'
+        + 'Want more choices? Use the full order flow to explore all dishes and drinks.</div>';
+
+  body.innerHTML = html;
+  updBadge('spq');
+}
+
+function spqPlaceOrder() {
+  if (!Object.keys(cart).length) { toast('Add something first!', true); return; }
+  _orderSource = 'spq';
+  placeOrder();
+}
+
+function spqCartChanged() {
+  // Show direct "Order now" button when items are in cart
+  var orderBtn = document.getElementById('spq-order-btn');
+  var browseBtn = document.getElementById('spq-browse-btn');
+  if (orderBtn && browseBtn) {
+    var hasItems = Object.keys(cart).length > 0;
+    orderBtn.style.display = hasItems ? 'block' : 'none';
+    browseBtn.style.display = hasItems ? 'none' : 'block';
+  }
+}
+
+function addCartQuick(id, price, name, emoji) {
+  if (!cart[id]) cart[id] = {price:price, name:name, e:emoji, qty:0};
+  cart[id].qty++;
+  const btn = document.getElementById('qpop-'+id);
+  if (btn) { btn.textContent = '✓'; btn.classList.add('done'); }
+  updAllBadges();
+  updBadge('spq');
+  spqCartChanged();
+}
+
+function renderPopular() {
+  const body = document.getElementById('body-spo');
+  if (!body) return;
+  renderStepper('spo');
+
+  const allItems = {};
+  Object.values(MENU.food).flat().forEach(function(i){ allItems[i.id]=i; });
+  Object.values(MENU.drinks).flat().forEach(function(i){ allItems[i.id]=i; });
+
+  const sections = [
+    {key:'most_ordered', title:'Most ordered tonight', sub:'What tables at Suka keep coming back for'},
+    {key:'chefs_pick',   title:"Chefs pick",          sub:'Dishes the kitchen is most proud of'},
+    {key:'trending',     title:'Try something new',    sub:'Bold, different, worth the adventure'},
+  ];
+
+  let html = '<div style="padding:4px 0 16px">'
+    + '<div style="font-family:\'DM Serif Display\',serif;font-size:1.45rem;line-height:1.2;margin-bottom:4px">'
+    + 'Anything catch<br><em style="font-style:italic;color:var(--accent)">your eye?</em></div>'
+    + '<div style="font-size:.78rem;color:var(--i3);line-height:1.5">Tap dishes you\'re curious about — we\'ll make sure they show up for you.</div>'
+    + '</div>';
+
+  sections.forEach(function(sec) {
+    const raw = POPULAR[sec.key] || [];
+    const items = raw
+      .map(function(p){ return Object.assign({}, allItems[p.id]||{}, {_badge: p.badge}); })
+      .filter(function(i){
+        if (!i.name) return false;
+        if (dietIdentity==='veg'   && i.diet!=='veg')    return false;
+        if (dietIdentity==='eggok' && i.diet==='nonveg') return false;
+        return true;
+      });
+    if (!items.length) return;
+
+    html += '<div style="margin-bottom:22px">';
+    html += '<div style="font-size:.66rem;letter-spacing:1.8px;text-transform:uppercase;color:var(--i3);margin-bottom:6px">' + sec.title + '</div>';
+    html += '<div style="font-size:.73rem;color:var(--i3);margin-bottom:10px">' + sec.sub + '</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:8px">';
+
+    items.forEach(function(item) {
+      const on = interestedIds.has(item.id);
+      const dc = item.diet==='veg'?'v':item.diet==='nonveg'?'n':'e';
+      const accentBg  = on ? 'var(--accent)' : 'var(--off)';
+      const accentCol = on ? '#fff' : 'var(--i3)';
+      const btnBdr    = on ? '1.5px solid var(--accent)' : '1.5px solid var(--bdr)';
+      const btnBg     = on ? 'var(--accent)' : 'transparent';
+      const btnTxt    = on ? '✓' : '+';
+      const cardCls   = on ? 'rc picked' : 'rc';
+
+      html += '<div class="' + cardCls + '" id="pop-card-' + item.id + '"'
+            + ' style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 13px"'
+            + ' onclick="toggleInterest(\'' + item.id + '\')">';
+      html += '<div style="flex:1;min-width:0">';
+      html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
+      html += '<span style="font-size:.57rem;font-weight:700;letter-spacing:.8px;'
+            + 'background:' + accentBg + ';color:' + accentCol + ';'
+            + 'padding:2px 7px;border-radius:20px;text-transform:uppercase;transition:all .2s">'
+            + (item._badge||'') + '</span>';
+      html += '<div class="dsq ' + dc + '"></div>';
+      html += '</div>';
+      html += '<div style="font-weight:600;font-size:.9rem;color:var(--ink);margin-bottom:2px">' + (item.name||'') + '</div>';
+      html += '<div style="font-size:.73rem;color:var(--i2)">' + (item.desc||'') + '</div>';
+      html += '<div style="font-size:.86rem;font-weight:600;color:var(--ink);margin-top:5px">&#8377;' + ((item.price||0).toLocaleString('en-IN')) + '</div>';
+      html += '</div>';
+      html += '<div style="width:26px;height:26px;border-radius:50%;border:' + btnBdr + ';'
+            + 'background:' + btnBg + ';display:flex;align-items:center;justify-content:center;'
+            + 'font-size:.75rem;color:' + accentCol + ';flex-shrink:0;transition:all .2s">'
+            + btnTxt + '</div>';
+      html += '</div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  body.innerHTML = html;
+}
+function toggleInterest(id) {
+  if (interestedIds.has(id)) interestedIds.delete(id);
+  else interestedIds.add(id);
+  // Re-render just this card
+  const card = document.getElementById('pop-card-'+id);
+  const on = interestedIds.has(id);
+  if (card) {
+    card.classList.toggle('picked', on);
+    const badge = card.querySelector('span[style*="letter-spacing"]');
+    if (badge) { badge.style.background = on ? 'var(--accent)' : 'var(--off)'; badge.style.color = on ? '#fff' : 'var(--i3)'; }
+    const btn = card.querySelector('div[style*="border-radius:50%"]');
+    if (btn) { btn.style.border = on ? '1.5px solid var(--accent)' : '1.5px solid var(--bdr)'; btn.style.background = on ? 'var(--accent)' : 'transparent'; btn.style.color = on ? '#fff' : 'var(--i3)'; btn.textContent = on ? '✓' : '+'; }
+  }
+}
+
+function renderMoodTiles() {
+  const grid = document.getElementById('tile-grid');
+  if (!grid) return;
+  const visible = ALL_TILES.filter(t => t.plans.includes(plan));
+  grid.innerHTML = visible.map(t => `
+    <div class="tile ${moods.has(t.id)?'on':''}" data-id="${t.id}" onclick="toggleTile(this)">
+      <div class="tile-ck">✓</div>
+      <div class="tile-em">${t.e}</div>
+      <div class="tile-lbl">${t.lbl}</div>
+      <div class="tile-sub">${t.sub}</div>
+    </div>`).join('');
+}
+
+/* ══════════ DIET Q ══════════ */
+// Identity = what the person IS (mutually exclusive)
+// dietIdentity: 'nonveg' | 'veg' | 'eggok'
+let dietIdentity = 'all';
+let adventureCuisines = new Set(); // cuisines customer wants excluded
+
+function pickIdentity(el, val) {
+  document.querySelectorAll('#diet-identity .diet-chip').forEach(function(c){ c.classList.remove('on'); });
+  el.classList.add('on');
+  dietIdentity = val;
+}
+
+function toggleCuisine(el) {
+  const cu = el.dataset.cu;
+  if (adventureCuisines.has(cu)) { adventureCuisines.delete(cu); el.classList.remove('on'); }
+  else { adventureCuisines.add(cu); el.classList.add('on'); }
+}
+
+
+
+function toggleDietQ(el) {
+  const v = el.dataset.val;
+  if (dietQ.has(v)) { dietQ.delete(v); el.classList.remove('on'); }
+  else { dietQ.add(v); el.classList.add('on'); }
+}
+
+/* ══════════ SCORING ══════════ */
+function getMoodTags() {
+  const t=[]; moods.forEach(m=>MOOD_META[m]?.tags.forEach(x=>t.push(x))); return t;
+}
+
+function groupBoost(item) {
+  if (['large','small'].includes(group) && item.sharing) return 4;
+  if (group==='couple' && item.sharing) return 2;
+  return 0;
+}
+
+function softFilter(item) {
+  var isVeg    = item.diet === 'veg';
+  var isEgg    = item.diet === 'egg';
+  var isNonVeg = item.diet === 'nonveg';
+
+  // DESSERT SPECIAL RULE:
+  // Desserts contain no meat — so all identities can access desserts
+  // EXCEPT: strict Vegetarian must not see egg-based desserts
+  var DESSERT_IDS = ['des1','des2','des3','des4','des5','des6'];
+  var isDesert = DESSERT_IDS.indexOf(item.id) !== -1;
+  if (isDesert) {
+    if (dietIdentity === 'veg' && isEgg) return 'hidden';
+    return 'preferred';
+  }
+
+  // MAIN IDENTITY FILTER (hard — items hidden entirely):
+  // Everything: show all dishes
+  // Non-Veg:    show only nonveg (meat & seafood dishes)
+  // Veg:        show only veg (no egg, no meat)
+  // Veg+Egg:    show veg and egg dishes (no meat)
+  if (dietIdentity === 'nonveg' && !isNonVeg) return 'hidden';
+  if (dietIdentity === 'veg'    && !isVeg)    return 'hidden';
+  if (dietIdentity === 'eggok'  && isNonVeg)  return 'hidden';
+  // dietIdentity === 'all': show everything, no hidden
+
+  // Course-screen diet bar (secondary — only deprioritises, never hides)
+  if (dietQ.has('veg')     && !isVeg)              return 'deprioritised';
+  if (dietQ.has('eggok')   && isNonVeg)             return 'deprioritised';
+  if (dietQ.has('nonveg')  && !isNonVeg)            return 'deprioritised';
+  if (dietQ.has('seafood') && !item.seafood)        return 'deprioritised';
+
+  // Hide sold-out items completely
+  if (SOLD_OUT_IDS.has(item.id)) return 'hidden';
+
+  return 'preferred';
+}
+
+function softFilterDrink(item) {
+  // Drinks: only filter by seafood/redmeat dietary restrictions from dietQ screen
+  // Veg/Egg/NonVeg chips on course screen don't hide drinks — all drinks are shown
+  return 'preferred';
+}
+
+function dessertPairingBoost(item) {
+  // Pair dessert with meal vibe for better cross-course intelligence
+  let bonus = 0;
+  // Rich/hearty meal → indulgent dessert (brownie, tres leches)
+  if (moods.has('hearty') && item.tags.some(t=>['indulgent','hearty','comfort','sweet'].includes(t))) bonus += 4;
+  // Spicy meal → cooling/sweet finish (sorbet, kheer)
+  if (moods.has('spicy') && item.tags.some(t=>['light','fresh','sweet'].includes(t))) bonus += 4;
+  // Celebrating → premium/special dessert
+  if (moods.has('celebrate') && item.tags.some(t=>['celebrate','indulgent'].includes(t))) bonus += 5;
+  // Light meal → fresh/light dessert
+  if (moods.has('light') && item.tags.some(t=>['light','fresh'].includes(t))) bonus += 4;
+  // All desserts get a base score so they always show (even 0-tag-match)
+  bonus += 6;
+  return bonus;
+}
+
+function scoreItems(items, isDrink=false, isDessert=false) {
+  const mt=getMoodTags();
+  return items
+    .map(item=>{
+      let s = interestedIds.has(item.id) ? 10 : 0;
+
+      // DRINK PREFERENCE BOOST: items matching drinkStyle+drinkFlavor get top priority
+      if (isDrink) {
+        var boostIds = getDrinkBoostIds();
+        var boostRank = boostIds.indexOf(item.id);
+        if (boostRank !== -1) s += Math.max(12 - boostRank * 2, 4);
+      }
+
+      // BAR BITES + DRINK PREF PAIRING: boost starters that pair with chosen drink style
+      if (!isDrink && !isDessert) {
+        var biteIds = getDrinkBiteIds();
+        var biteRank = biteIds.indexOf(item.id);
+        if (biteRank !== -1) s += Math.max(10 - biteRank * 1.5, 3);
+      }
+
+      // BAR BITES PAIRING: boost bar bites that pair with drinks in cart
+      if (!isDrink && !isDessert) {
+        var drinksInCart = Object.keys(cart).filter(function(id) {
+          return ['br','ws','ck','mk','ms','sd','hd','bb'].some(function(p){ return id.startsWith(p); });
+        });
+        if (drinksInCart.length > 0) {
+          // Find what drink category is in cart
+          var drinkCat = null;
+          if (drinksInCart.some(function(id){ return id.startsWith('br'); })) drinkCat = 'beer';
+          else if (drinksInCart.some(function(id){ return id.startsWith('ck'); })) drinkCat = 'cocktails';
+          else if (drinksInCart.some(function(id){ return id.startsWith('ws'); })) drinkCat = 'wine_spirits';
+          else if (drinksInCart.some(function(id){ return id.startsWith('mk'); })) drinkCat = 'mocktails';
+          else if (drinksInCart.some(function(id){ return id.startsWith('ms'); })) drinkCat = 'milkshakes_smoothies';
+          else if (drinksInCart.some(function(id){ return id.startsWith('sd'); })) drinkCat = 'soft_drinks';
+          if (drinkCat && BAR_BITES_PAIRING[drinkCat]) {
+            var pairList = BAR_BITES_PAIRING[drinkCat];
+            var pairIdx = pairList.indexOf(item.id);
+            if (pairIdx !== -1) s += Math.max(8 - pairIdx * 1.5, 3); // top pair gets +8, ranked by position
+          }
+        }
+      }
+
+      // DIVERSITY BOOST: when 'all' selected, ensure veg items surface alongside nonveg
+      // Indian diners ordering 'everything' expect a mix — not just meat-heavy results
+      if (!isDrink && !isDessert && dietIdentity === 'all') {
+        // Diversity guarantee: veg gets significant boost so it always appears
+        // alongside nonveg in recommendations (Indian diners expect a mix)
+        if (item.diet === 'veg')    s += 6;   // strong lift — ensures veg appears in top 3
+        if (item.diet === 'egg')    s += 2;   // egg dishes surface above generic nonveg
+        if (item.seafood)           s += 3;   // seafood is a distinct craving signal
+        // Universal Indian staples — Dal Makhani, Paneer Tikka etc always show
+        var staples = ['ig2','ig1','ig5','bir1','vs2','ads1','ig6','bir2'];
+        if (staples.indexOf(item.id) !== -1) s += 5;
+      }
+
+      if (isDessert) {
+        // Desserts: use pairing logic instead of raw tag matching
+        s = dessertPairingBoost(item);
+      } else {
+        mt.forEach(t=>{ if(item.tags.includes(t)) s+=3; });
+        s += groupBoost(item);
+        if (item.tags.includes('celebrate') && moods.has('celebrate')) s+=2;
+      }
+      // Drink pairing bonuses
+      if (isDrink && moods.has('spicy') && item.tags.includes('light')) s+=2;
+      if (isDrink && moods.has('hearty') && item.tags.includes('hearty')) s+=2;
+      if (isDrink && moods.has('celebrate') && item.tags.includes('celebrate')) s+=3;
+      const pref = isDrink ? softFilterDrink(item) : softFilter(item);
+      return {...item, _score:s, _pref:pref};
+    })
+    .filter(item => item._pref !== 'hidden')   // remove identity-filtered items completely
+    .map(item => {                                 // boost selected cuisines
+      if (!adventureCuisines.size) return item;
+      const subcat = Object.keys(FOOD).find(k => FOOD[k].some(i => i.id === item.id));
+      const cuisine = subcat ? (CUISINE_BY_SUBCAT[subcat] || 'global') : 'global';
+      if (adventureCuisines.has(cuisine)) return {...item, _score: (item._score||0) + 8};
+      return item;
+    })
+    .sort((a,b)=>{
+      if (a._pref==='preferred' && b._pref!=='preferred') return -1;
+      if (b._pref==='preferred' && a._pref!=='preferred') return 1;
+      return b._score - a._score;
+    });
+}
+
+/* ══════════ DRINKS RENDER ══════════ */
+
+/* ══════════ BAR BITES PAIRING (shown on drinks screen) ══════════ */
+function renderBarBitesSuggestion() {
+  var biteIds = getDrinkBiteIds();
+  if (!biteIds.length) return '';
+
+  // Get the actual item objects for each bite
+  var allFood = {};
+  Object.values(MENU.food).forEach(function(arr){ arr.forEach(function(i){ allFood[i.id]=i; }); });
+
+  var bites = biteIds
+    .map(function(id){ return allFood[id]; })
+    .filter(function(item){ return item && !SOLD_OUT_IDS.has(item.id); })
+    .slice(0, 4);
+
+  if (!bites.length) return '';
+
+  var styleLabel = Array.from(drinkStyles).map(function(s){
+    return {beer:'beer',cocktail:'cocktails',spirits:'spirits',mocktail:'drinks'}[s]||s;
+  }).join(' & ');
+
+  var rows = bites.map(function(item){
+    var inCart = cart[item.id];
+    var dc = item.diet==='veg'?'v':item.diet==='nonveg'?'n':'e';
+    var safeName = item.name.replace(/'/g,'').replace(/"/g,'');
+    var safeEmoji = (item.e||'').replace(/'/g,'');
+    return '<div class="rc" id="card-'+item.id+'" style="'+(inCart?'':'')+'margin-bottom:8px">'
+      +'<div class="rc-l">'
+      +'<div class="rc-tags"><span class="badge" style="background:#0891b2;color:#fff">Pairs with '+styleLabel+'</span>'
+      +'<div style="display:flex;align-items:center;gap:4px;margin-left:6px"><div class="dsq '+dc+'"></div>'
+      +'<span style="font-size:.6rem;color:var(--i3)">'+(item.diet==='veg'?'Veg':item.diet==='egg'?'Egg':'Non-Veg')+'</span></div></div>'
+      +'<div class="rc-name">'+item.name+'</div>'
+      +'<div class="rc-desc">'+item.desc+'</div>'
+      +'<div class="rc-price">₹'+item.price.toLocaleString('en-IN')+'</div>'
+      +'</div>'
+      +'<div class="rc-r">'
+      +(function(){
+      var url = getImgUrl(item, sid);
+      if (url) return '<div class="rc-img"><img src="'+url+'" alt="'+item.name+'" onerror="this.parentNode.innerHTML=\''+item.e+'\'"></div>';
+      return '<div class="rc-img">'+item.e+'</div>';
+    })()
+      +'<button class="rc-add '+(inCart?'done':'')+'" data-id="'+item.id+'" data-price="'+item.price+'" data-name="'+safeName+'" data-emoji="'+safeEmoji+'" onclick="addCartFromData(this)">'+(inCart?'✓':'+')+'</button>'
+      +'</div></div>';
+  }).join('');
+
+  return '<div style="margin-top:20px">'
+    +'<div style="font-size:.72rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:#0891b2;margin-bottom:10px">🍢 Bar bites — pairs with your '+styleLabel+'</div>'
+    + rows
+    +'</div>';
+}
+
+function renderDrinks() {
+  const dbar = document.getElementById('dbar-sd');
+  if (dbar) dbar.innerHTML = dbarHTML('sd');
+
+  // Only auto-set dTab if it's not already pointing at a valid tab for current selection
+  if (drinkStyles.size > 0) {
+    var _validDTabs = Array.from(drinkStyles).map(function(s){ return STYLE_TO_TAB[s]||s; });
+    _validDTabs.push('bar_bites');
+    if (_validDTabs.indexOf(dTab) === -1) {
+      // Current dTab is not valid for this selection - reset to first selected style
+      var firstStyle = Array.from(drinkStyles)[0];
+      if (STYLE_TO_TAB[firstStyle]) dTab = STYLE_TO_TAB[firstStyle];
+    }
+    // If dTab is already 'bar_bites' or a selected style tab, KEEP IT
+  }
+
+  const moodKey = [...moods][0]||'default';
+  var hint = DRINK_HINT[moodKey]||DRINK_HINT.default;
+  // Override hint with personalized drink message
+  if (drinkStyles.size > 0) {
+    var styleNames = {beer:'beer',cocktail:'cocktails',spirits:'spirits',mocktail:'non-alcoholic'};
+    var flavorLabels = {light:'light & crisp',dark:'rich & full-bodied',fruity:'fruity & refreshing',strong:'strong & cold',sweet:'fruity & sweet',sour:'tangy & sour',herby:'fresh & herby',spicy:'spicy & bold',neat:'neat/on rocks',mixed:'mixed cocktails',long:'long drinks',shots:'shots',cool:'cooling & fresh',tangy:'tangy & zingy',floral:'floral & sweet'};
+    var styleList = Array.from(drinkStyles).map(function(s){ return styleNames[s]||s; }).join(' & ');
+    var flavorList = Array.from(drinkFlavors).map(function(f){ return flavorLabels[f]||f; }).join(', ');
+    var flavorSuffix = flavorList ? ' (' + flavorList + ')' : '';
+    hint = '✨ Showing you the best ' + styleList + flavorSuffix + ' — bar bites paired to match.';
+  }
+  // Build visible tabs based on what user selected
+  var orderedTabs;
+  if (drinkStyles.size > 0) {
+    // Only show: selected style tabs + Bar Bites (always visible, no scrolling needed)
+    var styleToTab = {beer:'beer',cocktail:'cocktails',spirits:'wine_spirits',mocktail:'mocktails'};
+    var selectedTabKeys = Array.from(drinkStyles).map(function(s){ return styleToTab[s]||s; });
+    orderedTabs = DRINK_TABS.filter(function(t){
+      return selectedTabKeys.indexOf(t.key) !== -1 || t.key === 'bar_bites';
+    });
+    // Bar Bites first when selections made - most important pairing tab
+    orderedTabs.sort(function(a,b){
+      if (a.key === 'bar_bites') return -1;
+      if (b.key === 'bar_bites') return 1;
+      return 0;
+    });
+    // Auto-set dTab to first selected style if currently on bar_bites (first load)
+    if (dTab === 'beer' && selectedTabKeys.indexOf('beer') === -1) {
+      dTab = selectedTabKeys[0] || 'beer';
+    }
+  } else {
+    orderedTabs = DRINK_TABS.slice();
+  }
+  const tabsHTML = orderedTabs.map(function(t){
+    var isBB = t.key==='bar_bites' && drinkStyles.size>0;
+    var bbStyle = isBB ? ' style="color:#0891b2;font-weight:700"' : '';
+    var cls = 'dtab' + (t.key===dTab?' on':'');
+    return '<div class="' + cls + '" data-tab="' + t.key + '" onclick="window._dt(this)"' + bbStyle + '>' + t.label + '</div>';
+  }).join('');
+
+  // When on bar_bites tab, merge drink-paired food items with drinks bar bites
+  var raw;
+  if (dTab === 'bar_bites') {
+    var biteIds = getDrinkBiteIds();
+    var allFood = {};
+    Object.values(MENU.food).forEach(function(arr){ arr.forEach(function(i){ allFood[i.id]=i; }); });
+    var pairedItems = biteIds
+      .map(function(id){ return allFood[id]; })
+      .filter(function(item){ return item && !SOLD_OUT_IDS.has(item.id); })
+      .map(function(item){
+        shownAsBarBites.add(item.id); // track so starters don't repeat these
+        return Object.assign({}, item, {_pairBadge: true});
+      });
+    var regularBites = (DRINKS[dTab]||[]).filter(function(i){ return !SOLD_OUT_IDS.has(i.id); });
+    // Merge: paired first (deduplicated), then regular bar bites
+    var seenIds = {};
+    pairedItems.forEach(function(i){ seenIds[i.id]=true; });
+    raw = pairedItems.concat(regularBites.filter(function(i){ return !seenIds[i.id]; }));
+  } else {
+    raw = DRINKS[dTab]||[];
+  }
+  const items = scoreItems(raw, dTab !== 'bar_bites'); // not isDrink for bar_bites tab
+  const preferred = items.filter(i=>i._pref==='preferred');
+  const depr = items.filter(i=>i._pref==='deprioritised');
+  const top = preferred.slice(0,4);
+  const rest = [...preferred.slice(4),...depr];
+  const isOpen = allOpen['sd_'+dTab];
+
+  const body = document.getElementById('body-sd');
+  body.innerHTML = `
+    <div class="cs-intro">
+      <div class="mood-pills">
+        ${[...moods].map(m=>`<div class="mpill">${MOOD_META[m]?.label||m}</div>`).join('')}
+        ${group!=='small'?`<div class="info-pill">${{solo:'Solo 🙋',couple:'Two of us 👫',large:'Large group 🎊'}[group]||''}</div>`:''}
+      </div>
+      <div class="cs-title">What to <em>drink?</em></div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:8px"><div class="drink-hint" style="flex:1">${hint}</div><button class="pref-btn" onclick="changePreferences('sd')" title="Change preferences">⟳</button></div>
+    ${drinkStyles.size > 0 ? '<div style="font-size:.72rem;color:#0891b2;background:rgba(8,145,178,.1);border-radius:8px;padding:7px 11px;margin-bottom:10px">🍢 Tap Bar Bites tab to see what pairs best with your drinks</div>' : ''}
+    <div class="dtabs" id="dtabs-sd">${tabsHTML}</div>
+    ${top.length===0?`<div class="rev-empty">No items in this category match your preferences — try another tab or adjust your filter.</div>`:''}
+    ${top.map((it,i)=>rcCard(it,i,'sd')).join('')}
+    ${rest.length?`
+      <button class="see-all ${isOpen?'open':''}" onclick="toggleSeeAll('sd_'+dTab)">
+        ${isOpen?'▲ Show fewer':'▼ See all ('+rest.length+' more)'}
+      </button>
+      ${isOpen?rest.map(it=>rcCard(it,99,'sd')).join(''):''}
+    `:''}
+    ${dietQ.size&&depr.length&&!isOpen?`<div class="soft-notice">Some items hidden by your preferences · tap "See all" to view</div>`:''}
+  `;
+  
+  updBadge('sd');
+  // Populate shownAsBarBites so starters screen skips these items
+  shownAsBarBites = new Set();
+  getDrinkBiteIds().forEach(function(id){ shownAsBarBites.add(id); });
+  // Also add the bb1-bb5 drink menu bar bites items
+  (DRINKS['bar_bites']||[]).forEach(function(item){ shownAsBarBites.add(item.id); });
+  // Populate _drinksTabIds — every item visible on the drinks screen
+  // (real drinks + food pairings like bar1-bar4) so they count as 'drinks' not 'starters'
+  _drinksTabIds = new Set();
+  Object.values(DRINKS).flat().forEach(function(item){ _drinksTabIds.add(item.id); });
+  shownAsBarBites.forEach(function(id){ _drinksTabIds.add(id); });
+  // Auto-scroll to active tab (document listener handles clicks)
+  setTimeout(function() {
+    var active = document.querySelector('#dtabs-sd .dtab.on');
+    if (active) active.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+  }, 30);
+}
+
+function switchDTab(key) { dTab=key; renderDrinks(); }
+
+// Global tab switcher called directly from tab onclick - bulletproof, no quote issues
+window._switchTab = function(el) {
+  var key = el.getAttribute('data-tab');
+  if (key) switchDTab(key);
+};
+
+// Drink tab click handler — called via onclick="window._dt(this)"
+// No string quoting issues — reads data attribute directly
+window._addDQ = function(btn) {
+  var id = btn.getAttribute('data-did');
+  var price = parseInt(btn.getAttribute('data-dprice'));
+  var name = btn.getAttribute('data-dname');
+  var e = btn.getAttribute('data-demo');
+  addCartQuick(id, price, name, e);
+  btn.textContent = '✓'; btn.classList.add('done');
+};
+
+window._dt = function(el) {
+  var key = el.dataset.tab || el.getAttribute('data-tab');
+  if (key) switchDTab(key);
+};
+
+/* ══════════ COURSE RENDER ══════════ */
+function renderCourse(sid) {
+  const cfg = COURSE_CFG[sid]; if(!cfg) return;
+  // Refresh sold-out list silently so newly marked items disappear
+  if (typeof loadSoldOut === 'function') loadSoldOut();
+  const dbar = document.getElementById('dbar-'+sid);
+  if (dbar) dbar.innerHTML = dbarHTML(sid);
+  // For starters: exclude items already shown as bar bites on drinks screen
+  const rawAll = (cfg.keys||[cfg.key]).flatMap(k => FOOD[k]||[]);
+  const raw = (sid === 's2' && shownAsBarBites.size > 0)
+    ? rawAll.filter(function(item){ return !shownAsBarBites.has(item.id); })
+    : rawAll;
+  const isDessertCourse = sid === 's4';
+  const items = scoreItems(raw, false, isDessertCourse);
+  const preferred = items.filter(i=>i._pref==='preferred');
+  const depr = items.filter(i=>i._pref==='deprioritised');
+  const _topN = (sessionRound >= 1 && (sid==='s2'||sid==='s3')) ? 6 : 3;
+  const top = preferred.slice(0,_topN);
+  const rest = [...preferred.slice(_topN),...depr];
+  const isOpen = allOpen[sid];
+  const body = document.getElementById('body-'+sid); if(!body) return;
+  body.innerHTML = `
+    <div class="cs-intro">
+      <div class="mood-pills" style="position:relative">
+        ${[...moods].map(m=>`<div class="mpill">${MOOD_META[m]?.label||m}</div>`).join('')}
+        ${group!=='small'?`<div class="info-pill">${{solo:'Solo 🙋',couple:'Two of us 👫',large:'Large group 🎊'}[group]||''}</div>`:''}
+        <button class="pref-btn" onclick="changePreferences('${sid}')" title="Change your taste preferences">⟳ Preferences</button>
+      </div>
+      <div class="cs-title">${cfg.title}</div>
+      <div class="cs-sub">${cfg.sub}</div>
+    </div>
+    ${top.map((it,i)=>rcCard(it,i,sid)).join('')}
+    ${rest.length?`
+      <button class="see-all ${isOpen?'open':''}" onclick="toggleSeeAll('${sid}')">
+        ${isOpen?'▲ Show fewer':'▼ See all '+cfg.allLabel+' ('+rest.length+' more)'}
+      </button>
+      ${isOpen?rest.map(it=>rcCard(it,99,sid)).join(''):''}
+    `:''}
+    ${dietQ.size&&depr.length&&!isOpen?`<div class="soft-notice">Some items hidden by your preferences · tap "See all" to view</div>`:''}
+  `;
+  updBadge(sid);
+}
+
+function toggleSeeAll(key) { allOpen[key]=!allOpen[key]; const sid=key.startsWith('sd_')?'sd':key; if(sid==='sd')renderDrinks();else renderCourse(sid); }
+
+/* ══════════ CARD ══════════ */
+function rcCard(item, rank, sid) {
+  const inCart = cart[item.id];
+  const dc = item.diet==='veg'?'v':item.diet==='nonveg'?'n':'e';
+  const spice = (item.spice||0)>0?' '+'🌶'.repeat(item.spice):'';
+  const isDepr = item._pref==='deprioritised';
+  const popBadge = POPULAR_BADGE[item.id];
+  // Check if this item is a drinks pairing suggestion
+  // Check if this item pairs with user's drink preference OR drinks already in cart
+  var isPairsBadge = false;
+  var biteBoostIds = getDrinkBiteIds();
+  if (biteBoostIds.length > 0 && biteBoostIds.indexOf(item.id) !== -1) {
+    isPairsBadge = true; // Matches drink preference selected on sdr screen
+  } else {
+    // Also check drinks actually added to cart
+    var drinksInCartForBadge = Object.keys(cart).filter(function(id){
+      return ['br','ws','ck','mk','ms','sd','hd'].some(function(p){ return id.startsWith(p); });
+    });
+    if (drinksInCartForBadge.length > 0) {
+      var catForBadge = null;
+      if (drinksInCartForBadge.some(function(id){ return id.startsWith('br'); })) catForBadge='beer';
+      else if (drinksInCartForBadge.some(function(id){ return id.startsWith('ck'); })) catForBadge='cocktails';
+      else if (drinksInCartForBadge.some(function(id){ return id.startsWith('ws'); })) catForBadge='wine_spirits';
+      else if (drinksInCartForBadge.some(function(id){ return id.startsWith('mk'); })) catForBadge='mocktails';
+      if (catForBadge && BAR_BITES_PAIRING[catForBadge] && BAR_BITES_PAIRING[catForBadge].indexOf(item.id) !== -1) isPairsBadge = true;
+    }
+  }
+  const badge = (item._pairBadge || isPairsBadge) ? '<span class="badge" style="background:#0891b2;color:#fff">Pairs with your drink</span>' :
+    popBadge ? '<span class="badge" style="background:var(--black);color:#fff">' + popBadge + '</span>' :
+    rank===0 && !isDepr ? '<span class="badge b-top">Top Pick</span>' :
+    item.sharing ? '<span class="badge b-share">Sharing</span>' : '';
+  const whyArr = (item.why||'').split(',').filter(w=>moods.has(w));
+  const whyLine = whyArr.length
+    ? `<div class="rc-why">✦ Because you picked ${whyArr.map(w=>MOOD_META[w]?.label||w).join(' + ')}</div>`
+    : rank===0&&!isDepr ? `<div class="rc-why">✦ Most popular tonight</div>` : '';
+  const deprStyle = isDepr ? 'opacity:.65;' : '';
+  return `
+  <div class="rc ${inCart?'picked':''} ${rank===0&&!isDepr?'toprec':''}" id="card-${item.id}" style="${deprStyle}">
+    <div class="rc-l">
+      <div class="rc-tags">${badge}<div style="display:flex;align-items:center;gap:4px"><div class="dsq ${dc}"></div><span style="font-size:.6rem;color:var(--i3)">${item.diet==='veg'?'Veg':item.diet==='egg'?'Egg':'Non-Veg'}</span></div></div>
+      <div class="rc-name">${item.name}${spice}</div>
+      <div class="rc-desc">${item.desc}</div>
+      ${whyLine}
+      <div class="rc-price">₹${item.price.toLocaleString('en-IN')}</div>
+    </div>
+    <div class="rc-r">
+      <div class="rc-img">${(function(){var u=getImgUrl(item,sid||'misc');return u?'<img src="'+u+'" alt="'+item.name+'" onerror="this.parentNode.innerHTML=\''+item.e+'\'">':(item.e);})()}</div>
+      <button class="rc-add ${inCart?'done':''}"
+        onclick="addCart('${item.id}',${item.price},'${item.name.replace(/'/g,"\\'")}','${item.e}',this)"
+      >${inCart?'✓':'+'}</button>
+    </div>
+  </div>`;
+}
+
+/* ══════════ DIET BAR (course screens) ══════════ */
+function dbarHTML(sid) {
+  if (dietIdentity === 'all') {
+    // Full identity = 'all' — show active filter chips for fine-grained browsing
+    var isV  = dietQ.has('veg');
+    var isNV = dietQ.has('nonveg');
+    var isE  = dietQ.has('eggok');
+    var isSF = dietQ.has('seafood');
+    var isNone = !isV && !isNV && !isE && !isSF;
+    var allCls  = isNone ? ' vv' : '';
+    var allPtr  = isNone ? 'none' : 'auto';
+    var allOp   = isNone ? '1' : '.6';
+    var html  = '<div class="db-chip' + allCls + '" onclick="clearDBChips(\'' + sid + '\')" style="pointer-events:' + allPtr + ';opacity:' + allOp + '">All</div>';
+    html += '<div class="db-chip' + (isV  ? ' vv' : '') + '" onclick="toggleDBChip(\'veg\',\'' + sid + '\')"><div class="db-dot" style="background:var(--veg)"></div>Veg</div>';
+    html += '<div class="db-chip' + (isE  ? ' ee' : '') + '" onclick="toggleDBChip(\'eggok\',\'' + sid + '\')"><div class="db-dot" style="background:var(--egg)"></div>Egg</div>';
+    html += '<div class="db-chip' + (isNV ? ' nn' : '') + '" onclick="toggleDBChip(\'nonveg\',\'' + sid + '\')"><div class="db-dot" style="background:var(--nv)"></div>Non-Veg</div>';
+    html += '<div class="db-chip' + (isSF ? ' nn' : '') + '" onclick="toggleDBChip(\'seafood\',\'' + sid + '\')"><div class="db-dot" style="background:#0891b2"></div>Seafood</div>';
+    return html;
+  }
+  // Other identities: show as non-clickable identity badge
+  var labels   = {veg:'Veg only', eggok:'Veg + Egg', nonveg:'Non-Veg'};
+  var dotColor = {veg:'var(--veg)', eggok:'var(--egg)', nonveg:'var(--nv)'}[dietIdentity] || '#888780';
+  var label = labels[dietIdentity] || '';
+  return '<div class="db-chip" style="pointer-events:none;opacity:.8">'
+       + '<div class="db-dot" style="background:' + dotColor + '"></div>' + label + '</div>';
+}
+
+function clearDBChips(sid) {
+  dietQ.delete('veg'); dietQ.delete('nonveg'); dietQ.delete('eggok'); dietQ.delete('seafood');
+  if (sid === 'sd') renderDrinks(); else renderCourse(sid);
+}
+
+function toggleDBChip(type, sid) {
+  if (type==='veg') {
+    if (dietQ.has('veg')) dietQ.delete('veg');
+    else { dietQ.add('veg'); dietQ.delete('eggok'); dietQ.delete('nonveg'); }
+  } else if (type==='eggok') {
+    if (dietQ.has('eggok')) dietQ.delete('eggok');
+    else { dietQ.add('eggok'); dietQ.delete('veg'); dietQ.delete('nonveg'); }
+  } else if (type==='nonveg') {
+    if (dietQ.has('nonveg')) dietQ.delete('nonveg');
+    else { dietQ.add('nonveg'); dietQ.delete('veg'); dietQ.delete('eggok'); dietQ.delete('seafood'); }
+  } else if (type==='seafood') {
+    if (dietQ.has('seafood')) dietQ.delete('seafood');
+    else { dietQ.add('seafood'); dietQ.delete('veg'); dietQ.delete('eggok'); dietQ.delete('nonveg'); }
+  }
+  if (sid==='sd') renderDrinks(); else renderCourse(sid);
+}
+
+/* ══════════ CART ══════════ */
+function addCartFromData(btn) {
+  var id    = btn.dataset.id;
+  var price = parseInt(btn.dataset.price);
+  var name  = btn.dataset.name;
+  var emoji = btn.dataset.emoji;
+  addCart(id, price, name, emoji, btn);
+}
+
+function addCart(id, price, name, emoji, btn) {
+  if(!cart[id]) cart[id]={price,name,e:emoji,qty:0};
+  cart[id].qty++;
+  if(btn){btn.textContent='✓';btn.classList.add('done');}
+  document.getElementById('card-'+id)?.classList.add('picked');
+  updAllBadges();
+}
+
+function updAllBadges() { ['sd','s2','s3','s4'].forEach(updBadge); }
+function updBadge(sid) {
+  const el=document.getElementById('cn-'+sid); if(!el) return;
+  const n=Object.values(cart).reduce((s,i)=>s+i.qty,0);
+  el.textContent=n; el.classList.toggle('show',n>0);
+}
+
+/* ══════════ REVIEW ══════════ */
+function renderReview() {
+  const body=document.getElementById('rev-body');
+  const keys=Object.keys(cart);
+  if(!keys.length){body.innerHTML='<div class="rev-empty">Nothing added yet — go back and pick some dishes!</div>';document.getElementById('rev-total').textContent='₹0';return;}
+  body.innerHTML=`
+    <div class="rev-sec-title">Your order</div>
+    ${keys.map(id=>{const i=cart[id];return`
+    <div class="rev-row">
+      <span class="rev-em">${i.e}</span>
+      <span class="rev-name">${i.name}</span>
+      <span class="rev-price">₹${(i.price*i.qty).toLocaleString('en-IN')}</span>
+      <div class="qty">
+        <button class="qb" onclick="chgQty('${id}',-1)">−</button>
+        <span class="qn">${i.qty}</span>
+        <button class="qb" onclick="chgQty('${id}',1)">+</button>
+      </div>
+    </div>`}).join('')}`;
+  document.getElementById('rev-total').textContent='₹'+Object.values(cart).reduce((s,i)=>s+i.price*i.qty,0).toLocaleString('en-IN');
+}
+
+function chgQty(id,d){
+  if(!cart[id])return;
+  cart[id].qty=Math.max(0,cart[id].qty+d);
+  if(cart[id].qty===0)delete cart[id];
+  updAllBadges(); renderReview();
+}
+
+function placeOrder(){
+  fbSessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+  // POST order to DB so kitchen + admin can see it immediately
+  var orderItems = Object.values(cart).map(function(item){
+    return {itemId:item.id, name:item.name, qty:item.qty, price:item.price, diet:item.diet||'nonveg'};
+  });
+  if (orderItems.length > 0) {
+    fetch('/api/orders', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        restaurantId: RESTAURANT.id,
+        tableNumber:  RESTAURANT.table,
+        items:        orderItems,
+        orderTotal:   orderItems.reduce(function(s,i){return s+i.price*i.qty;},0)
+      })
+    }).catch(function(){}); // silent fail - UX not blocked
+  }
+  // Track session
+  // Personalise success screen with actual item ordered
+  var firstItem = Object.values(cart)[0];
+  if (firstItem) {
+    var sh = document.getElementById('suc-h');
+    var sp = document.getElementById('suc-p');
+    if (sh) sh.textContent = firstItem.name + ' is on its way!';
+    if (sp) sp.textContent = 'Your order is with the kitchen. Table ' + RESTAURANT.table + ' — sit back.';
+  }
+  sessionRound++;
+  // Save to sessionStorage so QR rescan restores session
+  saveSession();
+  sessionMoods    = new Set(moods);
+  sessionDiet     = dietIdentity;
+  sessionDrinkSt  = new Set(drinkStyles);
+  var MAINS_IDS   = new Set(['bir1','bir2','bir3','bir4','ig1','ig2','ig3','ig4','ig5','ig6','ig7','ig8','rec1','pas1','pas2','pas3','pas4','piz1','piz2','piz3','piz4','bur1','bur2','bur3','gm1','gm2','gm3','gm4','sf1','sf2','sf3','sf4','sf5','sf6','sf7','sf8','noo1','noo2','noo3','fr1','fr2','fr3','fr4','fr5','th1','th2','th3','th4']);
+  var DESSERT_SET = new Set(['des1','des2','des3','des4','des5','des6']);
+  var DRINK_SET   = new Set(Object.values(DRINKS||{}).flat().map(function(d){return d.id;}));
+  // Detect what courses are in this order and add to cumulative sessionCourses
+  // _drinksTabIds includes ALL items visible on the drinks screen (drinks + food pairings like bar bites)
+  // so bar1-bar4 ordered alongside drinks correctly count as 'drinks', not 'starters'
+  Object.keys(cart).forEach(function(id){
+    if (DESSERT_SET.has(id))         sessionCourses.add('desserts');
+    else if (MAINS_IDS.has(id))      sessionCourses.add('mains');
+    else if (DRINK_SET.has(id))      sessionCourses.add('drinks');
+    else if (DRINKS_PAIRING_IDS.has(id)) sessionCourses.add('drinks'); // bar bites / drink pairings
+    else                             sessionCourses.add('starters');
+  });
+  // buildReorderOptions uses sessionCourses directly — no _lastCourse needed
+  buildReorderOptions();
+  document.getElementById('success').classList.add('show');
+}
+
+function buildReorderOptions() {
+  var el = document.getElementById('reorder-options');
+  if (!el) return;
+
+  // What has been ordered cumulatively this session
+  var hadDrinks   = sessionCourses.has('drinks');
+  var hadStarters = sessionCourses.has('starters');
+  var hadMains    = sessionCourses.has('mains');
+  var hadDessert  = sessionCourses.has('desserts');
+  var hadFood     = hadStarters || hadMains;
+
+  // How many food rounds (starters + mains = 1 round; second starters after mains = round 2)
+  var foodRoundDone = hadStarters && hadMains; // completed at least one full food round
+
+  var btns = '';
+
+  // Review is always first
+  btns += '<button class="suc-btn review-order" data-course="review">📋 Review full order</button>';
+
+  // ── POPULAR PATH ─────────────────────────────────────────────
+  // Came from Popular screen — they haven't answered preference questions yet.
+  // Always offer: Get Recommendations + Order Drinks.
+  // Never try to guess next food step since we don't know their preferences.
+  if (_orderSource === 'spq') {
+    btns += '<button class="suc-btn continue-order" data-course="rec-questions">✦ Get recommendations</button>';
+    btns += '<button class="suc-btn drinks-round" data-course="drinks">🍺 Order drinks</button>';
+    btns += '<div class="suc-link" data-course="done">Done for now — request bill</div>';
+    el.innerHTML = btns;
+    return;
+  }
+
+  // ── RECOMMENDATIONS PATH ──────────────────────────────────────
+  // Preferences known. Decide purely from what sessionCourses contains.
+
+  if (hadDessert) {
+    // End of meal — push to bill
+    btns += '<button class="suc-btn continue-order" data-course="thankyou">🙏 Request the bill</button>';
+    btns += '<button class="suc-btn drinks-round" data-course="drinks">🍺 One last drink?</button>';
+
+  } else if (foodRoundDone) {
+    // Had starters + mains — second food round option + dessert
+    btns += '<button class="suc-btn dessert-upsell" data-course="desserts">🍮 Room for dessert?</button>';
+    btns += '<button class="suc-btn" data-course="food-saved">✦ Order more food</button>';
+    btns += '<button class="suc-btn drinks-round" data-course="drinks">🍺 Another round</button>';
+
+  } else if (hadMains && !hadStarters) {
+    // Jumped straight to mains (edge case) — offer dessert + more food
+    btns += '<button class="suc-btn dessert-upsell" data-course="desserts">🍮 Room for dessert?</button>';
+    btns += '<button class="suc-btn" data-course="food-saved">✦ More food</button>';
+    btns += '<button class="suc-btn drinks-round" data-course="drinks">🍺 Another round</button>';
+
+  } else if (hadStarters && !hadMains) {
+    // Had starters — natural next step is mains
+    btns += '<button class="suc-btn continue-order" data-course="mains">🍛 Ready for mains?</button>';
+    btns += '<button class="suc-btn drinks-round" data-course="drinks">🍺 Another round</button>';
+    btns += '<button class="suc-btn" data-course="desserts">🍮 Skip to dessert</button>';
+
+  } else if (hadDrinks && !hadFood) {
+    // Had drinks only — time to suggest food
+    btns += '<button class="suc-btn continue-order" data-course="food-saved">🍽️ Try food now?</button>';
+    btns += '<button class="suc-btn drinks-round" data-course="drinks">🍺 Another round</button>';
+
+  } else {
+    // Nothing ordered yet in this round, or mixed starter+drink first order
+    // Show the full next-step options
+    if (!hadFood) {
+      btns += '<button class="suc-btn continue-order" data-course="food-saved">🍽️ Try food now?</button>';
+    } else if (hadStarters && !hadMains) {
+      btns += '<button class="suc-btn continue-order" data-course="mains">🍛 Ready for mains?</button>';
+    }
+    btns += '<button class="suc-btn drinks-round" data-course="drinks">🍺 Order drinks</button>';
+  }
+
+  btns += '<div class="suc-link" data-course="done">Done for now — request bill</div>';
+  el.innerHTML = btns;
+}
+
+function quickOrderCourse(course) {
+  // Skip questions, go directly to the course with remembered preferences
+  cart = {};
+  document.getElementById('success').classList.remove('show');
+  // Restore session preferences silently
+  if (sessionMoods.size) moods = new Set(sessionMoods);
+  dietIdentity = sessionDiet || 'all';
+  if (sessionDrinkSt.size) drinkStyles = new Set(sessionDrinkSt);
+  if (course === 'desserts') {
+    renderCourse('s4'); go('s4');
+  } else if (course === 'mains') {
+    renderCourse('s3'); go('s3');
+  } else if (course === 'drinks') {
+    // Reset to first selected style tab (not bar_bites) so screen feels fresh
+    dTab = drinkStyles.size > 0 ? (STYLE_TO_TAB[Array.from(drinkStyles)[0]] || 'beer') : 'beer';
+    allOpen = {}; // collapse any expanded sections
+    renderDrinks();
+    renderStepper('sd');
+    go('sd');
+    var body = document.getElementById('body-sd');
+    if (body) body.scrollTop = 0;
+  } else {
+    // starters or fallback
+    renderCourse('s2'); go('s2');
+  }
+  updAllBadges();
+}
+
+function continueOrder() {
+  // Go to the flow but skip questions — restore preferences
+  cart = {};
+  document.getElementById('success').classList.remove('show');
+  if (sessionMoods.size) moods = new Set(sessionMoods);
+  dietIdentity = sessionDiet || 'all';
+  if (sessionDrinkSt.size) drinkStyles = new Set(sessionDrinkSt);
+  // Show quick course picker
+  var el = document.getElementById('reorder-options');
+  var dessertBtn = (sessionCourses.has('mains') && !sessionCourses.has('desserts'))
+    ? '<button class="suc-btn suc-btn-dessert" data-course="desserts">🍮 Desserts</button>' : '';
+  document.getElementById('success').innerHTML =
+    '<div class="suc-icon">🍽️</div>' +
+    '<div class="suc-h">What would you like?</div>' +
+    '<div class="suc-p" style="margin-bottom:16px">Your taste preferences are remembered.</div>' +
+    '<button class="suc-btn suc-btn-drinks" data-course="drinks">🍺 Drinks</button>' +
+    '<button class="suc-btn suc-btn-continue" data-course="starters">🍗 Starters</button>' +
+    '<button class="suc-btn" data-course="mains">🍛 Mains</button>' +
+    dessertBtn +
+    '<div class="suc-link" data-course="reset">Change preferences</div>';
+  document.getElementById('success').classList.add('show');
+}
+
+function showResumeSession() {
+  // Show a minimal screen: "Resume your session" or just go to success screen
+  // with the last course's reorder options
+  var el = document.getElementById('success');
+  if (!el) return;
+  document.getElementById('suc-icon').textContent = '👋';
+  document.getElementById('suc-h').textContent = 'Welcome back!';
+  document.getElementById('suc-p').textContent = 'Your previous order is still active. What would you like next?';
+  buildReorderOptions();
+  el.classList.add('show');
+}
+
+function showThankYou() {
+  document.getElementById('tyScreen').classList.add('show');
+}
+
+function showBillConfirmation() {
+  // Show a clean "bill is coming" message — customer doesn't generate bill
+  // Admin panel handles bill generation and printing
+  var el = document.getElementById('tyScreen');
+  if (!el) return;
+  // Update the thank you screen content
+  var icon = document.getElementById('ty-icon');
+  var h    = document.querySelector('.ty-h');
+  var sub  = document.querySelector('.ty-sub');
+  var bill = document.querySelector('.ty-bill-btn');
+  var fb   = document.querySelector('.ty-feedback-link');
+  if (icon) icon.textContent = '✦';
+  if (h)    h.innerHTML      = 'Your bill is<br>on its way';
+  if (sub)  sub.textContent  = 'We\'ve let your waiter know. They\'ll be with you shortly.';
+  if (bill) bill.style.display = 'none';   // hide "Generate Bill" — admin does this
+  if (fb)   fb.style.display   = 'none';   // hide feedback link — already submitted
+  el.classList.add('show');
+}
+
+function tyFeedback() {
+  document.getElementById('tyScreen').classList.remove('show');
+  showFeedback();
+}
+
+function requestBillAndFeedback() {
+  // Step 1: notify the kitchen/admin that this table wants the bill
+  fetch('/api/orders/request-bill', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      restaurantId: RESTAURANT.id,
+      tableNumber:  RESTAURANT.table,
+    }),
+  }).catch(function(){});  // fire and forget — don't block on this
+  // Step 2: show feedback form (bill confirmation shown after submit)
+  showFeedback();
+}
+
+function requestBill() {
+  // Open bill in admin context — use same table
+  var billUrl = '/bill.html?table=' + encodeURIComponent(RESTAURANT.table)
+              + '&restaurant=' + RESTAURANT.id
+              + '&pin=0000';
+  window.open(billUrl, '_blank');
+  // Also show feedback after short delay
+  setTimeout(function() {
+    document.getElementById('tyScreen').classList.remove('show');
+    showFeedback();
+  }, 1500);
+}
+
+function changePreferences(fromSid) {
+  // Keep cart — just go back to preference questions
+  var msg = 'Reset your preferences? Your cart will be kept.';
+  if (!confirm(msg)) return;
+  // Clear preference state but keep cart and session courses
+  moods = new Set(); drinkStyles = new Set(); drinkFlavors = new Set();
+  group = 'small'; dietIdentity = 'all'; adventureCuisines = new Set();
+  document.querySelectorAll('.tile').forEach(function(t){ t.classList.remove('on'); });
+  var defChip = document.querySelector('#diet-identity .diet-chip[data-val="all"]');
+  if (defChip) defChip.classList.add('on');
+  // Go back to mood screen (s1) — not welcome
+  renderMoodTiles(); go('s1');
+}
+
+function resetAll(){
+  cart={}; moods=new Set(); plan=null; group='small'; dietQ=new Set(); allOpen={}; dTab='beer'; drinkStyles=new Set(); drinkFlavors=new Set();
+  document.querySelectorAll('.tile').forEach(t=>t.classList.remove('on'));
+  document.getElementById('moodBtn').classList.remove('go');
+  document.getElementById('moodCnt').textContent='Tap a tile to begin';
+  // reset group to default
+  document.querySelectorAll('#groupChoices .choice').forEach(c=>c.classList.remove('on'));
+  document.querySelector('.choice[data-val="small"]')?.classList.add('on');
+  document.querySelectorAll('.diet-chip').forEach(c=>c.classList.remove('on'));
+  dietIdentity = 'all';
+  adventureCuisines = new Set();
+  interestedIds = new Set();
+  document.querySelectorAll('#cuisine-chips .diet-chip').forEach(c=>c.classList.remove('on'));
+  const defChip = document.querySelector('#diet-identity .diet-chip[data-val="all"]');
+  if (defChip) defChip.classList.add('on');
+  document.getElementById('success').classList.remove('show');
+  document.getElementById('fbScreen').classList.remove('show');
+  var tyEl = document.getElementById('tyScreen');
+  if (tyEl) tyEl.classList.remove('show');
+  try { sessionStorage.removeItem(SESSION_KEY); } catch(e) {}
+  sessionRound = 0; sessionCourses = new Set(); sessionMoods = new Set();
+  _lastCourse = ''; _orderSource = 'full'; _questionsDone = false; _drinksTabIds = new Set();
+  updAllBadges(); go('s0');
+}
+
+function callWaiter(btn){btn.textContent='✅ Called!';setTimeout(()=>{btn.innerHTML='📞 Call Waiter';},3000);}
+
+/* ══════════ FEEDBACK ══════════ */
+var fbStarRating = 0;
+var fbDishRatings = {};   // itemId -> true (up) | false (down) | null
+var fbRecommend   = null; // true | false | null
+var fbSessionId   = null; // set when order is placed
+
+function showFeedback() {
+  // Build dish rating list from cart
+  var list = document.getElementById('dishFbList');
+  if (!list) return;
+  var html = '';
+  Object.keys(cart).forEach(function(id) {
+    var item = cart[id];
+    fbDishRatings[id] = null;
+    html += '<div class="dish-fb" id="dish-fb-' + id + '">'
+          + '<span style="font-size:1.2rem;flex-shrink:0">' + (item.e||'🍽️') + '</span>'
+          + '<span class="dish-fb-name">' + item.name + '</span>'
+          + '<button class="thumb up" id="up-' + id + '" data-id="' + id + '" data-up="1" onclick="rateDish(this.dataset.id,true)">👍</button>'
+          + '<button class="thumb dn" id="dn-' + id + '" data-id="' + id + '" onclick="rateDish(this.dataset.id,false)">👎</button>'
+          + '</div>';
+  });
+  list.innerHTML = html || '<div style="font-size:.8rem;color:var(--i3);padding:8px 0">No items to rate</div>';
+
+  // Reset star state
+  fbStarRating = 0;
+  fbRecommend = null;
+  document.querySelectorAll('.star').forEach(function(s){ s.classList.remove('on'); });
+  document.getElementById('recYes').classList.remove('on');
+  document.getElementById('recNo').classList.remove('on');
+  document.getElementById('fbStatus').textContent = '';
+  var ta = document.getElementById('fbComment');
+  if (ta) ta.value = '';
+
+  document.getElementById('success').classList.remove('show');
+  document.getElementById('fbScreen').classList.add('show');
+}
+
+function rateStar(v) {
+  fbStarRating = v;
+  document.querySelectorAll('.star').forEach(function(s){
+    s.classList.toggle('on', parseInt(s.dataset.v) <= v);
+  });
+}
+
+function rateDish(id, isUp) {
+  fbDishRatings[id] = fbDishRatings[id] === isUp ? null : isUp;
+  var val = fbDishRatings[id];
+  var upBtn = document.getElementById('up-' + id);
+  var dnBtn = document.getElementById('dn-' + id);
+  if (upBtn) upBtn.classList.toggle('on', val === true);
+  if (dnBtn) dnBtn.classList.toggle('on', val === false);
+}
+
+function pickRecommend(val) {
+  fbRecommend = fbRecommend === val ? null : val;
+  document.getElementById('recYes').classList.toggle('on', fbRecommend === true);
+  document.getElementById('recNo').classList.toggle('on', fbRecommend === false);
+}
+
+function buildFeedbackPayload() {
+  // Build dish list with recommendation context
+  var dishes = Object.keys(cart).map(function(id) {
+    return {
+      itemId:    id,
+      name:      cart[id].name,
+      qty:       cart[id].qty,
+      price:     cart[id].price,
+      thumbs:    fbDishRatings[id],          // true=up, false=down, null=no rating
+      wasInterested: interestedIds.has(id),  // was it in the popular screen?
+      wasPicked: POPULAR_BADGE[id] ? POPULAR_BADGE[id] : null,
+    };
+  });
+
+  return {
+    sessionId:      fbSessionId,
+    restaurantId:   'suka-mallathalli',
+    tableNumber:    RESTAURANT.table,
+    timestamp:      new Date().toISOString(),
+    // What the customer told us
+    plan:           plan,
+    moods:          Array.from(moods),
+    dietIdentity:   dietIdentity,
+    groupSize:      group,
+    adventureCuisines: Array.from(adventureCuisines),
+    interestedIds:  Array.from(interestedIds),
+    // What they ordered
+    dishes:         dishes,
+    orderTotal:     Object.values(cart).reduce(function(s,i){ return s + i.price*i.qty; }, 0),
+    // Feedback
+    overallRating:  fbStarRating || null,
+    wouldRecommend: fbRecommend,
+    comment:        (document.getElementById('fbComment') || {}).value || '',
+  };
+}
+
+
+/* ══════════ DRINKS PREFERENCE SCREEN ══════════ */
+const DRINK_FLAVOR_OPTIONS = {
+  beer:     [
+    {val:'light',  e:'🌾', lbl:'Crisp & Light',   sub:'Easy drinking lager'},
+    {val:'dark',   e:'🍂', lbl:'Dark & Full',       sub:'Rich, malty, bold'},
+    {val:'fruity', e:'🍋', lbl:'Fruity & Wheat',    sub:'Soft, citrusy craft'},
+    {val:'strong', e:'💪', lbl:'Strong & Cold',     sub:'500ml, full body'},
+  ],
+  cocktail: [
+    {val:'sweet',  e:'🍓', lbl:'Fruity & Sweet',   sub:'Tropical, berry, mango'},
+    {val:'sour',   e:'🍋', lbl:'Tangy & Sour',      sub:'Citrus, margarita, sour'},
+    {val:'herby',  e:'🌿', lbl:'Fresh & Herby',     sub:'Mint, herb, floral'},
+    {val:'spicy',  e:'🔥', lbl:'Spicy & Bold',      sub:'Chilli, ginger, fiery'},
+  ],
+  spirits:  [
+    {val:'neat',   e:'🪨', lbl:'Neat or on rocks', sub:'Whisky, rum, pure'},
+    {val:'mixed',  e:'🍹', lbl:'Mixed cocktail',    sub:'Whisky sour, LIIT'},
+    {val:'long',   e:'🫧', lbl:'Long & refreshing', sub:'Gin & tonic, highball'},
+    {val:'shots',  e:'🎯', lbl:'Shots & fun',        sub:'Sambuca, Jager, jello'},
+  ],
+  mocktail: [
+    {val:'cool',   e:'❄️', lbl:'Cooling & Fresh',  sub:'Mojito, kaffir fizz'},
+    {val:'tangy',  e:'🍊', lbl:'Tangy & Zingy',    sub:'Lime soda, watermelon'},
+    {val:'floral', e:'🌺', lbl:'Floral & Sweet',   sub:'Blue lagoon, rose'},
+    {val:'spicy',  e:'🌶️', lbl:'Spicy & Kick',     sub:'Ginger, pepper, bold'},
+  ],
+};
+
+// Drink item scores based on style+flavor combo
+const DRINK_SCORE_MAP = {
+  'beer+light':    ['br3','br5','br6','br1','br2'],
+  'beer+dark':     ['br4','br7','br2','br5','br3'],
+  'beer+fruity':   ['br1','br2','br6','br3','br5'],
+  'beer+strong':   ['br4','br7','br2','br5','br3'],
+  'cocktail+sweet':['ck1','ck2','ck12','ck14','ck5','ck3','ck8'],
+  'cocktail+sour': ['ck18','ck4','ck3','ck5','ck6','ck19'],
+  'cocktail+herby':['ck9','ck13','ck18','ck1','ck8'],
+  'cocktail+spicy':['ck10','ck11','ck19','ck7','ck4'],
+  'spirits+neat':  ['ws3','ws4','ws11','ws12','ws1','ws2'],
+  'spirits+mixed': ['ck4','ck6','ck7','ck17','ws3'],
+  'spirits+long':  ['ws5','ws6','ws7','ws9','ws14','ws15'],
+  'spirits+shots': ['ws13','ck15','ck16','ck17','ws5'],
+  'mocktail+cool': ['mk3','mk1','mk2','sd4','sd5'],
+  'mocktail+tangy':['mk2','sd4','mk1','sd5','sd2'],
+  'mocktail+floral':['mk4','mk1','mk3','sd5','ms4'],
+  'mocktail+spicy':['mk1','sd4','mk3','mk2','sd5'],
+};
+
+// Which drink tab to auto-open based on style
+const STYLE_TO_TAB = {
+  beer:'beer', cocktail:'cocktails', spirits:'wine_spirits', mocktail:'mocktails'
+};
+
+// Bar bites pairing per style+flavor
+const DRINK_BITES_MAP = {
+  'beer+light':    ['bar4','bar3','ads2','ads1','nv5'],
+  'beer+dark':     ['bar4','nv4','nv5','bar3','ads1'],
+  'beer+fruity':   ['bar3','ads3','tac3','bar4','vs8'],
+  'beer+strong':   ['nv4','nv5','bar4','bar3','ads1'],
+  'cocktail+sweet':['su1','bar1','tac3','ads3','vs8'],
+  'cocktail+sour': ['bar1','tac1','su1','ads3','vs3'],
+  'cocktail+herby':['vs4','su1','tac3','ads3','bar2'],
+  'cocktail+spicy':['bar1','nv2','tac1','nv4','ads3'],
+  'spirits+neat':  ['sig1','nv6','vs2','vs7','bar1'],
+  'spirits+mixed': ['nv6','sig1','bar1','vs2','nv1'],
+  'spirits+long':  ['bar1','su1','vs4','ads3','tac3'],
+  'spirits+shots': ['bar4','ads2','ads1','vs8','bar3'],
+  'mocktail+cool': ['ads3','bar2','vs4','ads1','tac3'],
+  'mocktail+tangy':['ads3','tac3','ads1','bar2','vs3'],
+  'mocktail+floral':['su1','ads3','vs4','bar2','ads1'],
+  'mocktail+spicy':['ads3','bar4','vs5','bar2','ads1'],
+};
+
+function setDrinkStyle(tile) {
+  var style = tile.dataset.style;
+  // Toggle multi-select
+  if (drinkStyles.has(style)) drinkStyles.delete(style);
+  else drinkStyles.add(style);
+  tile.classList.toggle('on', drinkStyles.has(style));
+  // Update flavor chips for all selected styles
+  renderDrinkFlavors();
+  // Set tab to first selected style
+  var first = Array.from(drinkStyles)[0];
+  if (first) dTab = STYLE_TO_TAB[first] || 'beer';
+  // Enable button as soon as at least one style selected
+  var btn = document.getElementById('drinkStyleBtn');
+  if (drinkStyles.size > 0) {
+    btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+  } else {
+    btn.style.opacity = '.4'; btn.style.pointerEvents = 'none';
+  }
+}
+
+function renderDrinkFlavors() {
+  if (drinkStyles.size === 0) {
+    document.getElementById('drinkFlavorSection').style.display = 'none';
+    return;
+  }
+  // Collect all flavor options from all selected styles
+  var seen = {};
+  var allFlavors = [];
+  drinkStyles.forEach(function(style) {
+    (DRINK_FLAVOR_OPTIONS[style] || []).forEach(function(f) {
+      if (!seen[f.val]) { seen[f.val] = true; allFlavors.push(f); }
+    });
+  });
+  var styleLabels = {
+    beer:'How do you like your beer?',
+    cocktail:'Cocktail preference?',
+    spirits:'How do you take it?',
+    mocktail:'Non-alcoholic vibe?'
+  };
+  var styles = Array.from(drinkStyles);
+  var label = styles.map(function(s){ return styleLabels[s]; }).join(' · ');
+  document.getElementById('drinkFlavorLabel').textContent = label || 'What flavors call you?';
+  var fg = document.getElementById('drinkFlavorGrid');
+  fg.innerHTML = allFlavors.map(function(f) {
+    return '<button class="flavor-chip'+(drinkFlavors.has(f.val)?' on':'')+
+           '" data-val="'+f.val+'" onclick="setDrinkFlavor(this)">'+f.e+' '+f.lbl+'</button>';
+  }).join('');
+  document.getElementById('drinkFlavorSection').style.display = 'block';
+}
+
+function setDrinkFlavor(chip) {
+  var val = chip.dataset.val;
+  if (drinkFlavors.has(val)) drinkFlavors.delete(val);
+  else drinkFlavors.add(val);
+  chip.classList.toggle('on', drinkFlavors.has(val));
+}
+
+// Score boost for drinks based on drinkStyle + drinkFlavor
+function getDrinkBoostIds() {
+  // Merge boost lists from all selected style+flavor combos
+  var all = [];
+  drinkStyles.forEach(function(style) {
+    drinkFlavors.forEach(function(flavor) {
+      var key = style + '+' + flavor;
+      var ids = DRINK_SCORE_MAP[key] || [];
+      ids.forEach(function(id) { if (all.indexOf(id) === -1) all.push(id); });
+    });
+  });
+  // If only style selected, use style defaults
+  if (all.length === 0) {
+    drinkStyles.forEach(function(style) {
+      var defaults = {beer:['br1','br3','br5'],cocktail:['ck1','ck12','ck18'],spirits:['ws11','ws4','ws5'],mocktail:['mk3','mk1','mk2']};
+      (defaults[style]||[]).forEach(function(id){ if(all.indexOf(id)===-1) all.push(id); });
+    });
+  }
+  return all;
+}
+
+// Bar bites pairing from drink preference
+function getDrinkBiteIds() {
+  var all = [];
+  drinkStyles.forEach(function(style) {
+    drinkFlavors.forEach(function(flavor) {
+      var key = style + '+' + flavor;
+      var ids = DRINK_BITES_MAP[key] || [];
+      ids.forEach(function(id) { if (all.indexOf(id) === -1) all.push(id); });
+    });
+  });
+  // Fallback: if only style selected (no flavor), use style defaults
+  if (all.length === 0 && drinkStyles.size > 0) {
+    var styleDefaults = {
+      beer:    ['bar4','bar3','nv4','nv5','ads2'],
+      cocktail:['bar1','su1','ads3','tac3','vs8'],
+      spirits: ['sig1','nv6','vs2','bar1','vs7'],
+      mocktail:['ads3','bar2','vs4','ads1','tac3']
+    };
+    drinkStyles.forEach(function(style){
+      (styleDefaults[style]||[]).forEach(function(id){ if(all.indexOf(id)===-1) all.push(id); });
+    });
+  }
+  return all;
+}
+
+function submitFeedback() {
+  var statusEl = document.getElementById('fbStatus');
+  statusEl.textContent = 'Submitting...';
+
+  var payload = buildFeedbackPayload();
+
+  // POST to backend — replace with your actual API URL
+  var API_URL = '/api/feedback';
+
+  fetch(API_URL, {
+    method:  'POST',
+    headers: {'Content-Type': 'application/json'},
+    body:    JSON.stringify(payload),
+  })
+  .then(function(r) {
+    if (!r.ok) throw new Error('Server error ' + r.status);
+    return r.json();
+  })
+  .then(function() {
+    statusEl.textContent = 'Thank you! Your feedback helps us improve.';
+    statusEl.style.color = 'var(--veg)';
+    setTimeout(function(){
+      document.getElementById('fbScreen').classList.remove('show');
+      showBillConfirmation();
+    }, 1500);
+  })
+  .catch(function(err) {
+    // Store locally if API unreachable (offline-first fallback)
+    var stored = [];
+    try { stored = JSON.parse(localStorage.getItem('suka_fb_queue') || '[]'); } catch(e) {}
+    stored.push(payload);
+    localStorage.setItem('suka_fb_queue', JSON.stringify(stored));
+    statusEl.textContent = 'Saved! Will sync when connection is restored.';
+    statusEl.style.color = 'var(--egg)';
+    setTimeout(function(){ resetAll(); }, 2000);
+  });
+}
+
+
+/* ═══════════ NEW LUXURY FLOW PATCHES ═══════════ */
+
+// SPQ SUB-TABS
+var _spqTab = 'popular';
+function switchSpqTab(tab) {
+  _spqTab = tab;
+  var popTab = document.getElementById('spq-tab-popular');
+  var recTab = document.getElementById('spq-tab-recs');
+  if (popTab) popTab.classList.toggle('on', tab === 'popular');
+  if (recTab)  recTab.classList.toggle('on', tab === 'recs');
+  var confirmBtn = document.getElementById('spq-confirm-btn');
+  var nextBtn    = document.getElementById('spq-next-btn');
+  if (tab === 'popular') {
+    renderPopularQuick();
+    if (confirmBtn) confirmBtn.style.display = Object.keys(cart).length ? '' : 'none';
+    if (nextBtn)    nextBtn.style.display    = Object.keys(cart).length ? 'none' : '';
+  } else {
+    // Recs tab — show plan picker inline
+    var body = document.getElementById('body-spq');
+    if (body) {
+      body.innerHTML = '<div style="padding:20px 4px">'
+        + '<div style="font-family:Playfair Display,serif;font-size:1.45rem;color:var(--ink);line-height:1.2;margin-bottom:6px">Get <em style="color:var(--gold)">personalised</em><br>recommendations</div>'
+        + '<div style="font-size:.8rem;color:var(--ink2);line-height:1.6;margin-bottom:24px">Tell us your taste — takes 2 minutes and we handle the rest.</div>'
+        + '<div style="display:flex;flex-direction:column;gap:10px">'
+        + '<button class="plan-choice-btn" data-plan="both" onclick="pickPlanAndStart(this)"><span class="pce">🍽️</span><div><div class="pct">Food + Drinks</div><div class="pcs">Drinks first, then starters → mains → desserts</div></div><span style="color:var(--ink3)">→</span></button>'
+        + '<button class="plan-choice-btn" data-plan="drinks" onclick="pickPlanAndStart(this)"><span class="pce">🍺</span><div><div class="pct">Drinks only</div><div class="pcs">Cocktails, beer, bar bites pairing</div></div><span style="color:var(--ink3)">→</span></button>'
+        + '<button class="plan-choice-btn" data-plan="food" onclick="pickPlanAndStart(this)"><span class="pce">🥘</span><div><div class="pct">Just food</div><div class="pcs">Starters → mains → desserts</div></div><span style="color:var(--ink3)">→</span></button>'
+        + '</div></div>';
+    }
+    if (confirmBtn) confirmBtn.style.display = 'none';
+    if (nextBtn)    nextBtn.style.display    = 'none';
+  }
+}
+
+// Override goPopularQuick to also set up spq tabs
+var _origGoPopularQuick = window.goPopularQuick;
+window.goPopularQuick = function() {
+  loadSoldOut().then(function() {
+    _spqTab = 'popular';
+    var popTab = document.getElementById('spq-tab-popular');
+    var recTab = document.getElementById('spq-tab-recs');
+    if (popTab) popTab.classList.add('on');
+    if (recTab)  recTab.classList.remove('on');
+    renderPopularQuick();
+    updAllBadges();
+    go('spq');
+  });
+};
+
+// SPQ Confirm order (replaces spqPlaceOrder)
+window.spqConfirmOrder = function() {
+  if (!Object.keys(cart).length) { toast('Add something first!', true); return; }
+  _orderSource = 'spq';
+  placeOrder();
+};
+
+// Update SPQ nav whenever cart changes — patch addCartQuick
+var _origAddCartQuick = window.addCartQuick;
+window.addCartQuick = function(id, price, name, emoji) {
+  _origAddCartQuick.apply(this, arguments);
+  // Update SPQ confirm/browse button visibility
+  var hasItems = Object.keys(cart).length > 0;
+  var confirmBtn = document.getElementById('spq-confirm-btn');
+  var nextBtn    = document.getElementById('spq-next-btn');
+  if (confirmBtn) confirmBtn.style.display = hasItems ? '' : 'none';
+  if (nextBtn)    nextBtn.style.display    = hasItems ? 'none' : '';
+};
+
+// FIXED FLOW:
+// drinks → review (always — food offered from success screen)
+// starters → mains → review
+// desserts offered as upsell from success screen only
+var _origNextFrom = window.nextFrom;
+window.nextFrom = function(sid) {
+  if (sid === 's2') {
+    // Starters → mains
+    renderCourse('s3'); renderStepper('s3'); go('s3');
+    return;
+  }
+  if (sid === 's3') {
+    // Mains → review (dessert upsell from success screen)
+    renderReview(); renderStepper('s6'); go('s6');
+    return;
+  }
+  if (sid === 'sd') {
+    // Drinks → ALWAYS go straight to review order
+    // Food is suggested from the success screen buttons
+    renderReview(); renderStepper('s6'); go('s6');
+    return;
+  }
+  // fallback
+  _origNextFrom.apply(this, arguments);
+};
+
+// ═══ FINAL CONFIRMED FLOW ═══
+// FLOW 1 — SPQ (Popular Tonight):
+//   Order → "Get food recommendations" → full questions → starters → mains
+// FLOW 2 — Recommendations + drinks ordered:
+//   Drinks → "Try food now?" → straight to starters (saved prefs, no questions)
+//   After food: starters → mains → "Want to try more?" + "Room for dessert?" together
+// FLOW 3 — Recommendations + food (starters/mains) ordered:
+//   Starters → mains → "Want to try more?" + "Room for dessert?" both visible
+//   "Want to try more?" → more food → only dessert button shows next
+// FLOW 4 — Drinks-only plan, after drinks:
+//   Same as Flow 2 — "Try food now?" → starters (saved prefs)
+// buildReorderOptions is fully defined above — no override needed
+
+// DESSERT INTRO — add Gen Z tag when rendering desserts
+var _origRenderCourse = window.renderCourse;
+window.renderCourse = function(sid) {
+  _origRenderCourse.apply(this, arguments);
+  if (sid === 's4') {
+    // Prepend the Gen Z tag to the cs-intro
+    var body = document.getElementById('body-s4');
+    if (body) {
+      var intro = body.querySelector('.cs-intro');
+      if (intro && !intro.querySelector('.dessert-gz-tag')) {
+        var tag = document.createElement('span');
+        tag.className = 'dessert-gz-tag';
+        tag.textContent = '✦ End on a high';
+        intro.insertBefore(tag, intro.firstChild);
+      }
+    }
+  }
+};
+
+// BILL REQUEST — triggers feedback
+var _origRequestBill = window.requestBill;
+window.requestBill = function() {
+  var billUrl = '/bill.html?table=' + encodeURIComponent(RESTAURANT.table)
+              + '&restaurant=' + RESTAURANT.id
+              + '&pin=0000';
+  window.open(billUrl, '_blank');
+  setTimeout(function() {
+    var ty = document.getElementById('tyScreen');
+    if (ty) ty.classList.remove('show');
+    showFeedback();
+  }, 1500);
+};
+
+// Fix updAllBadges to sync cn-spq 
+var _origUpdAllBadges = window.updAllBadges;
+window.updAllBadges = function() {
+  _origUpdAllBadges.apply(this, arguments);
+  var total = Object.values(cart).reduce(function(s,i){ return s + i.qty; }, 0);
+  ['cn-spq', 'cn-sd', 'cn-s2', 'cn-s3', 'cn-s4'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.textContent = total > 0 ? total : '';
+      el.className = total > 0 ? 'cart-n show' : 'cart-n';
+    }
+  });
+};
+
+</script>
+</body>
+</html>
