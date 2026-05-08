@@ -519,7 +519,7 @@ function loadTab(){
   else if(activeTab==='soldout')loadSoldOutTab();
   else if(activeTab==='menu')loadMenuTab();
   else if(activeTab==='settings')loadSettings();
-  else if(activeTab==='qr')loadQR();
+  else if(activeTab==='qr')loadQR();  // loads existing tables from DB
 }
 
 /* TABLES */
@@ -659,6 +659,19 @@ async function clearAll(){
 }
 
 /* QR CODES — 50+ table support with selection */
+function initQR(){
+  // Just show empty state — admin must generate QR codes manually
+  // This ensures the grid only shows tables that have actually been added
+  var grid=document.getElementById('qr-print-grid');
+  if(grid && grid.children.length === 0){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px 16px;color:var(--ink3);font-size:.83rem;line-height:1.7">'
+      +'<div style="font-size:1.4rem;margin-bottom:8px">📱</div>'
+      +'<strong style="color:var(--ink)">No QR codes yet</strong><br>'
+      +'Tap a section above to add tables, then click ⚡ Generate QR Codes.<br>'
+      +'Or click <em>Load All QR Codes</em> to see existing tables.</div>';
+  }
+}
+
 function adjCount(d){_tblCount=Math.max(1,Math.min(100,_tblCount+d));document.getElementById('tbl-count').textContent=_tblCount;}
 
 /* TAP-TO-ADD QR */
@@ -706,6 +719,7 @@ async function generatePending(){
     var cnt=_pendingTables.length;toast('Generated '+cnt+' QR code'+(cnt>1?'s':'')+' ✓');
     _pendingTables=[];renderPendingTables();
     loadQR();
+    loadTables();
   }catch(e){toast(e.message,true);}
 }
 async function addTableBulk(){
@@ -722,6 +736,7 @@ async function addTableBulk(){
       await fetch('/api/admin/tables',{method:'POST',headers:H(),body:JSON.stringify({tableNumber:tnum,section:section})});
     }
     toast('Added '+count+' table'+(count>1?'s':'')+' ✓');
+    loadTables();
     _tblCount=1;document.getElementById('tbl-count').textContent='1';
     document.getElementById('new-tbl').value='';
     loadQR();

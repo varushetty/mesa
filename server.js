@@ -40,9 +40,9 @@ app.get('/api/health', async (req, res) => {
 
 // ── HTML page routes ─────────────────────────────────────────────
 app.get('/admin.html',     (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'admin.html')));
-app.get('/kitchen.html',   (req, res) => res.sendFile(path.join(__dirname,  'frontend', 'kitchen.html')));
-app.get('/dashboard.html', (req, res) => res.sendFile(path.join(__dirname,  'frontend', 'dashboard.html')));
-app.get('/bill.html',      (req, res) => res.sendFile(path.join(__dirname,  'frontend', 'bill.html')));
+app.get('/kitchen.html',   (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'kitchen.html')));
+app.get('/dashboard.html', (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'dashboard.html')));
+app.get('/bill.html',      (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'bill.html')));
 
 // ── API 404 — must come BEFORE the SPA catch-all ─────────────────
 // Any /api/* route that reached here wasn't matched — return JSON, not HTML

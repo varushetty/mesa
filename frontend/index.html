@@ -524,11 +524,12 @@ html,body{background:var(--bg);color:var(--ink)}
       <div class="diet-chip" data-cu="mexican"      onclick="toggleCuisine(this)">
         <div class="dc-text"><div class="dc-lbl">Mexican</div><div class="dc-sub">Tacos</div></div><div class="dc-check"></div>
       </div>
+      <div class="diet-chip" data-cu="northindian" onclick="toggleCuisine(this)"><div class="dc-text"><div class="dc-lbl">North Indian</div><div class="dc-sub">Curries, Biryani, Breads</div></div><div class="dc-check"></div></div>
       <div class="diet-chip" data-cu="middleeastern" onclick="toggleCuisine(this)">
         <div class="dc-text"><div class="dc-lbl">Middle Eastern</div><div class="dc-sub">Pita, Falafel</div></div><div class="dc-check"></div>
       </div>
       <div class="diet-chip" data-cu="coastal"      onclick="toggleCuisine(this)">
-        <div class="dc-text"><div class="dc-lbl">Coastal Indian</div><div class="dc-sub">Seafood, Tawa fry</div></div><div class="dc-check"></div>
+        <div class="dc-text"><div class="dc-lbl">Coastal Indian</div><div class="dc-sub">Seafood, Tawa, Curries</div></div><div class="dc-check"></div>
       </div>
     </div>
   </div>
@@ -657,7 +658,7 @@ html,body{background:var(--bg);color:var(--ink)}
   <div class="cnav">
     <button class="cart-btn-hdr" style="font-size:.85rem" onclick="goReview()">🛒<span class="cart-n" id="cn-s2"></span></button>
     <span class="skip-lnk" onclick="nextFrom('s2')">Skip →</span>
-    <button class="next-btn" onclick="nextFrom('s2')">Review order →</button>
+    <button class="next-btn" onclick="nextFrom('s2')">Next: Mains →</button>
   </div>
 </div>
 
@@ -675,7 +676,7 @@ html,body{background:var(--bg);color:var(--ink)}
   <div class="cnav">
     <button class="cart-btn-hdr" style="font-size:.85rem" onclick="goReview()">🛒<span class="cart-n" id="cn-s3"></span></button>
     <span class="skip-lnk" onclick="nextFrom('s3')">Skip →</span>
-    <button class="next-btn" onclick="nextFrom('s3')">Next: Desserts →</button>
+    <button class="next-btn" onclick="nextFrom('s3')">Review Order →</button>
   </div>
 </div>
 
@@ -1057,15 +1058,23 @@ const MENU = {
 // These should be classified as 'drinks' not 'starters' in course detection.
 // Includes: MENU.food.bar_bites (bar1-bar4), common pairing suggestions from
 // getDrinkBiteIds/DRINK_BITES_MAP, and MENU.drinks.bar_bites (bb1-bb5).
+// ALL food items that can appear on the drinks screen as pairings.
+// These classify as 'drinks' not 'starters' so the flow stays correct.
 const DRINKS_PAIRING_IDS = new Set([
-  // MENU.food.bar_bites
+  // MENU.food.bar_bites (shown as pairing on drinks tab)
   'bar1','bar2','bar3','bar4',
-  // MENU.drinks.bar_bites
+  // MENU.drinks.bar_bites (bb prefix)
   'bb1','bb2','bb3','bb4','bb5',
-  // all_day_snacks that appear as pairings
+  // all_day_snacks — frequently paired with drinks
   'ads1','ads2','ads3','ads4',
-  // common pairing suggestions from DRINK_BITES_MAP / BAR_BITES_PAIRING
-  'nv4','nv5','vs3','vs8','tac3','su1','ds4',
+  // all items from BAR_BITES_PAIRING and DRINK_BITES_MAP across all styles
+  'nv4','nv5','nv3','nv1','nv6',          // chicken wings, lollipop, BBQ, seekh, lamb
+  'vs2','vs3','vs4','vs5','vs7','vs8',     // paneer tikka, onion rings, falafel, fiery toasties, hariyali, cheese corn
+  'tac3','tac1','tac2',                    // all tacos
+  'su1','su2','su3','su4',                 // all sushi rolls
+  'ds1','ds2','ds3','ds4',                 // all dim sum
+  'spa1','spa2','spa3',                    // special appetisers
+  'sig1','sig2','sig3',                    // suka signatures shown as pairing
 ]);
 
 const DRINK_TABS = [
@@ -1464,7 +1473,7 @@ function startFlow() {
 
   // update drinks "next" label
   const n = nextOf('sd');
-  const lbl = n==='s6' ? 'Review Order →' : 'Next: Starters →';
+  const lbl = 'Review Order →';
   const btn = document.getElementById('next-sd');
   if (btn) btn.textContent = lbl;
 
@@ -2423,6 +2432,8 @@ function placeOrder(){
     else                             sessionCourses.add('starters');
   });
   // buildReorderOptions uses sessionCourses directly — no _lastCourse needed
+  // Save all items to sessionAllItems for end-of-meal feedback
+  Object.keys(cart).forEach(function(id) { sessionAllItems[id] = cart[id]; });
   buildReorderOptions();
   document.getElementById('success').classList.add('show');
 }
@@ -2485,15 +2496,15 @@ function buildReorderOptions() {
     btns += '<button class="suc-btn" data-course="desserts">🍮 Skip to dessert</button>';
 
   } else if (hadDrinks && !hadFood) {
-    // Had drinks only — time to suggest food
-    btns += '<button class="suc-btn continue-order" data-course="food-saved">🍽️ Try food now?</button>';
+    // Had drinks only — always suggest starters next (not mains)
+    btns += '<button class="suc-btn continue-order" data-course="food-saved">🍗 Try some starters?</button>';
     btns += '<button class="suc-btn drinks-round" data-course="drinks">🍺 Another round</button>';
 
   } else {
     // Nothing ordered yet in this round, or mixed starter+drink first order
     // Show the full next-step options
     if (!hadFood) {
-      btns += '<button class="suc-btn continue-order" data-course="food-saved">🍽️ Try food now?</button>';
+      btns += '<button class="suc-btn continue-order" data-course="food-saved">🍗 Try some starters?</button>';
     } else if (hadStarters && !hadMains) {
       btns += '<button class="suc-btn continue-order" data-course="mains">🍛 Ready for mains?</button>';
     }
@@ -2656,7 +2667,7 @@ function resetAll(){
   var tyEl = document.getElementById('tyScreen');
   if (tyEl) tyEl.classList.remove('show');
   try { sessionStorage.removeItem(SESSION_KEY); } catch(e) {}
-  sessionRound = 0; sessionCourses = new Set(); sessionMoods = new Set();
+  sessionRound = 0; sessionCourses = new Set(); sessionMoods = new Set(); sessionAllItems = {};
   _lastCourse = ''; _orderSource = 'full'; _questionsDone = false; _drinksTabIds = new Set();
   updAllBadges(); go('s0');
 }
@@ -2664,18 +2675,20 @@ function resetAll(){
 function callWaiter(btn){btn.textContent='✅ Called!';setTimeout(()=>{btn.innerHTML='📞 Call Waiter';},3000);}
 
 /* ══════════ FEEDBACK ══════════ */
-var fbStarRating = 0;
-var fbDishRatings = {};   // itemId -> true (up) | false (down) | null
-var fbRecommend   = null; // true | false | null
-var fbSessionId   = null; // set when order is placed
+var fbStarRating    = 0;
+var fbDishRatings   = {};  // itemId -> true (up) | false (down) | null
+var fbRecommend     = null;
+var fbSessionId     = null;
+var sessionAllItems = {};  // accumulates ALL items ordered in this session for feedback
 
 function showFeedback() {
   // Build dish rating list from cart
   var list = document.getElementById('dishFbList');
   if (!list) return;
   var html = '';
-  Object.keys(cart).forEach(function(id) {
-    var item = cart[id];
+  var rateSource = Object.keys(sessionAllItems).length > 0 ? sessionAllItems : cart;
+  Object.keys(rateSource).forEach(function(id) {
+    var item = rateSource[id];
     fbDishRatings[id] = null;
     html += '<div class="dish-fb" id="dish-fb-' + id + '">'
           + '<span style="font-size:1.2rem;flex-shrink:0">' + (item.e||'🍽️') + '</span>'
@@ -3027,7 +3040,10 @@ window.goPopularQuick = function() {
 window.spqConfirmOrder = function() {
   if (!Object.keys(cart).length) { toast('Add something first!', true); return; }
   _orderSource = 'spq';
-  placeOrder();
+  // Go to review screen first — customer confirms before order is placed
+  renderReview();
+  renderStepper('s6');
+  go('s6');
 };
 
 // Update SPQ nav whenever cart changes — patch addCartQuick
