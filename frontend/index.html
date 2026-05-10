@@ -779,7 +779,7 @@ html,body{background:var(--bg);color:var(--ink)}
   var params = new URLSearchParams(window.location.search);
   var rid = params.get('restaurant') || 'suka-mallathalli';
   // Whitelist — prevent path traversal
-  var allowed = ['suka-mallathalli','legacy-rrnagar'];
+  var allowed = ['suka-mallathalli','legacy-rrnagar','levels-nagarbhavi'];
   if (allowed.indexOf(rid) === -1) rid = 'suka-mallathalli';
   // Synchronous load — blocks until config is ready, then main script runs
   document.write('<scr'+'ipt src="menus/' + rid + '.js"><\/scr'+'ipt>');

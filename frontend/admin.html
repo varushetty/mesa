@@ -420,7 +420,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-
 (function() {
   var ap = new URLSearchParams(window.location.search);
   var rid = ap.get('restaurant') || 'suka-mallathalli';
-  var allowed = ['suka-mallathalli','legacy-rrnagar'];
+  var allowed = ['suka-mallathalli','legacy-rrnagar','levels-nagarbhavi'];
   if (allowed.indexOf(rid) === -1) rid = 'suka-mallathalli';
   document.write('<scr'+'ipt src="menus/' + rid + '.js"><\/scr'+'ipt>');
 })();
