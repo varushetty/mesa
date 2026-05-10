@@ -157,7 +157,7 @@ tr:hover td{background:var(--bg)}
   <div class="hdr-inner">
     <div>
       <div class="hdr-brand">mesa</div>
-      <div class="hdr-sub">SUKA Mallathalli · Owner Dashboard</div>
+      <div class="hdr-sub" id="dash-sub">Dashboard</div>
     </div>
     <div class="date-row">
       <button class="day-btn on" onclick="setToday(this)">Today</button>
@@ -523,7 +523,7 @@ async function dlSubmit() {
       var cfg = window.MESA_RESTO_CONFIG;
       document.title = cfg.name + ' — Dashboard';
       document.querySelectorAll('.hdr-brand').forEach(function(el){el.textContent=cfg.name.toLowerCase();});
-      document.querySelector('.hdr-sub').textContent = cfg.name+' · '+cfg.location+' · '+d.user.role;
+      document.document.getElementById('dash-sub').textContent = cfg.name + ' ' + cfg.location + ' · ' + d.user.role.charAt(0).toUpperCase() + d.user.role.slice(1) + ' Dashboard';
       if (cfg.accent) document.documentElement.style.setProperty('--gold', cfg.accent);
     }
     // Show dashboard
@@ -545,24 +545,11 @@ function initDashboard() {
   setInterval(loadAll,30000);
 }
 
-// Check if already logged in (same session)
+// // Always require PIN on page load/refresh — no auto-login from sessionStorage
 (function(){
-  var token = sessionStorage.getItem('mesa_dash_token');
-  var rid   = sessionStorage.getItem('mesa_dash_rid');
-  // Validate token matches current restaurant param
-  if (token && rid === _dlRid) {
-    _dashToken = token; _dashRid = rid;
-    document.getElementById('dash-login').style.display = 'none';
-    document.getElementById('dash-app').style.display   = 'block';
-    if (window.MESA_RESTO_CONFIG) {
-      var cfg = window.MESA_RESTO_CONFIG;
-      document.title = cfg.name + ' — Dashboard';
-      document.querySelectorAll('.hdr-brand').forEach(function(el){el.textContent=cfg.name.toLowerCase();});
-      if (cfg.accent) document.documentElement.style.setProperty('--gold', cfg.accent);
-    }
-    initDashboard();
-  }
-  // Apply brand even on login screen
+  sessionStorage.removeItem('mesa_dash_token');
+  sessionStorage.removeItem('mesa_dash_rid');
+  // Apply restaurant branding to login screen
   if (window.MESA_RESTO_CONFIG) {
     var cfg = window.MESA_RESTO_CONFIG;
     document.getElementById('dl-brand').textContent = cfg.name.toLowerCase();
