@@ -361,8 +361,8 @@ html,body{background:var(--bg);color:var(--ink)}
 <div class="screen show" id="s0">
   <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:370px;margin:0 auto">
     <div class="logo-ring au"><span class="logo-m">m</span></div>
-    <div class="wtable au" style="animation-delay:.06s" id="welcome-table-num">Table AA-14</div>
-    <div class="wheading au" style="animation-delay:.1s">Welcome to SUKA.<br>What's the plan?</div>
+    <div class="wtable au" style="animation-delay:.06s" id="welcome-table-num">Table</div>
+    <div class="wheading au" style="animation-delay:.1s" id="welcome-heading">Welcome.<br>What's the plan?</div>
     <div class="wsub au" style="animation-delay:.14s">Your table. Your experience. Let's find your perfect order.</div>
     <button class="pop-btn primary-btn au" style="animation-delay:.16s" onclick="goPopularQuick()">
       <div class="pop-btn-icon">🔥</div>
@@ -772,44 +772,24 @@ html,body{background:var(--bg);color:var(--ink)}
 </div>
 
 <script>
-// ── Dynamic restaurant loader ────────────────────────────────────
-// Loads ONLY the current restaurant's config file
-// No other restaurant's data is downloaded
+// ── Synchronous restaurant config loader ─────────────────────────
+// document.write loads the script BEFORE the main script runs
+// This means all functions stay global — no timing issues
 (function() {
   var params = new URLSearchParams(window.location.search);
   var rid = params.get('restaurant') || 'suka-mallathalli';
-  // Validate against known IDs to prevent path traversal
-  var allowed = window.MESA_REGISTRY || ['suka-mallathalli','legacy-rrnagar'];
+  // Whitelist — prevent path traversal
+  var allowed = ['suka-mallathalli','legacy-rrnagar'];
   if (allowed.indexOf(rid) === -1) rid = 'suka-mallathalli';
-  // Load only this restaurant's config file
-  var s = document.createElement('script');
-  s.src = 'menus/' + rid + '.js?v=1';
-  s.onload = function() {
-    // Config loaded — signal that page can initialise
-    window._mesaConfigLoaded = true;
-    if (window._mesaInitPending) window._mesaInitPending();
-  };
-  s.onerror = function() {
-    // Fallback to SUKA if restaurant file not found
-    console.warn('[mesa] Menu file not found for:', rid, '— falling back to SUKA');
-    var fallback = document.createElement('script');
-    fallback.src = 'menus/suka-mallathalli.js?v=1';
-    fallback.onload = function() {
-      window._mesaConfigLoaded = true;
-      if (window._mesaInitPending) window._mesaInitPending();
-    };
-    document.head.appendChild(fallback);
-  };
-  document.head.appendChild(s);
+  // Synchronous load — blocks until config is ready, then main script runs
+  document.write('<scr'+'ipt src="menus/' + rid + '.js"><\/scr'+'ipt>');
 })();
 </script>
 <script>
 /* ══════════ RESTAURANT CONFIG ══════════ */
-// Defer initialisation until the restaurant config file has loaded
-function _mesaInit() {
 // Read table + restaurant from QR URL (?table=AA-14&restaurant=suka-mallathalli)
 var _urlP = new URLSearchParams(window.location.search);
-var _urlTable = _urlP.get('table') || 'AA-14';
+var _urlTable = _urlP.get('table') || '';
 var _urlResto = _urlP.get('restaurant') || 'suka-mallathalli';
 
 // Use the dynamically loaded restaurant config
@@ -3189,7 +3169,7 @@ function renderCuisineChips() {
   });
 
   // Welcome screen heading
-  var wh = document.querySelector('.wheading');
+  var wh = document.getElementById('welcome-heading') || document.querySelector('.wheading');
 if (wh) wh.innerHTML = "Welcome to " + name + ".<br>What's the plan?";
 
   // Welcome table number
@@ -3207,14 +3187,7 @@ if (wh) wh.innerHTML = "Welcome to " + name + ".<br>What's the plan?";
   }
 })();
 
-} // end _mesaInit
 
-// Run when config is ready
-if (window._mesaConfigLoaded) {
-  _mesaInit();
-} else {
-  window._mesaInitPending = _mesaInit;
-}
 
 </script>
 </body>

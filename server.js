@@ -39,10 +39,12 @@ app.get('/api/health', async (req, res) => {
 });
 
 // ── HTML page routes ─────────────────────────────────────────────
-app.get('/admin.html',     (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'admin.html')));
-app.get('/kitchen.html',   (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'kitchen.html')));
-app.get('/dashboard.html', (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'dashboard.html')));
-app.get('/bill.html',      (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'bill.html')));
+// Clean URLs — both /admin and /admin.html work
+const sendF = (file) => (req, res) => res.sendFile(path.join(__dirname, 'frontend', file));
+app.get(['/admin',     '/admin.html'],     sendF('admin.html'));
+app.get(['/kitchen',   '/kitchen.html'],   sendF('kitchen.html'));
+app.get(['/dashboard', '/dashboard.html'], sendF('dashboard.html'));
+app.get(['/bill',      '/bill.html'],      sendF('bill.html'));
 
 // ── API 404 — must come BEFORE the SPA catch-all ─────────────────
 // Any /api/* route that reached here wasn't matched — return JSON, not HTML
