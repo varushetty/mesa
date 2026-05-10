@@ -4,6 +4,36 @@ const router  = express.Router();
 const db      = require('../db/pool');
 
 // ── Auth middleware ──────────────────────────────────────────────
+// ── Auth token helpers ───────────────────────────────────────────
+const crypto = require('crypto');
+
+function getSecret() {
+  return process.env.MESA_SECRET || 'mesa-dev-secret-change-in-production';
+}
+
+function issueToken(restaurantId, role, name) {
+  const expiry  = Date.now() + 12 * 60 * 60 * 1000; // 12 hours
+  const payload = `${restaurantId}:${role}:${name}:${expiry}`;
+  const sig     = crypto.createHmac('sha256', getSecret()).update(payload).digest('hex');
+  return Buffer.from(payload).toString('base64') + '.' + sig;
+}
+
+function verifyToken(token) {
+  if (!token) return null;
+  try {
+    const [b64, sig] = token.split('.');
+    if (!b64 || !sig) return null;
+    const payload = Buffer.from(b64, 'base64').toString();
+    const expected = crypto.createHmac('sha256', getSecret()).update(payload).digest('hex');
+    // Constant-time comparison to prevent timing attacks
+    if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) return null;
+    const [restaurantId, role, name, expiry] = payload.split(':');
+    if (Date.now() > parseInt(expiry)) return null; // expired
+    return { restaurantId, role, name };
+  } catch { return null; }
+}
+
+// ── requireAdmin: PIN per-request (for admin.html operations) ────
 async function requireAdmin(req, res, next) {
   const rid = req.headers['x-restaurant-id'] || req.query.restaurant_id || 'suka-mallathalli';
   const pin = req.headers['x-admin-pin']     || req.query.pin;
@@ -21,6 +51,20 @@ async function requireAdmin(req, res, next) {
 }
 
 // ── POST /api/admin/login ─────────────────────────────────────────
+// ── requireDashboard: token-based auth for analytics ─────────────
+// Analytics endpoints use tokens — not per-request PINs
+// This prevents URL-param manipulation to access other restaurants
+function requireDashboard(req, res, next) {
+  const auth  = req.headers['authorization'] || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  const data  = verifyToken(token);
+  if (!data) return res.status(401).json({ error: 'Dashboard session expired. Please log in again.' });
+  // Override any URL param — token is the source of truth
+  req.restaurantId = data.restaurantId;
+  req.adminRole    = data.role;
+  next();
+}
+
 router.post('/login', async (req, res) => {
   const { restaurantId, pin } = req.body;
   if (!pin) return res.status(400).json({ error: 'PIN required' });
@@ -30,7 +74,9 @@ router.post('/login', async (req, res) => {
       [restaurantId || 'suka-mallathalli', pin]
     );
     if (!r.rows.length) return res.status(403).json({ error: 'Invalid PIN' });
-    res.json({ success: true, user: r.rows[0] });
+    const user  = r.rows[0];
+    const token = issueToken(restaurantId || 'suka-mallathalli', user.role, user.name);
+    res.json({ success: true, user, token });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

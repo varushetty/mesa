@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 // LEVELS MICROBREWERY & KITCHEN — Nagarbhavi, Bangalore
 // Complete restaurant config — loaded ONLY for this restaurant
-//
+// 
 // About Levels:
 // - Full-service microbrewery + kitchen at 89, 6th Cross, Nagarbhavi
 // - Known for: Craft beers (Belgian Wit, Kiwi Beer, Hefeweizen),

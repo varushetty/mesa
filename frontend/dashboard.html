@@ -3,7 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SUKA — Dashboard</title>
+<title>Mesa — Dashboard</title>
+<script>
+(function(){
+  var p=new URLSearchParams(window.location.search);
+  var rid=p.get('restaurant')||'suka-mallathalli';
+  var allowed=['suka-mallathalli','legacy-rrnagar','levels-nagarbhavi'];
+  if(allowed.indexOf(rid)===-1)rid='suka-mallathalli';
+  document.write('<scr'+'ipt src="menus/'+rid+'.js"><\/scr'+'ipt>');
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -103,6 +112,47 @@ tr:hover td{background:var(--bg)}
 </head>
 <body>
 
+<!-- ── Dashboard login overlay ────────────────────────── -->
+<div id="dash-login" style="
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'DM Sans',sans-serif;
+">
+  <div style="text-align:center;margin-bottom:28px">
+    <div id="dl-brand" style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-style:italic;margin-bottom:6px">mesa</div>
+    <div style="font-size:.78rem;color:var(--ink3);letter-spacing:.5px">Owner Dashboard — Secure Login</div>
+  </div>
+  <div style="background:var(--cream);border:1.5px solid var(--bdr);border-radius:16px;padding:28px 32px;width:320px;max-width:90vw">
+    <div style="font-size:.72rem;color:var(--ink3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:12px">Enter Admin PIN</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px" id="dl-dots">
+      <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--bdr);background:transparent" id="dd0"></div>
+      <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--bdr);background:transparent" id="dd1"></div>
+      <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--bdr);background:transparent" id="dd2"></div>
+      <div style="width:14px;height:14px;border-radius:50%;border:2px solid var(--bdr);background:transparent" id="dd3"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px" id="dl-pad">
+      <button onclick="dlKey('1')" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:1.1rem;cursor:pointer;font-family:inherit">1</button>
+      <button onclick="dlKey('2')" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:1.1rem;cursor:pointer;font-family:inherit">2</button>
+      <button onclick="dlKey('3')" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:1.1rem;cursor:pointer;font-family:inherit">3</button>
+      <button onclick="dlKey('4')" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:1.1rem;cursor:pointer;font-family:inherit">4</button>
+      <button onclick="dlKey('5')" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:1.1rem;cursor:pointer;font-family:inherit">5</button>
+      <button onclick="dlKey('6')" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:1.1rem;cursor:pointer;font-family:inherit">6</button>
+      <button onclick="dlKey('7')" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:1.1rem;cursor:pointer;font-family:inherit">7</button>
+      <button onclick="dlKey('8')" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:1.1rem;cursor:pointer;font-family:inherit">8</button>
+      <button onclick="dlKey('9')" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:1.1rem;cursor:pointer;font-family:inherit">9</button>
+      <button onclick="dlClear()" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:.8rem;cursor:pointer;font-family:inherit;color:var(--ink3)">Clear</button>
+      <button onclick="dlKey('0')" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:1.1rem;cursor:pointer;font-family:inherit">0</button>
+      <button onclick="dlKey('back')" style="padding:14px;border-radius:10px;border:1.5px solid var(--bdr);background:var(--bg);font-size:.9rem;cursor:pointer;font-family:inherit;color:var(--ink3)">⌫</button>
+    </div>
+    <div id="dl-err" style="color:#C0392B;font-size:.76rem;text-align:center;min-height:18px;margin-bottom:8px"></div>
+  </div>
+  <div style="font-size:.68rem;color:var(--ink3);margin-top:20px;text-align:center">
+    Use Owner or Manager PIN to access the dashboard
+  </div>
+</div>
+
+<div id="dash-app" style="display:none">
 <div class="hdr">
   <div class="hdr-inner">
     <div>
@@ -215,6 +265,7 @@ function setCustomRange(){
   document.querySelectorAll('.day-btn').forEach(function(b){b.classList.remove('on');});loadAll();
 }
 function apiUrl(ep){
+  // restaurant ID comes from token server-side — no need to pass in URL
   return API+ep+(dateFrom&&dateTo?'?dateFrom='+dateFrom+'&dateTo='+dateTo:'?days='+days);
 }
 function showTab(id,el){
@@ -223,8 +274,14 @@ function showTab(id,el){
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
   document.getElementById(id).classList.add('on');if(el)el.classList.add('on');loadAll();
 }
+var _dashToken = sessionStorage.getItem('mesa_dash_token') || '';
+var _dashRid   = sessionStorage.getItem('mesa_dash_rid')   || '';
+
 async function safeJson(url,opts){
-  var r=await fetch(url,opts||{});
+  // Always send auth token — never trust URL param
+  var headers = Object.assign({'Authorization':'Bearer '+_dashToken},
+                              (opts&&opts.headers)||{});
+  var r=await fetch(url,Object.assign({},opts||{},{headers:headers}));
   var ct=r.headers.get('content-type')||'';
   if(!ct.includes('application/json')){var t=await r.text();throw new Error('Server error '+r.status+': '+t.replace(/<[^>]+>/g,'').trim().slice(0,80));}
   var d=await r.json();if(!r.ok)throw new Error(d.error||'Request failed');return d;
@@ -422,12 +479,97 @@ function loadAll(){
   if(activeTab==='feedback')loadFeedback();
   if(activeTab==='dishes')loadDishes();
 }
-var todayStr=new Date().toISOString().split('T')[0];
-dateFrom=todayStr;dateTo=todayStr;
-document.getElementById('date-from').value=todayStr;
-document.getElementById('date-to').value=todayStr;
-loadAll();
-setInterval(loadAll,30000);
+// ── Dashboard PIN login ──────────────────────────────────────────
+var _dlBuf = '';
+var _dlRid = (new URLSearchParams(window.location.search)).get('restaurant') || 'suka-mallathalli';
+
+function dlKey(k) {
+  if (k === 'back') { _dlBuf = _dlBuf.slice(0,-1); }
+  else if (_dlBuf.length < 4) { _dlBuf += k; }
+  dlUpdateDots();
+  if (_dlBuf.length === 4) dlSubmit();
+}
+function dlClear() { _dlBuf = ''; dlUpdateDots(); document.getElementById('dl-err').textContent = ''; }
+function dlUpdateDots() {
+  for (var i=0;i<4;i++) {
+    var d = document.getElementById('dd'+i);
+    d.style.background = i < _dlBuf.length ? 'var(--gold)' : 'transparent';
+    d.style.borderColor = i < _dlBuf.length ? 'var(--gold)' : 'var(--bdr)';
+  }
+}
+async function dlSubmit() {
+  try {
+    var r = await fetch('/api/admin/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({restaurantId: _dlRid, pin: _dlBuf})
+    });
+    var d = await r.json();
+    if (!r.ok || !d.token) {
+      document.getElementById('dl-err').textContent = d.error || 'Invalid PIN';
+      _dlBuf = ''; dlUpdateDots(); return;
+    }
+    // Only Owner and Manager can access dashboard
+    if (d.user.role !== 'owner' && d.user.role !== 'manager') {
+      document.getElementById('dl-err').textContent = 'Owner or Manager PIN required';
+      _dlBuf = ''; dlUpdateDots(); return;
+    }
+    // Store token in sessionStorage — clears when tab closes
+    sessionStorage.setItem('mesa_dash_token', d.token);
+    sessionStorage.setItem('mesa_dash_rid',   _dlRid);
+    _dashToken = d.token;
+    _dashRid   = _dlRid;
+    // Apply restaurant branding
+    if (window.MESA_RESTO_CONFIG) {
+      var cfg = window.MESA_RESTO_CONFIG;
+      document.title = cfg.name + ' — Dashboard';
+      document.querySelectorAll('.hdr-brand').forEach(function(el){el.textContent=cfg.name.toLowerCase();});
+      document.querySelector('.hdr-sub').textContent = cfg.name+' · '+cfg.location+' · '+d.user.role;
+      if (cfg.accent) document.documentElement.style.setProperty('--gold', cfg.accent);
+    }
+    // Show dashboard
+    document.getElementById('dash-login').style.display = 'none';
+    document.getElementById('dash-app').style.display   = 'block';
+    initDashboard();
+  } catch(e) {
+    document.getElementById('dl-err').textContent = 'Server error — try again';
+    _dlBuf = ''; dlUpdateDots();
+  }
+}
+
+function initDashboard() {
+  var todayStr=new Date().toISOString().split('T')[0];
+  dateFrom=todayStr;dateTo=todayStr;
+  document.getElementById('date-from').value=todayStr;
+  document.getElementById('date-to').value=todayStr;
+  loadAll();
+  setInterval(loadAll,30000);
+}
+
+// Check if already logged in (same session)
+(function(){
+  var token = sessionStorage.getItem('mesa_dash_token');
+  var rid   = sessionStorage.getItem('mesa_dash_rid');
+  // Validate token matches current restaurant param
+  if (token && rid === _dlRid) {
+    _dashToken = token; _dashRid = rid;
+    document.getElementById('dash-login').style.display = 'none';
+    document.getElementById('dash-app').style.display   = 'block';
+    if (window.MESA_RESTO_CONFIG) {
+      var cfg = window.MESA_RESTO_CONFIG;
+      document.title = cfg.name + ' — Dashboard';
+      document.querySelectorAll('.hdr-brand').forEach(function(el){el.textContent=cfg.name.toLowerCase();});
+      if (cfg.accent) document.documentElement.style.setProperty('--gold', cfg.accent);
+    }
+    initDashboard();
+  }
+  // Apply brand even on login screen
+  if (window.MESA_RESTO_CONFIG) {
+    var cfg = window.MESA_RESTO_CONFIG;
+    document.getElementById('dl-brand').textContent = cfg.name.toLowerCase();
+    if (cfg.accent) document.documentElement.style.setProperty('--gold', cfg.accent);
+  }
+})();
 </script>
+</div><!-- end dash-app -->
 </body>
 </html>

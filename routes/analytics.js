@@ -2,8 +2,39 @@
 const express = require('express');
 const router  = express.Router();
 const db      = require('../db/pool');
+const crypto  = require('crypto');
 
-const RESTAURANT = 'suka-mallathalli';
+function verifyToken(token) {
+  const secret = process.env.MESA_SECRET || 'mesa-dev-secret-change-in-production';
+  if (!token) return null;
+  try {
+    const [b64, sig] = token.split('.');
+    if (!b64 || !sig) return null;
+    const payload  = Buffer.from(b64, 'base64').toString();
+    const expected = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+    if (sig.length !== expected.length) return null;
+    if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) return null;
+    const [restaurantId, role, name, expiry] = payload.split(':');
+    if (Date.now() > parseInt(expiry)) return null;
+    return { restaurantId, role, name };
+  } catch { return null; }
+}
+
+// Middleware: validate token → set req.restaurantId from token (never from URL)
+function requireDashboard(req, res, next) {
+  const auth  = req.headers['authorization'] || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  const data  = verifyToken(token);
+  if (!data) {
+    return res.status(401).json({
+      error: 'Unauthorised. Please log in from the admin panel first.',
+      code:  'TOKEN_REQUIRED',
+    });
+  }
+  req.restaurantId = data.restaurantId; // from token — cannot be spoofed
+  req.adminRole    = data.role;
+  next();
+}
 
 // Build date WHERE clause
 function buildDateClause(req, paramStartIdx, alias) {
@@ -22,8 +53,8 @@ function buildDateClause(req, paramStartIdx, alias) {
 }
 
 // GET /api/analytics/summary
-router.get('/summary', async (req, res) => {
-  const rid = req.query.restaurant || RESTAURANT;
+router.get('/summary', requireDashboard, async (req, res) => {
+  const rid = req.restaurantId; // from auth token — never from URL
   const dc  = buildDateClause(req, 2);
   const p   = [rid, ...dc.params];
   try {
@@ -45,8 +76,8 @@ router.get('/summary', async (req, res) => {
 });
 
 // GET /api/analytics/orders
-router.get('/orders', async (req, res) => {
-  const rid   = req.query.restaurant || RESTAURANT;
+router.get('/orders', requireDashboard, async (req, res) => {
+  const rid = req.restaurantId; // from auth token — never from URL
   const limit = parseInt(req.query.limit) || 100;
   const dc    = buildDateClause(req, 2);
   const p     = [rid, ...dc.params, limit];
@@ -63,8 +94,8 @@ router.get('/orders', async (req, res) => {
 });
 
 // GET /api/analytics/feedback
-router.get('/feedback', async (req, res) => {
-  const rid   = req.query.restaurant || RESTAURANT;
+router.get('/feedback', requireDashboard, async (req, res) => {
+  const rid = req.restaurantId; // from auth token — never from URL
   const limit = parseInt(req.query.limit) || 100;
   const dc    = buildDateClause(req, 2);
   const p     = [rid, ...dc.params, limit];
@@ -80,8 +111,8 @@ router.get('/feedback', async (req, res) => {
 });
 
 // GET /api/analytics/dishes
-router.get('/dishes', async (req, res) => {
-  const rid = req.query.restaurant || RESTAURANT;
+router.get('/dishes', requireDashboard, async (req, res) => {
+  const rid = req.restaurantId; // from auth token — never from URL
   const dc  = buildDateClause(req, 2);
   const p   = [rid, ...dc.params];
   try {
@@ -105,8 +136,8 @@ router.get('/dishes', async (req, res) => {
 });
 
 // GET /api/analytics/moods
-router.get('/moods', async (req, res) => {
-  const rid = req.query.restaurant || RESTAURANT;
+router.get('/moods', requireDashboard, async (req, res) => {
+  const rid = req.restaurantId; // from auth token — never from URL
   const dc  = buildDateClause(req, 2, 'f');
   const p   = [rid, ...dc.params];
   try {
@@ -125,8 +156,8 @@ router.get('/moods', async (req, res) => {
 
 // GET /api/analytics/calendar?days=90
 // Returns daily revenue for the calendar heatmap view
-router.get('/calendar', async (req, res) => {
-  const rid  = req.query.restaurant || RESTAURANT;
+router.get('/calendar', requireDashboard, async (req, res) => {
+  const rid = req.restaurantId; // from auth token — never from URL
   const days = parseInt(req.query.days) || 90;
   try {
     // Always compute from orders (reliable, works even without revenue_snapshots)
@@ -164,8 +195,8 @@ router.get('/calendar', async (req, res) => {
 });
 
 // GET /api/analytics/calendar/:date — detail for a specific date
-router.get('/calendar/:date', async (req, res) => {
-  const rid  = req.query.restaurant || RESTAURANT;
+router.get('/calendar/:date', requireDashboard, async (req, res) => {
+  const rid = req.restaurantId; // from auth token — never from URL
   const date = req.params.date; // YYYY-MM-DD
   try {
     const [snap, orders, topDishes] = await Promise.all([
@@ -216,8 +247,8 @@ router.get('/calendar/:date', async (req, res) => {
 
 // GET /api/analytics/flow
 // Shows how customers move through the ordering flow (for owner insights)
-router.get('/flow', async (req, res) => {
-  const rid = req.query.restaurant || RESTAURANT;
+router.get('/flow', requireDashboard, async (req, res) => {
+  const rid = req.restaurantId; // from auth token — never from URL
   const dc  = buildDateClause(req, 2);
   const p   = [rid, ...dc.params];
   try {
