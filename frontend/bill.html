@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bill</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Courier New',monospace;background:#f5f5f5;display:flex;justify-content:center;padding:20px}
+.bill{background:#fff;width:320px;padding:20px;border:1px solid #ddd;font-size:13px;line-height:1.6}
+.center{text-align:center}
+.bold{font-weight:bold}
+.line{border-top:1px dashed #999;margin:8px 0}
+.dline{border-top:2px solid #000;margin:8px 0}
+.row{display:flex;justify-content:space-between;padding:2px 0}
+.row-name{flex:1;padding-right:8px}
+.row-qty{width:30px;text-align:center}
+.row-rate{width:55px;text-align:right}
+.row-amt{width:65px;text-align:right}
+.header-col{width:55px;text-align:right;font-size:11px;color:#666}
+.tax-row{display:flex;justify-content:space-between;font-size:12px;color:#555;padding:1px 0}
+.total-row{display:flex;justify-content:space-between;font-weight:bold;font-size:15px;padding:3px 0}
+.diet-v{color:#2D7A3A;font-size:10px}
+.diet-n{color:#cc3333;font-size:10px}
+.btn-bar{display:flex;gap:10px;margin-top:16px;justify-content:center}
+.btn{padding:10px 24px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-print{background:#1a1a1a;color:#fff}
+.btn-close{background:#eee;color:#333}
+.bill-no{font-size:11px;color:#888}
+.footer-note{font-size:10px;color:#888;text-align:center;margin-top:6px;line-height:1.5}
+@media print{
+  body{background:#fff;padding:0;display:block}
+  .bill{border:none;width:100%;max-width:320px;margin:0 auto}
+  .btn-bar{display:none}
+}
+</style>
+</head>
+<body>
+
+<div>
+  <div class="bill" id="bill">
+    <div class="center bold" id="b-name" style="font-size:16px">SUKA</div>
+    <div class="center" id="b-tagline" style="font-size:11px;color:#666">Flavours of Good Times</div>
+    <div class="center" id="b-address" style="font-size:11px;margin-top:3px"></div>
+    <div class="center" id="b-phone" style="font-size:11px"></div>
+    <div class="line"></div>
+    <div class="center" id="b-gstin" style="font-size:11px"></div>
+    <div class="center" id="b-fssai" style="font-size:10px;color:#666"></div>
+    <div class="dline"></div>
+    <div class="row">
+      <span>Bill No: <span id="b-billno" class="bold"></span></span>
+      <span id="b-date" style="font-size:11px"></span>
+    </div>
+    <div class="row">
+      <span>Table: <span id="b-table" class="bold"></span></span>
+      <span>Covers: <span id="b-covers">—</span></span>
+    </div>
+    <div class="dline"></div>
+    <div class="row" style="font-size:11px;color:#666;font-weight:bold;padding-bottom:4px">
+      <span class="row-name">ITEM</span>
+      <span class="row-qty">QTY</span>
+      <span class="row-rate">RATE</span>
+      <span class="row-amt">AMOUNT</span>
+    </div>
+    <div class="line"></div>
+    <div id="b-items"></div>
+    <div class="line"></div>
+    <div class="row" style="padding-top:4px">
+      <span>Subtotal</span>
+      <span id="b-subtotal" class="bold"></span>
+    </div>
+    <div id="b-tax-rows"></div>
+    <div id="b-service-row"></div>
+    <div id="b-roundoff-row"></div>
+    <div class="dline"></div>
+    <div class="total-row">
+      <span>TOTAL</span>
+      <span id="b-total"></span>
+    </div>
+    <div class="dline"></div>
+    <div class="row" style="font-size:12px;color:#555;margin-top:4px">
+      <span>Payment mode:</span>
+      <span id="b-payment" class="bold" style="color:#000"></span>
+    </div>
+    <div class="line"></div>
+    <div class="footer-note">Thank you for dining with us!<br>
+    Prices inclusive of applicable taxes.<br>
+    *Service charge is not a tax and is paid to staff.</div>
+    <div class="center" style="margin-top:8px;font-size:10px;color:#aaa">Powered by Suka Platform</div>
+  </div>
+
+  <div class="btn-bar">
+    <button class="btn btn-print" onclick="window.print()">🖨️ Print Bill</button>
+    <button class="btn btn-close" onclick="window.close()">Close</button>
+  </div>
+</div>
+
+<script>
+// Read params from URL: ?table=AA-14&pin=1234&restaurant=suka-mallathalli
+var params = new URLSearchParams(window.location.search);
+var TABLE = params.get('table') || 'AA-14';
+var RID   = params.get('restaurant') || 'suka-mallathalli';
+var PIN   = params.get('pin') || '';
+
+var settings = {};
+var billData = {};
+
+function fmt(n){ return '₹' + Number(n).toLocaleString('en-IN', {minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+async function load() {
+  try {
+    // Load restaurant settings
+    var sr = await fetch('/api/admin/restaurant-settings', {
+      headers: {'x-restaurant-id':RID,'x-admin-pin':PIN}
+    });
+    settings = await sr.json();
+
+    // Load combined bill
+    var br = await fetch('/api/admin/bill/'+encodeURIComponent(TABLE), {
+      headers: {'x-restaurant-id':RID,'x-admin-pin':PIN}
+    });
+    billData = await br.json();
+
+    renderBill();
+  } catch(e) {
+    document.getElementById('bill').innerHTML += '<div style="color:red;text-align:center;margin-top:20px">Error loading bill: '+e.message+'</div>';
+  }
+}
+
+function renderBill() {
+  // Header
+  document.getElementById('b-name').textContent = settings.name || 'SUKA';
+  document.getElementById('b-tagline').textContent = settings.tagline || 'Flavours of Good Times';
+  document.getElementById('b-address').textContent = settings.address || '';
+  document.getElementById('b-phone').textContent = settings.phone ? 'Tel: '+settings.phone : '';
+  document.getElementById('b-gstin').textContent = settings.gstin ? 'GSTIN: '+settings.gstin : '';
+  document.getElementById('b-fssai').textContent = settings.fssai ? 'FSSAI: '+settings.fssai : '';
+  document.getElementById('b-table').textContent = TABLE;
+  document.getElementById('b-billno').textContent = 'SUKA' + Date.now().toString().slice(-6);
+  var now = new Date();
+  document.getElementById('b-date').textContent = now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) + ' ' + now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+  // Items
+  var items = billData.combined || [];
+  document.getElementById('b-items').innerHTML = items.map(function(i){
+    var dietMark = i.diet==='veg' ? '<span class="diet-v">[V]</span>' : '<span class="diet-n">[N]</span>';
+    return '<div class="row" style="font-size:12px;padding:2px 0;align-items:flex-start">'
+         + '<span class="row-name">'+i.name+' '+dietMark+'</span>'
+         + '<span class="row-qty">'+i.qty+'</span>'
+         + '<span class="row-rate">'+i.price+'</span>'
+         + '<span class="row-amt">'+i.amount.toLocaleString('en-IN')+'</span>'
+         + '</div>';
+  }).join('') || '<div style="color:#999;text-align:center;padding:10px">No items</div>';
+
+  // Tax calculation
+  var subtotal = billData.subtotal || 0;
+  var cgst = parseFloat(settings.tax_cgst || 2.5);
+  var sgst = parseFloat(settings.tax_sgst || 2.5);
+  var svc  = parseFloat(settings.service_charge || 0);
+
+  var cgstAmt = Math.round(subtotal * cgst / 100);
+  var sgstAmt = Math.round(subtotal * sgst / 100);
+  var svcAmt  = Math.round(subtotal * svc / 100);
+  var total   = subtotal + cgstAmt + sgstAmt + svcAmt;
+  var rounded = Math.round(total);
+  var roundoff = rounded - total;
+
+  document.getElementById('b-subtotal').textContent = fmt(subtotal);
+
+  document.getElementById('b-tax-rows').innerHTML =
+    '<div class="tax-row"><span>CGST @ '+cgst+'%</span><span>'+fmt(cgstAmt)+'</span></div>'
+  + '<div class="tax-row"><span>SGST @ '+sgst+'%</span><span>'+fmt(sgstAmt)+'</span></div>';
+
+  document.getElementById('b-service-row').innerHTML = svc > 0
+    ? '<div class="tax-row"><span>Service charge @ '+svc+'%*</span><span>'+fmt(svcAmt)+'</span></div>' : '';
+
+  document.getElementById('b-roundoff-row').innerHTML = Math.abs(roundoff) > 0
+    ? '<div class="tax-row"><span>Round off</span><span>'+(roundoff>=0?'+':'')+fmt(roundoff)+'</span></div>' : '';
+
+  document.getElementById('b-total').textContent = fmt(rounded);
+  document.getElementById('b-payment').textContent = (params.get('payment') || '—').toUpperCase();
+}
+
+load();
+</script>
+</body>
+</html>
