@@ -729,8 +729,7 @@ html,body{background:var(--bg);color:var(--ink)}
   <div class="ty-icon">🙏</div>
   <div class="ty-h">Thank you for<br>dining with us</div>
   <div class="ty-sub">Your bill is being prepared. It was a pleasure serving you tonight.</div>
-  <button class="ty-bill-btn" onclick="requestBill()">📋 Generate & Print Bill</button>
-  <button class="ty-feedback-link" onclick="tyFeedback()">Rate your experience →</button>
+  <button class="ty-feedback-link" onclick="tyFeedback()" style="margin-top:8px">Rate your experience →</button>
 </div>
 
 <!-- ══ FEEDBACK SCREEN ══ -->
@@ -1281,7 +1280,12 @@ document.addEventListener('click', function(e) {
   }
   if (course === 'thankyou') {
     document.getElementById('success').classList.remove('show');
-    showThankYou();
+    // Notify admin and go straight to feedback — no intermediate thank you screen
+    fetch('/api/orders/request-bill', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({restaurantId:RESTAURANT.id, tableNumber:RESTAURANT.table})
+    }).catch(function(){});
+    showFeedback();
     return;
   }
   if (course === 'spq-recs') {
@@ -1701,7 +1705,7 @@ function renderPopularQuick() {
 function spqPlaceOrder() {
   if (!Object.keys(cart).length) { toast('Add something first!', true); return; }
   _orderSource = 'spq';
-  placeOrder();
+  renderReview(); renderStepper('s6'); go('s6');
 }
 
 function spqCartChanged() {
@@ -2167,7 +2171,7 @@ function renderDrinks() {
     `:''}
     ${dietQ.size&&depr.length&&!isOpen?`<div class="soft-notice">Some items hidden by your preferences · tap "See all" to view</div>`:''}
   `;
-  
+
   updBadge('sd');
   // Populate shownAsBarBites so starters screen skips these items
   shownAsBarBites = new Set();
@@ -2605,12 +2609,31 @@ function showResumeSession() {
   el.classList.add('show');
 }
 
+
+function showBillConfirmation() {
+  var el = document.getElementById('tyScreen');
+  if (!el) return;
+  var h   = document.querySelector('.ty-h');
+  var sub = document.querySelector('.ty-sub');
+  if (h)   h.innerHTML  = 'Your bill is<br>on its way';
+  if (sub) sub.textContent = "We've let your waiter know. They'll be with you shortly.";
+  // Hide the generate bill button — only admin generates bills
+  var billBtn = el.querySelector('.ty-bill-btn');
+  if (billBtn) billBtn.style.display = 'none';
+  el.classList.add('show');
+}
+
 function showThankYou() {
   document.getElementById('tyScreen').classList.add('show');
 }
 
 function tyFeedback() {
   document.getElementById('tyScreen').classList.remove('show');
+  // Notify admin that bill is requested
+  fetch('/api/orders/request-bill', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({restaurantId:RESTAURANT.id, tableNumber:RESTAURANT.table})
+  }).catch(function(){});
   showFeedback();
 }
 
@@ -3033,7 +3056,8 @@ window.goPopularQuick = function() {
 window.spqConfirmOrder = function() {
   if (!Object.keys(cart).length) { toast('Add something first!', true); return; }
   _orderSource = 'spq';
-  placeOrder();
+  // Show review screen first — customer confirms before order is placed
+  renderReview(); renderStepper('s6'); go('s6');
 };
 
 // Update SPQ nav whenever cart changes — patch addCartQuick
@@ -3107,20 +3131,20 @@ window.renderCourse = function(sid) {
 };
 
 // BILL REQUEST — triggers feedback
-var _origRequestBill = window.requestBill;
 window.requestBill = function() {
-  var billUrl = '/bill.html?table=' + encodeURIComponent(RESTAURANT.table)
-              + '&restaurant=' + RESTAURANT.id
-              + '&pin=0000';
-  window.open(billUrl, '_blank');
-  setTimeout(function() {
-    var ty = document.getElementById('tyScreen');
-    if (ty) ty.classList.remove('show');
-    showFeedback();
-  }, 1500);
+  // Notify backend — admin sees bill_requested on their table grid
+  fetch('/api/orders/request-bill', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({restaurantId: RESTAURANT.id, tableNumber: RESTAURANT.table})
+  }).catch(function(){});
+  // Customer sees: thank you screen → feedback
+  var ty = document.getElementById('tyScreen');
+  if (ty) ty.classList.remove('show');
+  showFeedback();
 };
 
-// Fix updAllBadges to sync cn-spq 
+// Fix updAllBadges to sync cn-spq
 var _origUpdAllBadges = window.updAllBadges;
 window.updAllBadges = function() {
   _origUpdAllBadges.apply(this, arguments);
