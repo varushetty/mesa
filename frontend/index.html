@@ -3660,7 +3660,8 @@ var _goOrig = window.go;
 // Shows after item added to cart — suggests a matching item
 // "Tables nearby also ordered..." / "Pairs perfectly with..."
 // ══════════════════════════════════════════════════════════════
-var _upsellItem   = null;    // item being suggested
+var _upsellItem    = null;    // item being suggested
+var _upsellSkipNext = false; // skip hook trigger when adding from popup
 var _upsellActive = false;   // pop-up currently showing
 var _upsellQueue  = [];      // queued suggestions
 var _upsellShown  = new Set(); // ids shown this session — never repeat
@@ -3847,10 +3848,14 @@ function showUpsell(addedItem) {
 
 function upsellAccept() {
   if (!_upsellItem) { upsellDecline(); return; }
-  // Add the suggested item to cart
-  addCart(_upsellItem.id, _upsellItem.price, _upsellItem.name, _upsellItem.e || '🍽️', null);
-  toast('✦ ' + _upsellItem.name + ' added!');
+  // Capture item before closing (upsellDecline nulls _upsellItem)
+  var item = _upsellItem;
+  // Close popup first — prevents double-trigger from addCart hook
   upsellDecline();
+  // Add to cart with a flag so the hook doesn't re-trigger another popup
+  _upsellSkipNext = true;
+  addCart(item.id, item.price, item.name, item.e || '🍽️', null);
+  toast('✦ ' + item.name + ' added!');
 }
 
 function upsellDecline() {
@@ -3869,6 +3874,8 @@ var _origAddCart = window.addCart;
 if (typeof _origAddCart === 'function') {
   window.addCart = function(id, price, name, emoji, btn) {
     _origAddCart.apply(this, arguments);
+    // Skip upsell trigger if called from upsellAccept to avoid infinite loop
+    if (_upsellSkipNext) { _upsellSkipNext = false; return; }
     var allItems = {};
     Object.values(MENU.food||{}).flat().forEach(function(i){ allItems[i.id]=i; });
     Object.values(MENU.drinks||{}).flat().forEach(function(i){ allItems[i.id]=i; });
