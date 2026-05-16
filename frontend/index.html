@@ -359,6 +359,7 @@ html,body{background:var(--bg);color:var(--ink)}
 
 <!-- ══ S0: WELCOME ══ -->
 <div class="screen show" id="s0">
+  <canvas id="resto-anim-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;border-radius:inherit"></canvas>
   <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:370px;margin:0 auto">
     <div class="logo-ring au"><span class="logo-m">m</span></div>
     <div class="wtable au" style="animation-delay:.06s" id="welcome-table-num">Table</div>
@@ -3213,6 +3214,514 @@ if (wh) wh.innerHTML = "Welcome to " + name + ".<br>What's the plan?";
 
 
 
+
+
+// ═══════════════════════════════════════════════════════════════
+// WELCOME SCREEN ANIMATION — per restaurant theme
+// Runs when the welcome screen is visible
+// ═══════════════════════════════════════════════════════════════
+var _animFrame = null;
+
+function startWelcomeAnimation() {
+  var canvas = document.getElementById('welcome-canvas');
+  if (!canvas) return;
+  var rid = RESTAURANT.id || 'suka-mallathalli';
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.opacity = '1';
+  if (_animFrame) cancelAnimationFrame(_animFrame);
+
+  if (rid === 'suka-mallathalli') animSUKA(canvas);
+  else if (rid === 'levels-nagarbhavi') animLevels(canvas);
+  else if (rid === 'legacy-rrnagar')    animLegacy(canvas);
+  else animSUKA(canvas); // default
+}
+
+function stopWelcomeAnimation() {
+  var canvas = document.getElementById('welcome-canvas');
+  if (canvas) canvas.style.opacity = '0';
+  if (_animFrame) { cancelAnimationFrame(_animFrame); _animFrame = null; }
+}
+
+// ── SUKA: floating spice ember particles ───────────────────────
+function animSUKA(canvas) {
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var accent = (_restoConfig && _restoConfig.accent) || '#2D7A3A';
+  // Parse accent to rgb for particles
+  var cols = [
+    '61,139,92', '80,160,100', '45,122,58',
+    '200,140,60', '240,180,80'
+  ];
+  var pts = [];
+  for (var i = 0; i < 60; i++) {
+    pts.push({
+      x: Math.random() * W, y: H + Math.random() * H,
+      r: Math.random() * 1.8 + 0.4,
+      vy: -(Math.random() * 0.5 + 0.2),
+      vx: (Math.random() - 0.5) * 0.4,
+      tw: Math.random() * Math.PI * 2,
+      col: cols[Math.floor(Math.random() * cols.length)]
+    });
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    pts.forEach(function(p) {
+      p.tw += 0.035;
+      var a = Math.abs(Math.sin(p.tw)) * 0.65 + 0.1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(' + p.col + ',' + a + ')';
+      ctx.fill();
+      if (p.r > 1) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(' + p.col + ',' + (a * 0.12) + ')';
+        ctx.fill();
+      }
+      p.x += p.vx; p.y += p.vy;
+      if (p.y < -10) { p.y = H + 10; p.x = Math.random() * W; }
+    });
+    _animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ── LEVELS: beer bubbles rising + bottom wave ───────────────────
+function animLevels(canvas) {
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var t = 0;
+  var bubbles = [];
+  for (var i = 0; i < 22; i++) {
+    bubbles.push({
+      x: Math.random() * W,
+      y: H + Math.random() * H * 0.4,
+      r: Math.random() * 3 + 1,
+      vy: Math.random() * 0.6 + 0.3,
+      vx: (Math.random() - 0.5) * 0.3,
+      a: Math.random() * 0.25 + 0.05
+    });
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // Wave at bottom
+    var wH = H * 0.22;
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    for (var x = 0; x <= W; x += 6) {
+      var y = H - wH * 0.5 - Math.sin((x / W * 4 + t) * Math.PI * 2) * wH * 0.35
+                            - Math.sin((x / W * 2.5 + t * 1.3) * Math.PI * 2) * wH * 0.2;
+      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.lineTo(W, H); ctx.closePath();
+    ctx.fillStyle = 'rgba(212,160,23,0.1)';
+    ctx.fill();
+    // Second wave
+    ctx.beginPath();
+    for (var x2 = 0; x2 <= W; x2 += 6) {
+      var y2 = H - wH * 0.3 - Math.sin((x2 / W * 3 + t * 1.2 + 1) * Math.PI * 2) * wH * 0.25;
+      if (x2 === 0) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
+    }
+    ctx.lineTo(W, H); ctx.closePath();
+    ctx.fillStyle = 'rgba(212,160,23,0.07)';
+    ctx.fill();
+    // Bubbles
+    bubbles.forEach(function(b) {
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(212,160,23,' + b.a + ')';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+      b.y -= b.vy; b.x += b.vx;
+      if (b.y < -10) { b.y = H + 10; b.x = Math.random() * W; }
+    });
+    t += 0.007;
+    _animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ── LEGACY: IPL spinning rings ──────────────────────────────────
+function animLegacy(canvas) {
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var cx = W / 2, cy = H / 2;
+  var angle = 0, glowR = 60, glowDir = 1;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // Outer spinning ring
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle * Math.PI / 180);
+    ctx.beginPath();
+    ctx.arc(0, 0, Math.min(W, H) * 0.32, 0, Math.PI * 2);
+    ctx.setLineDash([10, 8]);
+    ctx.strokeStyle = 'rgba(201,148,58,0.2)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+    // Inner counter-rotating ring
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-angle * 1.5 * Math.PI / 180);
+    ctx.beginPath();
+    ctx.arc(0, 0, Math.min(W, H) * 0.22, 0, Math.PI * 2);
+    ctx.setLineDash([5, 10]);
+    ctx.strokeStyle = 'rgba(201,148,58,0.13)';
+    ctx.lineWidth = 0.75;
+    ctx.stroke();
+    ctx.restore();
+    // Pulsing center glow
+    glowR += glowDir * 0.15;
+    if (glowR > 70 || glowR < 50) glowDir *= -1;
+    var grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
+    grd.addColorStop(0, 'rgba(201,148,58,0.06)');
+    grd.addColorStop(1, 'rgba(201,148,58,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+    ctx.fillStyle = grd;
+    ctx.fill();
+    // Orbiting dots (like cricket balls)
+    var dotR = Math.min(W, H) * 0.32;
+    for (var d = 0; d < 6; d++) {
+      var da = (angle + d * 60) * Math.PI / 180;
+      var dx = cx + dotR * Math.cos(da);
+      var dy = cy + dotR * Math.sin(da);
+      ctx.beginPath();
+      ctx.arc(dx, dy, 2, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(201,148,58,' + (d % 2 === 0 ? '0.4' : '0.2') + ')';
+      ctx.fill();
+    }
+    angle += 0.2;
+    _animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// Start animation when welcome screen shows, stop when it hides
+var _origGo = window.go || function(){};
+// Hook into screen transitions
+document.addEventListener('DOMContentLoaded', function() {
+  // Start animation immediately on welcome screen
+  setTimeout(startWelcomeAnimation, 300);
+});
+// Stop animation when leaving welcome screen
+var _goOrig = window.go;
+
 </script>
-</body>
+
+<!-- ── Smart Upsell Pop-up ──────────────────────────────── -->
+<div id="upsell-pop" style="position:fixed;bottom:0;left:0;right:0;z-index:9000;background:var(--bg);border-radius:20px 20px 0 0;border-top:1.5px solid var(--bdr);padding:20px 20px 36px;transform:translateY(110%);transition:transform .35s cubic-bezier(.34,1.2,.64,1);box-shadow:0 -6px 32px rgba(0,0,0,.2);max-width:480px;margin:0 auto">
+  <div style="width:36px;height:3px;background:var(--bdr2);border-radius:2px;margin:0 auto 16px"></div>
+  <div style="font-size:.68rem;letter-spacing:.5px;color:var(--ink3);margin-bottom:14px;display:flex;align-items:center;gap:6px">
+    <span id="up-icon">🔥</span><span id="up-ctx">Tables nearby also ordered this</span>
+  </div>
+  <div style="display:flex;gap:14px;align-items:flex-start">
+    <div id="up-emoji" style="font-size:2.4rem;flex-shrink:0;line-height:1">🍗</div>
+    <div style="flex:1;min-width:0">
+      <div id="up-name" style="font-size:.96rem;font-weight:500;color:var(--ink);margin-bottom:3px"></div>
+      <div id="up-desc" style="font-size:.75rem;color:var(--ink3);line-height:1.45;margin-bottom:6px"></div>
+      <div id="up-price" style="font-size:.88rem;font-weight:600;color:var(--green)"></div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px">
+    <button onclick="upsellDecline()" style="padding:13px;border-radius:10px;border:1.5px solid var(--bdr);background:transparent;color:var(--ink3);font-family:inherit;font-size:.82rem;cursor:pointer;transition:.14s">No thanks</button>
+    <button id="up-add-btn" onclick="upsellAccept()" style="padding:13px;border-radius:10px;border:none;background:var(--green);color:#fff;font-family:inherit;font-size:.83rem;font-weight:500;cursor:pointer;transition:.14s">✦ Add to order</button>
+  </div>
+</div>
+<div id="upsell-overlay" onclick="upsellDecline()" style="position:fixed;inset:0;z-index:8999;background:rgba(0,0,0,.3);display:none"></div>
+<script>
+// ══════════════════════════════════════════════════════════════
+// WELCOME SCREEN ANIMATION — per restaurant theme
+// ══════════════════════════════════════════════════════════════
+(function initRestoAnimation() {
+  var canvas = document.getElementById('resto-anim-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var rid = _urlResto || 'suka-mallathalli';
+  var W, H, particles = [], waveT = 0, blobT = 0, ringAngle = 0;
+
+  function resize() {
+    W = canvas.offsetWidth; H = canvas.offsetHeight;
+    canvas.width = W; canvas.height = H;
+    buildParticles();
+  }
+
+  // ── SUKA: green spice ember particles ─────────────────────
+  function buildParticlesSuka() {
+    particles = [];
+    var cols = ['61,139,92','80,160,100','200,140,60','240,180,80','40,120,70','100,180,120'];
+    for (var i = 0; i < 55; i++) {
+      particles.push({
+        x: Math.random() * W, y: H + Math.random() * H,
+        r: Math.random() * 1.8 + 0.4,
+        vy: -(Math.random() * 0.45 + 0.2),
+        vx: (Math.random() - 0.5) * 0.35,
+        twinkle: Math.random() * Math.PI * 2,
+        col: cols[Math.floor(Math.random() * cols.length)]
+      });
+    }
+  }
+
+  function drawSuka() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(function(p) {
+      p.twinkle += 0.04; p.x += p.vx; p.y += p.vy;
+      if (p.y < -8) { p.y = H + 8; p.x = Math.random() * W; }
+      var alpha = Math.abs(Math.sin(p.twinkle)) * 0.65 + 0.12;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(' + p.col + ',' + alpha + ')'; ctx.fill();
+      if (p.r > 1.2) {
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 2.8, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(' + p.col + ',' + (alpha * 0.12) + ')'; ctx.fill();
+      }
+    });
+  }
+
+  // ── LEVELS: beer liquid wave + rising bubbles ──────────────
+  function buildParticlesLevels() {
+    particles = [];
+    for (var i = 0; i < 8; i++) {
+      particles.push({
+        x: Math.random() * W, y: H * 0.7 + Math.random() * H * 0.3,
+        r: Math.random() * 3 + 1,
+        vy: Math.random() * 0.5 + 0.3,
+        vx: (Math.random() - 0.5) * 0.2,
+        delay: Math.random() * 120, frame: 0
+      });
+    }
+  }
+
+  function wavePath(phase, amp, base) {
+    var pts = ['M0 ' + base];
+    for (var x = 0; x <= W; x += 8) {
+      var y = base - amp * Math.sin(((x / W) * 3.5 + waveT + phase) * Math.PI * 2);
+      pts.push('L' + x + ' ' + y);
+    }
+    pts.push('L' + W + ' ' + H + ' L0 ' + H + ' Z');
+    return pts.join(' ');
+  }
+
+  function drawLevels() {
+    ctx.clearRect(0, 0, W, H);
+    var base = H * 0.62;
+    // 3 wave layers
+    [[0, H*0.085, 'rgba(212,160,23,0.18)'],
+     [0.3, H*0.065, 'rgba(212,160,23,0.12)'],
+     [0.6, H*0.05, 'rgba(180,120,10,0.08)']
+    ].forEach(function(w) {
+      var p = new Path2D(wavePath(w[0], w[1], base));
+      ctx.fillStyle = w[2]; ctx.fill(p);
+    });
+    // bubbles
+    particles.forEach(function(p) {
+      if (p.frame++ < p.delay) return;
+      p.y -= p.vy; p.x += p.vx;
+      if (p.y < base - 20) { p.y = H * 0.85 + Math.random() * H * 0.15; p.x = Math.random() * W; }
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(212,160,23,0.3)'; ctx.lineWidth = 0.8; ctx.stroke();
+    });
+    waveT += 0.008;
+  }
+
+  // ── LEGACY: spinning cricket rings ────────────────────────
+  function buildParticlesLegacy() { particles = []; }
+
+  function drawLegacy() {
+    ctx.clearRect(0, 0, W, H);
+    var cx = W / 2, cy = H / 2;
+    // Outer ring
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(ringAngle * Math.PI / 180);
+    ctx.beginPath(); ctx.arc(0, 0, Math.min(W, H) * 0.38, 0, Math.PI * 2);
+    ctx.setLineDash([8, 6]); ctx.strokeStyle = 'rgba(201,148,58,0.18)';
+    ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
+    // Inner ring counter-rotating
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(-ringAngle * 1.4 * Math.PI / 180);
+    ctx.beginPath(); ctx.arc(0, 0, Math.min(W, H) * 0.27, 0, Math.PI * 2);
+    ctx.setLineDash([4, 8]); ctx.strokeStyle = 'rgba(201,148,58,0.12)';
+    ctx.lineWidth = 0.75; ctx.stroke(); ctx.restore();
+    // Pulsing glow
+    var glowR = Math.min(W, H) * 0.19 + Math.sin(waveT * 2) * 4;
+    var grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
+    grd.addColorStop(0, 'rgba(201,148,58,0.08)');
+    grd.addColorStop(1, 'rgba(201,148,58,0)');
+    ctx.beginPath(); ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+    ctx.fillStyle = grd; ctx.fill();
+    ctx.setLineDash([]);
+    ringAngle += 0.18; waveT += 0.02;
+  }
+
+  function buildParticles() {
+    if (rid === 'suka-mallathalli')  buildParticlesSuka();
+    else if (rid === 'levels-nagarbhavi') buildParticlesLevels();
+    else if (rid === 'legacy-rrnagar')    buildParticlesLegacy();
+    else buildParticlesSuka();
+  }
+
+  function draw() {
+    if (!document.getElementById('s0').classList.contains('show')) {
+      requestAnimationFrame(draw); return;
+    }
+    if (rid === 'suka-mallathalli')  drawSuka();
+    else if (rid === 'levels-nagarbhavi') drawLevels();
+    else if (rid === 'legacy-rrnagar')    drawLegacy();
+    else drawSuka();
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
+
+// ══════════════════════════════════════════════════════════════
+// SMART UPSELL POP-UP ENGINE
+// Shows after item added to cart — suggests a matching item
+// "Tables nearby also ordered..." / "Pairs perfectly with..."
+// ══════════════════════════════════════════════════════════════
+var _upsellItem   = null;    // item being suggested
+var _upsellActive = false;   // pop-up currently showing
+var _upsellQueue  = [];      // queued suggestions
+var _upsellShown  = new Set(); // ids shown this session — never repeat
+
+// Pairing rules: when item X is added, suggest Y
+// Driven by tags + category logic
+function getUpsellSuggestion(addedItem) {
+  if (!addedItem) return null;
+  var allItems = {};
+  Object.values(MENU.food || {}).flat().forEach(function(i){ allItems[i.id]=i; });
+  Object.values(MENU.drinks || {}).flat().forEach(function(i){ allItems[i.id]=i; });
+
+  var suggestions = [];
+  var inCart = Object.keys(cart);
+  var hasDrink = Object.values(DRINKS||{}).flat().some(function(d){ return inCart.includes(d.id); });
+  var hasFood  = Object.values(FOOD||{}).flat().some(function(f){ return inCart.includes(f.id); });
+
+  // ── Rule 1: added food, no drink → suggest matching drink ─
+  if (!hasDrink && addedItem.diet !== 'drink') {
+    var drinkTab = Object.values(DRINKS||{}).flat();
+    if (addedItem.tags && addedItem.tags.includes('spicy')) {
+      // spicy food → suggest cooling beer/cocktail
+      drinkTab.filter(function(d){ return d.tags && (d.tags.includes('light') || d.tags.includes('drinky')); })
+               .forEach(function(d){ suggestions.push({item:d, ctx:'🌶️', msg:'Spicy food pairs best with a cold drink'}); });
+    } else if (addedItem.tags && addedItem.tags.includes('hearty')) {
+      drinkTab.filter(function(d){ return d.tags && d.tags.includes('hearty'); })
+               .forEach(function(d){ suggestions.push({item:d, ctx:'🍖', msg:'Rich food deserves a bold drink'}); });
+    } else {
+      drinkTab.filter(function(d){ return d.tags && d.tags.includes('celebrate'); })
+               .forEach(function(d){ suggestions.push({item:d, ctx:'✨', msg:'Tables nearby also ordered drinks'}); });
+    }
+  }
+
+  // ── Rule 2: added drink, no food → suggest bar bite ───────
+  if (hasDrink && !hasFood && addedItem.tags) {
+    var foodItems = Object.values(FOOD||{}).flat();
+    foodItems.filter(function(f){
+      return !_upsellShown.has(f.id) && !inCart.includes(f.id) &&
+             f.tags && f.tags.some(function(t){ return addedItem.tags.includes(t); });
+    }).slice(0,3).forEach(function(f){
+      suggestions.push({item:f, ctx:'🍢', msg:'Perfect bar bite to go with your drink'});
+    });
+  }
+
+  // ── Rule 3: quickPicks boost — most ordered ────────────────
+  var picks = (typeof QUICK_PICKS !== 'undefined') ? QUICK_PICKS : {};
+  var pickIds = Object.values(picks).flat().map(function(p){ return p.id; });
+  pickIds.forEach(function(id){
+    if (!_upsellShown.has(id) && !inCart.includes(id) && allItems[id]) {
+      suggestions.push({item:allItems[id], ctx:'🔥', msg:'Most ordered at this table tonight'});
+    }
+  });
+
+  // ── Filter: not in cart, not already shown, not same as added ─
+  var valid = suggestions.filter(function(s){
+    return s.item && s.item.id !== addedItem.id &&
+           !inCart.includes(s.item.id) &&
+           !_upsellShown.has(s.item.id);
+  });
+
+  if (!valid.length) return null;
+  // Return highest-priority suggestion
+  return valid[0];
+}
+
+function showUpsell(addedItem) {
+  // Only show on food/drinks screens, not review/welcome
+  var activeScreen = document.querySelector('.screen.show');
+  if (!activeScreen) return;
+  var screenId = activeScreen.id;
+  if (!['sd','s2','s3','spq','spo'].includes(screenId)) return;
+  // Don't stack pop-ups
+  if (_upsellActive) { _upsellQueue.push(addedItem); return; }
+
+  var suggestion = getUpsellSuggestion(addedItem);
+  if (!suggestion) return;
+
+  _upsellItem   = suggestion.item;
+  _upsellActive = true;
+  _upsellShown.add(suggestion.item.id);
+
+  document.getElementById('up-icon').textContent  = suggestion.ctx;
+  document.getElementById('up-ctx').textContent   = suggestion.msg;
+  document.getElementById('up-emoji').textContent  = suggestion.item.e || '🍽️';
+  document.getElementById('up-name').textContent  = suggestion.item.name;
+  document.getElementById('up-desc').textContent  = suggestion.item.desc || '';
+  document.getElementById('up-price').textContent = '₹' + suggestion.item.price;
+
+  // Update add button colour to restaurant accent
+  var accent = (_restoConfig && _restoConfig.accent) ? _restoConfig.accent : 'var(--green)';
+  document.getElementById('up-add-btn').style.background = accent;
+
+  document.getElementById('upsell-pop').style.transform     = 'translateY(0)';
+  document.getElementById('upsell-overlay').style.display   = 'block';
+
+  // Auto-dismiss after 8 seconds
+  setTimeout(upsellDecline, 8000);
+}
+
+function upsellAccept() {
+  if (!_upsellItem) { upsellDecline(); return; }
+  // Add the suggested item to cart
+  addCartItem(_upsellItem.id, _upsellItem.price, _upsellItem.name, _upsellItem.e || '🍽️');
+  toast('✦ ' + _upsellItem.name + ' added!');
+  upsellDecline();
+}
+
+function upsellDecline() {
+  document.getElementById('upsell-pop').style.transform   = 'translateY(110%)';
+  document.getElementById('upsell-overlay').style.display = 'none';
+  _upsellActive = false;
+  _upsellItem   = null;
+  // Process queue
+  setTimeout(function() {
+    if (_upsellQueue.length) showUpsell(_upsellQueue.shift());
+  }, 600);
+}
+
+// ── Hook into addCartItem to trigger upsell ─────────────────
+var _origAddCartItem = window.addCartItem;
+if (typeof _origAddCartItem === 'function') {
+  window.addCartItem = function(id, price, name, emoji) {
+    _origAddCartItem.apply(this, arguments);
+    var allItems = {};
+    Object.values(MENU.food||{}).flat().forEach(function(i){ allItems[i.id]=i; });
+    Object.values(MENU.drinks||{}).flat().forEach(function(i){ allItems[i.id]=i; });
+    var addedItem = allItems[id];
+    if (addedItem) setTimeout(function(){ showUpsell(addedItem); }, 600);
+  };
+}
+// Also hook addCartQuick (popular section)
+var _origAddCartQuick2 = window.addCartQuick;
+if (typeof _origAddCartQuick2 === 'function') {
+  window.addCartQuick = function(id, price, name, emoji) {
+    _origAddCartQuick2.apply(this, arguments);
+    var allItems = {};
+    Object.values(MENU.food||{}).flat().forEach(function(i){ allItems[i.id]=i; });
+    var addedItem = allItems[id];
+    if (addedItem) setTimeout(function(){ showUpsell(addedItem); }, 600);
+  };
+}
+</script></body>
 </html>
+
