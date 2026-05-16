@@ -359,7 +359,7 @@ html,body{background:var(--bg);color:var(--ink)}
 
 <!-- ══ S0: WELCOME ══ -->
 <div class="screen show" id="s0">
-  <canvas id="resto-anim-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;border-radius:inherit"></canvas>
+  <canvas id="welcome-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;border-radius:inherit"></canvas>
   <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:370px;margin:0 auto">
     <div class="logo-ring au"><span class="logo-m">m</span></div>
     <div class="wtable au" style="animation-delay:.06s" id="welcome-table-num">Table</div>
@@ -2067,6 +2067,76 @@ function renderBarBitesSuggestion() {
     +'</div>';
 }
 
+
+// ── "Others also ordered" panel shown on drinks screen ──────────
+// Shows 3 food items that pair well with current drink selection
+// Based on BAR_BITES_PAIRING + QUICK_PICKS social proof
+function addCartSuggestion(btn) {
+  var id = btn.getAttribute('data-id');
+  var price = parseInt(btn.getAttribute('data-price'));
+  var item = null;
+  Object.values(FOOD||{}).flat().forEach(function(i){ if(i.id===id) item=i; });
+  Object.values(DRINKS||{}).flat().forEach(function(i){ if(i.id===id) item=i; });
+  if (item) addCart(id, price, item.name, item.e||'🍽️', btn);
+}
+
+function renderDrinksFoodSuggestion() {
+  // Build candidate food items
+  var allFood = {};
+  Object.values(FOOD||{}).flat().forEach(function(i){ allFood[i.id]=i; });
+
+  // Get pairing IDs for current drink tab
+  var pairingIds = [];
+  var bbp = (typeof BAR_BITES_PAIRING !== 'undefined') ? BAR_BITES_PAIRING : {};
+  if (bbp[dTab]) pairingIds = pairingIds.concat(bbp[dTab]);
+
+  // Also include QUICK_PICKS starters for social proof
+  var qp = (typeof QUICK_PICKS !== 'undefined') ? QUICK_PICKS : {};
+  var starterPicks = (qp.starters || []).map(function(p){ return p.id; });
+  pairingIds = pairingIds.concat(starterPicks);
+
+  // Deduplicate and get valid items
+  var seen = {};
+  var items = [];
+  pairingIds.forEach(function(id) {
+    if (seen[id] || cart[id] || SOLD_OUT_IDS.has(id)) return;
+    var item = allFood[id];
+    if (!item) return;
+    seen[id] = true;
+    items.push(item);
+  });
+
+  if (!items.length) return '';
+
+  var shown = items.slice(0, 3);
+  var accent = (_restoConfig && _restoConfig.accent) || 'var(--green)';
+
+  var cards = shown.map(function(item) {
+    var dc = item.diet === 'veg' ? 'v' : item.diet === 'nonveg' ? 'n' : 'e';
+    var inCart = cart[item.id] ? cart[item.id] : 0;
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border-radius:10px;border:1px solid var(--bdr)">'
+      + '<div style="font-size:1.6rem;flex-shrink:0">' + (item.e || '🍽️') + '</div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:.82rem;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + item.name + '</div>'
+      + '<div style="font-size:.72rem;color:var(--ink3)">'
+      + (dc==='v'?'<span style="color:#2D7A3A;font-size:.65rem">●</span> ':'<span style="color:#c0392b;font-size:.65rem">●</span> ')
+      + '₹' + item.price + '</div>'
+      + '</div>'
+      + (inCart
+        ? '<span style="font-size:.75rem;color:var(--ink3);background:var(--bg3);padding:3px 8px;border-radius:6px">In cart ✓</span>'
+        : '<button onclick="addCartSuggestion(this)" data-id="'+item.id+'" data-price="'+item.price+'" style="padding:5px 12px;border-radius:8px;border:1.5px solid '+accent+';background:transparent;color:'+accent+';font-size:.78rem;font-weight:500;cursor:pointer;font-family:inherit;flex-shrink:0">+ Add</button>'
+      )
+      + '</div>';
+  }).join('');
+
+  return '<div style="margin-bottom:12px">'
+    + '<div style="font-size:.65rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;display:flex;align-items:center;gap:6px">'
+    + '<span>👥</span> Others at this table also ordered'
+    + '</div>'
+    + '<div style="display:flex;flex-direction:column;gap:6px">' + cards + '</div>'
+    + '</div>';
+}
+
 function renderDrinks() {
   const dbar = document.getElementById('dbar-sd');
   if (dbar) dbar.innerHTML = dbarHTML('sd');
@@ -2160,7 +2230,7 @@ function renderDrinks() {
       <div class="cs-title">What to <em>drink?</em></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:8px"><div class="drink-hint" style="flex:1">${hint}</div><button class="pref-btn" onclick="changePreferences('sd')" title="Change preferences">⟳</button></div>
-    ${drinkStyles.size > 0 ? '<div style="font-size:.72rem;color:#0891b2;background:rgba(8,145,178,.1);border-radius:8px;padding:7px 11px;margin-bottom:10px">🍢 Tap Bar Bites tab to see what pairs best with your drinks</div>' : ''}
+    ${renderDrinksFoodSuggestion()}
     <div class="dtabs" id="dtabs-sd">${tabsHTML}</div>
     ${top.length===0?`<div class="rev-empty">No items in this category match your preferences — try another tab or adjust your filter.</div>`:''}
     ${top.map((it,i)=>rcCard(it,i,'sd')).join('')}
@@ -3435,145 +3505,7 @@ var _goOrig = window.go;
 // ══════════════════════════════════════════════════════════════
 // WELCOME SCREEN ANIMATION — per restaurant theme
 // ══════════════════════════════════════════════════════════════
-(function initRestoAnimation() {
-  var canvas = document.getElementById('resto-anim-canvas');
-  if (!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var rid = _urlResto || 'suka-mallathalli';
-  var W, H, particles = [], waveT = 0, blobT = 0, ringAngle = 0;
 
-  function resize() {
-    W = canvas.offsetWidth; H = canvas.offsetHeight;
-    canvas.width = W; canvas.height = H;
-    buildParticles();
-  }
-
-  // ── SUKA: green spice ember particles ─────────────────────
-  function buildParticlesSuka() {
-    particles = [];
-    var cols = ['61,139,92','80,160,100','200,140,60','240,180,80','40,120,70','100,180,120'];
-    for (var i = 0; i < 55; i++) {
-      particles.push({
-        x: Math.random() * W, y: H + Math.random() * H,
-        r: Math.random() * 1.8 + 0.4,
-        vy: -(Math.random() * 0.45 + 0.2),
-        vx: (Math.random() - 0.5) * 0.35,
-        twinkle: Math.random() * Math.PI * 2,
-        col: cols[Math.floor(Math.random() * cols.length)]
-      });
-    }
-  }
-
-  function drawSuka() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(function(p) {
-      p.twinkle += 0.04; p.x += p.vx; p.y += p.vy;
-      if (p.y < -8) { p.y = H + 8; p.x = Math.random() * W; }
-      var alpha = Math.abs(Math.sin(p.twinkle)) * 0.65 + 0.12;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(' + p.col + ',' + alpha + ')'; ctx.fill();
-      if (p.r > 1.2) {
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 2.8, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(' + p.col + ',' + (alpha * 0.12) + ')'; ctx.fill();
-      }
-    });
-  }
-
-  // ── LEVELS: beer liquid wave + rising bubbles ──────────────
-  function buildParticlesLevels() {
-    particles = [];
-    for (var i = 0; i < 8; i++) {
-      particles.push({
-        x: Math.random() * W, y: H * 0.7 + Math.random() * H * 0.3,
-        r: Math.random() * 3 + 1,
-        vy: Math.random() * 0.5 + 0.3,
-        vx: (Math.random() - 0.5) * 0.2,
-        delay: Math.random() * 120, frame: 0
-      });
-    }
-  }
-
-  function wavePath(phase, amp, base) {
-    var pts = ['M0 ' + base];
-    for (var x = 0; x <= W; x += 8) {
-      var y = base - amp * Math.sin(((x / W) * 3.5 + waveT + phase) * Math.PI * 2);
-      pts.push('L' + x + ' ' + y);
-    }
-    pts.push('L' + W + ' ' + H + ' L0 ' + H + ' Z');
-    return pts.join(' ');
-  }
-
-  function drawLevels() {
-    ctx.clearRect(0, 0, W, H);
-    var base = H * 0.62;
-    // 3 wave layers
-    [[0, H*0.085, 'rgba(212,160,23,0.18)'],
-     [0.3, H*0.065, 'rgba(212,160,23,0.12)'],
-     [0.6, H*0.05, 'rgba(180,120,10,0.08)']
-    ].forEach(function(w) {
-      var p = new Path2D(wavePath(w[0], w[1], base));
-      ctx.fillStyle = w[2]; ctx.fill(p);
-    });
-    // bubbles
-    particles.forEach(function(p) {
-      if (p.frame++ < p.delay) return;
-      p.y -= p.vy; p.x += p.vx;
-      if (p.y < base - 20) { p.y = H * 0.85 + Math.random() * H * 0.15; p.x = Math.random() * W; }
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(212,160,23,0.3)'; ctx.lineWidth = 0.8; ctx.stroke();
-    });
-    waveT += 0.008;
-  }
-
-  // ── LEGACY: spinning cricket rings ────────────────────────
-  function buildParticlesLegacy() { particles = []; }
-
-  function drawLegacy() {
-    ctx.clearRect(0, 0, W, H);
-    var cx = W / 2, cy = H / 2;
-    // Outer ring
-    ctx.save(); ctx.translate(cx, cy); ctx.rotate(ringAngle * Math.PI / 180);
-    ctx.beginPath(); ctx.arc(0, 0, Math.min(W, H) * 0.38, 0, Math.PI * 2);
-    ctx.setLineDash([8, 6]); ctx.strokeStyle = 'rgba(201,148,58,0.18)';
-    ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
-    // Inner ring counter-rotating
-    ctx.save(); ctx.translate(cx, cy); ctx.rotate(-ringAngle * 1.4 * Math.PI / 180);
-    ctx.beginPath(); ctx.arc(0, 0, Math.min(W, H) * 0.27, 0, Math.PI * 2);
-    ctx.setLineDash([4, 8]); ctx.strokeStyle = 'rgba(201,148,58,0.12)';
-    ctx.lineWidth = 0.75; ctx.stroke(); ctx.restore();
-    // Pulsing glow
-    var glowR = Math.min(W, H) * 0.19 + Math.sin(waveT * 2) * 4;
-    var grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
-    grd.addColorStop(0, 'rgba(201,148,58,0.08)');
-    grd.addColorStop(1, 'rgba(201,148,58,0)');
-    ctx.beginPath(); ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
-    ctx.fillStyle = grd; ctx.fill();
-    ctx.setLineDash([]);
-    ringAngle += 0.18; waveT += 0.02;
-  }
-
-  function buildParticles() {
-    if (rid === 'suka-mallathalli')  buildParticlesSuka();
-    else if (rid === 'levels-nagarbhavi') buildParticlesLevels();
-    else if (rid === 'legacy-rrnagar')    buildParticlesLegacy();
-    else buildParticlesSuka();
-  }
-
-  function draw() {
-    if (!document.getElementById('s0').classList.contains('show')) {
-      requestAnimationFrame(draw); return;
-    }
-    if (rid === 'suka-mallathalli')  drawSuka();
-    else if (rid === 'levels-nagarbhavi') drawLevels();
-    else if (rid === 'legacy-rrnagar')    drawLegacy();
-    else drawSuka();
-    requestAnimationFrame(draw);
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-  draw();
-})();
 
 // ══════════════════════════════════════════════════════════════
 // SMART UPSELL POP-UP ENGINE
@@ -3762,8 +3694,7 @@ function showUpsell(addedItem) {
   document.getElementById('upsell-pop').style.transform     = 'translateY(0)';
   document.getElementById('upsell-overlay').style.display   = 'block';
 
-  // Auto-dismiss after 8 seconds
-  setTimeout(upsellDecline, 8000);
+  // No auto-dismiss — user taps No thanks or Add to order
 }
 
 function upsellAccept() {
