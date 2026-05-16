@@ -2071,6 +2071,32 @@ function renderBarBitesSuggestion() {
 // ── "Others also ordered" panel shown on drinks screen ──────────
 // Shows 3 food items that pair well with current drink selection
 // Based on BAR_BITES_PAIRING + QUICK_PICKS social proof
+// ── Fetch live popular items from other tables ────────────────
+function fetchPopularNow() {
+  if (_popularFetched) return;
+  _popularFetched = true;
+  fetch('/api/orders/popular-now?restaurant='
+    + encodeURIComponent(RESTAURANT.id)
+    + '&table=' + encodeURIComponent(RESTAURANT.table))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      _popularNow = data.items || [];
+      _popularTableCount = data.tableCount || 0;
+      // Re-render suggestion panels if drinks/course screen is open
+      var active = document.querySelector('.screen.show');
+      if (active && active.id === 'sd') renderDrinks();
+    })
+    .catch(function(){ _popularNow = []; });
+}
+var _popularTableCount = 0;
+
+// Build lookup: itemId -> order count from other tables
+function getPopularLookup() {
+  var map = {};
+  _popularNow.forEach(function(p){ map[p.id] = p.count; });
+  return map;
+}
+
 function addCartSuggestion(btn) {
   var id = btn.getAttribute('data-id');
   var price = parseInt(btn.getAttribute('data-price'));
@@ -2080,61 +2106,134 @@ function addCartSuggestion(btn) {
   if (item) addCart(id, price, item.name, item.e||'🍽️', btn);
 }
 
-function renderDrinksFoodSuggestion() {
-  // Build candidate food items
-  var allFood = {};
-  Object.values(FOOD||{}).flat().forEach(function(i){ allFood[i.id]=i; });
+// ── Course-aware suggestion panel ────────────────────────────────
+// course: 'drinks' | 'starters' | 'mains' | 'desserts'
+// Uses live data from /api/orders/popular-now (other tables today)
+// Falls back to QUICK_PICKS + BAR_BITES_PAIRING if no live data
 
-  // Get pairing IDs for current drink tab
-  var pairingIds = [];
-  var bbp = (typeof BAR_BITES_PAIRING !== 'undefined') ? BAR_BITES_PAIRING : {};
-  if (bbp[dTab]) pairingIds = pairingIds.concat(bbp[dTab]);
+function renderCourseSuggestion(course) {
+  var allItems = {};
+  Object.values(MENU.food||{}).flat().forEach(function(i){ allItems[i.id]=i; });
+  Object.values(MENU.drinks||{}).flat().forEach(function(i){ allItems[i.id]=i; });
 
-  // Also include QUICK_PICKS starters for social proof
-  var qp = (typeof QUICK_PICKS !== 'undefined') ? QUICK_PICKS : {};
-  var starterPicks = (qp.starters || []).map(function(p){ return p.id; });
-  pairingIds = pairingIds.concat(starterPicks);
+  // Which menu categories belong to each course
+  var cm = COURSE_MAP || {};
+  var courseCategories = {
+    starters: (cm.starters || []),
+    mains:    (cm.mains    || []),
+    desserts: (cm.desserts || ['desserts']),
+    drinks:   Object.keys(DRINKS||{})
+  };
+  var targetCats = courseCategories[course] || [];
 
-  // Deduplicate and get valid items
-  var seen = {};
-  var items = [];
-  pairingIds.forEach(function(id) {
-    if (seen[id] || cart[id] || SOLD_OUT_IDS.has(id)) return;
-    var item = allFood[id];
+  // Build set of item IDs in this course
+  var courseItemIds = new Set();
+  if (course === 'drinks') {
+    Object.values(DRINKS||{}).flat().forEach(function(i){ courseItemIds.add(i.id); });
+    // Drinks screen also shows starters (bar bites)
+    (cm.starters||[]).forEach(function(cat){
+      (FOOD[cat]||[]).forEach(function(i){ courseItemIds.add(i.id); });
+    });
+    // And bar bites pairing for current tab
+    var bbp = (typeof BAR_BITES_PAIRING !== 'undefined') ? BAR_BITES_PAIRING : {};
+    (bbp[dTab]||[]).forEach(function(id){ courseItemIds.add(id); });
+  } else {
+    targetCats.forEach(function(cat){
+      (FOOD[cat]||[]).forEach(function(i){ courseItemIds.add(i.id); });
+    });
+  }
+
+  // Get candidates from live popular-now data (other tables today)
+  var popularLookup = getPopularLookup();
+  var candidates = [];
+  var alreadyOrdered = new Set(Object.keys(_sessionAllItems).concat(Object.keys(cart)));
+
+  // Priority 1: items ordered by other tables today, in this course
+  _popularNow.forEach(function(p) {
+    if (!courseItemIds.has(p.id)) return;
+    if (alreadyOrdered.has(p.id)) return;
+    if (SOLD_OUT_IDS.has(p.id)) return;
+    var item = allItems[p.id];
     if (!item) return;
-    seen[id] = true;
-    items.push(item);
+    candidates.push({ item: item, count: p.count, live: true });
   });
 
-  if (!items.length) return '';
+  // Priority 2: fallback to QUICK_PICKS + static pairings if < 3 candidates
+  if (candidates.length < 3) {
+    var qp = (typeof QUICK_PICKS !== 'undefined') ? QUICK_PICKS : {};
+    var fallbackIds = [];
+    if (course === 'drinks') {
+      var bbp = (typeof BAR_BITES_PAIRING !== 'undefined') ? BAR_BITES_PAIRING : {};
+      (bbp[dTab]||[]).forEach(function(id){ fallbackIds.push(id); });
+      (qp.starters||[]).forEach(function(p){ fallbackIds.push(p.id); });
+    } else if (course === 'mains') {
+      (qp.mains||[]).forEach(function(p){ fallbackIds.push(p.id); });
+    } else if (course === 'desserts') {
+      (qp.desserts||[]).forEach(function(p){ fallbackIds.push(p.id); });
+    } else {
+      (qp.starters||[]).forEach(function(p){ fallbackIds.push(p.id); });
+    }
+    var existingIds = new Set(candidates.map(function(c){ return c.item.id; }));
+    fallbackIds.forEach(function(id){
+      if (existingIds.has(id) || alreadyOrdered.has(id) || SOLD_OUT_IDS.has(id)) return;
+      if (!courseItemIds.has(id) && course !== 'drinks') return;
+      var item = allItems[id];
+      if (!item) return;
+      existingIds.add(id);
+      candidates.push({ item: item, count: 0, live: false });
+    });
+  }
 
-  var shown = items.slice(0, 3);
+  if (!candidates.length) return '';
+
+  var shown  = candidates.slice(0, 3);
   var accent = (_restoConfig && _restoConfig.accent) || 'var(--green)';
+  var tableCount = _popularTableCount;
 
-  var cards = shown.map(function(item) {
+  // Header label varies by whether we have live data
+  var hasLive = shown.some(function(c){ return c.live; });
+  var headerIcon = course === 'desserts' ? '🍰' : course === 'mains' ? '🍛' : course === 'drinks' ? '🍺' : '🍽️';
+  var headerText = hasLive && tableCount > 0
+    ? tableCount + ' table' + (tableCount > 1 ? 's' : '') + ' also ordered these'
+    : 'Popular tonight';
+
+  var cards = shown.map(function(c) {
+    var item = c.item;
     var dc = item.diet === 'veg' ? 'v' : item.diet === 'nonveg' ? 'n' : 'e';
-    var inCart = cart[item.id] ? cart[item.id] : 0;
+    var dotCol = dc === 'v' ? '#2D7A3A' : '#c0392b';
+    var inCart = cart[item.id];
+    var badge  = c.live && c.count > 0
+      ? '<span style="font-size:.65rem;background:rgba(0,0,0,.08);padding:1px 6px;border-radius:10px;color:var(--ink3)">×'+c.count+' today</span>'
+      : '';
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border-radius:10px;border:1px solid var(--bdr)">'
-      + '<div style="font-size:1.6rem;flex-shrink:0">' + (item.e || '🍽️') + '</div>'
+      + '<div style="font-size:1.55rem;flex-shrink:0;line-height:1">' + (item.e || '🍽️') + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:.82rem;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + item.name + '</div>'
-      + '<div style="font-size:.72rem;color:var(--ink3)">'
-      + (dc==='v'?'<span style="color:#2D7A3A;font-size:.65rem">●</span> ':'<span style="color:#c0392b;font-size:.65rem">●</span> ')
-      + '₹' + item.price + '</div>'
+        + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:1px">'
+          + '<div style="font-size:.82rem;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + item.name + '</div>'
+          + badge
+        + '</div>'
+        + '<div style="font-size:.72rem;color:var(--ink3)">'
+          + '<span style="color:'+dotCol+';font-size:.6rem">●</span> ₹' + item.price
+        + '</div>'
       + '</div>'
       + (inCart
-        ? '<span style="font-size:.75rem;color:var(--ink3);background:var(--bg3);padding:3px 8px;border-radius:6px">In cart ✓</span>'
-        : '<button onclick="addCartSuggestion(this)" data-id="'+item.id+'" data-price="'+item.price+'" style="padding:5px 12px;border-radius:8px;border:1.5px solid '+accent+';background:transparent;color:'+accent+';font-size:.78rem;font-weight:500;cursor:pointer;font-family:inherit;flex-shrink:0">+ Add</button>'
+        ? '<span style="font-size:.72rem;color:var(--ink3);background:var(--bg3);padding:3px 8px;border-radius:6px;flex-shrink:0">In cart ✓</span>'
+        : '<button onclick="addCartSuggestion(this)" data-id="' + item.id + '" data-price="' + item.price + '" style="padding:5px 13px;border-radius:8px;border:1.5px solid ' + accent + ';background:transparent;color:' + accent + ';font-size:.78rem;font-weight:500;cursor:pointer;font-family:inherit;flex-shrink:0;white-space:nowrap">+ Add</button>'
       )
       + '</div>';
   }).join('');
 
-  return '<div style="margin-bottom:12px">'
-    + '<div style="font-size:.65rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;display:flex;align-items:center;gap:6px">'
-    + '<span>👥</span> Others at this table also ordered'
+  return '<div style="margin-bottom:14px;padding:12px;background:var(--bg2);border-radius:12px;border:1px solid var(--bdr)">'
+    + '<div style="font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;display:flex;align-items:center;gap:5px">'
+      + '<span>' + headerIcon + '</span> ' + headerText
     + '</div>'
     + '<div style="display:flex;flex-direction:column;gap:6px">' + cards + '</div>'
     + '</div>';
+}
+
+// Backwards compat alias used in drinks screen template
+function renderDrinksFoodSuggestion() {
+  return renderCourseSuggestion('drinks');
 }
 
 function renderDrinks() {
@@ -2311,6 +2410,10 @@ function renderCourse(sid) {
       <div class="cs-title">${cfg.title}</div>
       <div class="cs-sub">${cfg.sub}</div>
     </div>
+    ${(function(){
+      var course = sid==='s3'?'mains':sid==='s4'?'desserts':sid==='s2'?'starters':'starters';
+      return renderCourseSuggestion(course);
+    })()}
     ${top.map((it,i)=>rcCard(it,i,sid)).join('')}
     ${rest.length?`
       <button class="see-all ${isOpen?'open':''}" onclick="toggleSeeAll('${sid}')">
@@ -2507,6 +2610,11 @@ function placeOrder(){
     if (sh) sh.textContent = firstItem.name + ' is on its way!';
     if (sp) sp.textContent = 'Your order is with the kitchen. Table ' + RESTAURANT.table + ' — sit back.';
   }
+  // Accumulate ALL items ordered this session (across all rounds)
+  // Used for: feedback rating, suggestion exclusions
+  Object.values(cart).forEach(function(item) {
+    _sessionAllItems[item.id] = item;
+  });
   sessionRound++;
   // Save to sessionStorage so QR rescan restores session
   saveSession();
@@ -2764,25 +2872,58 @@ function callWaiter(btn){btn.textContent='✅ Called!';setTimeout(()=>{btn.inner
 
 /* ══════════ FEEDBACK ══════════ */
 var fbStarRating = 0;
+var _sessionAllItems = {};  // ALL items ordered this session (all rounds) — for feedback + suggestions
+var _popularNow     = [];  // live popular items from other tables API
+var _popularFetched = false;
 var fbDishRatings = {};   // itemId -> true (up) | false (down) | null
 var fbRecommend   = null; // true | false | null
 var fbSessionId   = null; // set when order is placed
 
 function showFeedback() {
-  // Build dish rating list from cart
+  // Build dish rating list from ALL items ordered this session (all rounds)
+  // _sessionAllItems accumulates everything across placeOrder() calls
   var list = document.getElementById('dishFbList');
   if (!list) return;
   var html = '';
-  Object.keys(cart).forEach(function(id) {
-    var item = cart[id];
-    fbDishRatings[id] = null;
-    html += '<div class="dish-fb" id="dish-fb-' + id + '">'
-          + '<span style="font-size:1.2rem;flex-shrink:0">' + (item.e||'🍽️') + '</span>'
-          + '<span class="dish-fb-name">' + item.name + '</span>'
-          + '<button class="thumb up" id="up-' + id + '" data-id="' + id + '" data-up="1" onclick="rateDish(this.dataset.id,true)">👍</button>'
-          + '<button class="thumb dn" id="dn-' + id + '" data-id="' + id + '" onclick="rateDish(this.dataset.id,false)">👎</button>'
-          + '</div>';
+  // Merge current cart into session items (in case first order)
+  Object.values(cart).forEach(function(item){ _sessionAllItems[item.id] = item; });
+  var allKeys = Object.keys(_sessionAllItems);
+  if (!allKeys.length) allKeys = Object.keys(cart);
+  // Group items by course for clear feedback UX
+  var drinkIds   = new Set(Object.values(DRINKS||{}).flat().map(function(d){ return d.id; }));
+  var dessertCats= (COURSE_MAP && COURSE_MAP.desserts) || ['desserts'];
+  var mainsCats  = (COURSE_MAP && COURSE_MAP.mains)    || [];
+  var dessertIds = new Set(), mainsIds = new Set();
+  dessertCats.forEach(function(c){ (FOOD[c]||[]).forEach(function(i){ dessertIds.add(i.id); }); });
+  mainsCats.forEach(function(c){ (FOOD[c]||[]).forEach(function(i){ mainsIds.add(i.id); }); });
+
+  var groups = { drinks:[], starters:[], mains:[], desserts:[] };
+  allKeys.forEach(function(id) {
+    var item = _sessionAllItems[id] || cart[id];
+    if (!item || !item.name) return;
+    fbDishRatings[id] = fbDishRatings[id] !== undefined ? fbDishRatings[id] : null;
+    if (drinkIds.has(id))        groups.drinks.push({id:id,item:item});
+    else if (dessertIds.has(id)) groups.desserts.push({id:id,item:item});
+    else if (mainsIds.has(id))   groups.mains.push({id:id,item:item});
+    else                         groups.starters.push({id:id,item:item});
   });
+
+  function fbCard(id, item) {
+    var dc = item.diet === 'veg' ? 'v' : item.diet === 'nonveg' ? 'n' : 'e';
+    var dotCol = dc === 'v' ? '#2D7A3A' : '#c0392b';
+    return '<div class="dish-fb" id="dish-fb-' + id + '">'         + '<span style="font-size:1.2rem;flex-shrink:0">' + (item.e||'🍽️') + '</span>'         + '<div style="flex:1;min-width:0">'           + '<div class="dish-fb-name">' + item.name + '</div>'           + '<div style="font-size:.68rem;color:var(--ink3)">'             + '<span style="color:'+dotCol+';font-size:.6rem">●</span> ₹' + item.price             + (item.qty > 1 ? ' × ' + item.qty : '')           + '</div>'         + '</div>'         + '<button class="thumb up" id="up-' + id + '" data-id="' + id + '" onclick="rateDish(this.dataset.id,true)">👍</button>'         + '<button class="thumb dn" id="dn-' + id + '" data-id="' + id + '" onclick="rateDish(this.dataset.id,false)">👎</button>'         + '</div>';
+  }
+
+  function fbGroup(icon, label, arr) {
+    if (!arr.length) return '';
+    return '<div style="font-size:.62rem;letter-spacing:1.2px;text-transform:uppercase;'         + 'color:var(--ink3);margin:12px 0 6px;display:flex;align-items:center;gap:5px">'         + icon + ' ' + label + '</div>'         + arr.map(function(g){ return fbCard(g.id, g.item); }).join('');
+  }
+
+  html += fbGroup('🍸', 'Drinks',   groups.drinks);
+  html += fbGroup('🍢', 'Starters', groups.starters);
+  html += fbGroup('🍛', 'Mains',    groups.mains);
+  html += fbGroup('🍰', 'Desserts', groups.desserts);
+
   list.innerHTML = html || '<div style="font-size:.8rem;color:var(--i3);padding:8px 0">No items to rate</div>';
 
   // Reset star state
@@ -2823,21 +2964,26 @@ function pickRecommend(val) {
 
 function buildFeedbackPayload() {
   // Build dish list with recommendation context
-  var dishes = Object.keys(cart).map(function(id) {
+  // Include all items from all rounds
+  var allFbKeys = Object.keys(_sessionAllItems).length
+    ? Object.keys(_sessionAllItems)
+    : Object.keys(cart);
+  var dishes = allFbKeys.map(function(id) {
+    var item = _sessionAllItems[id] || cart[id] || {};
     return {
       itemId:    id,
-      name:      cart[id].name,
-      qty:       cart[id].qty,
-      price:     cart[id].price,
-      thumbs:    fbDishRatings[id],          // true=up, false=down, null=no rating
-      wasInterested: interestedIds.has(id),  // was it in the popular screen?
+      name:      item.name,
+      qty:       item.qty,
+      price:     item.price,
+      thumbs:    fbDishRatings[id],
+      wasInterested: interestedIds.has(id),
       wasPicked: POPULAR_BADGE[id] ? POPULAR_BADGE[id] : null,
     };
   });
 
   return {
     sessionId:      fbSessionId,
-    restaurantId:   'suka-mallathalli',
+    restaurantId:   RESTAURANT.id,
     tableNumber:    RESTAURANT.table,
     timestamp:      new Date().toISOString(),
     // What the customer told us
@@ -3475,6 +3621,8 @@ var _origGo = window.go || function(){};
 document.addEventListener('DOMContentLoaded', function() {
   // Start animation immediately on welcome screen
   setTimeout(startWelcomeAnimation, 300);
+  // Fetch live popular items from other tables in background
+  setTimeout(fetchPopularNow, 1500);
 });
 // Stop animation when leaving welcome screen
 var _goOrig = window.go;
