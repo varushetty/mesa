@@ -3663,7 +3663,7 @@ var _goOrig = window.go;
 var _upsellItem    = null;    // item being suggested
 var _upsellSkipNext = false; // skip hook trigger when adding from popup
 var _upsellActive = false;   // pop-up currently showing
-var _upsellQueue  = [];      // queued suggestions
+var _upsellQueue  = [];      // unused — no queueing by design
 var _upsellShown  = new Set(); // ids shown this session — never repeat
 
 // Pairing rules: when item X is added, suggest Y
@@ -3813,20 +3813,23 @@ function getUpsellSuggestion(addedItem) {
   return valid_suggestions.length ? valid_suggestions[0] : null;
 }
 
+var _upsellLastShown = 0;  // timestamp of last popup — cooldown
 function showUpsell(addedItem) {
   // Only show on food/drinks screens, not review/welcome
   var activeScreen = document.querySelector('.screen.show');
   if (!activeScreen) return;
   var screenId = activeScreen.id;
   if (!['sd','s2','s3','spq','spo'].includes(screenId)) return;
-  // Don't stack pop-ups
-  if (_upsellActive) { _upsellQueue.push(addedItem); return; }
+  // Don't stack — and enforce 20 second cooldown between popups
+  if (_upsellActive) return;
+  if (Date.now() - _upsellLastShown < 20000) return; // cooldown
 
   var suggestion = getUpsellSuggestion(addedItem);
   if (!suggestion) return;
 
   _upsellItem   = suggestion.item;
   _upsellActive = true;
+  _upsellLastShown = Date.now();
   _upsellShown.add(suggestion.item.id);
 
   document.getElementById('up-icon').textContent  = suggestion.ctx;
@@ -3863,10 +3866,7 @@ function upsellDecline() {
   document.getElementById('upsell-overlay').style.display = 'none';
   _upsellActive = false;
   _upsellItem   = null;
-  // Process queue
-  setTimeout(function() {
-    if (_upsellQueue.length) showUpsell(_upsellQueue.shift());
-  }, 600);
+  // No queue — one popup per interaction
 }
 
 // ── Hook into addCart (main cart function) ──────────────────
