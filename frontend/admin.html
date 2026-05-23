@@ -415,18 +415,35 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-
 
 <div class="toast" id="toast"></div>
 
-<script src="shared-menu.js"></script>
+<script>
+(function() {
+  var ap = new URLSearchParams(window.location.search);
+  var rid = ap.get('restaurant') || 'suka-mallathalli';
+  var allowed = ['suka-mallathalli','legacy-rrnagar','levels-nagarbhavi','skydeck-rrnagar'];
+  if (allowed.indexOf(rid) === -1) rid = 'suka-mallathalli';
+  document.write('<scr'+'ipt src="menus/' + rid + '.js"><\/scr'+'ipt>');
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 var _ap = new URLSearchParams(window.location.search);
-var RID = _ap.get('restaurant') || 'suka-mallathalli';
+var _ridRaw = _ap.get('restaurant') || 'suka-mallathalli';
+var _allowed = ['suka-mallathalli','legacy-rrnagar','levels-nagarbhavi','skydeck-rrnagar'];
+var RID = _allowed.indexOf(_ridRaw) !== -1 ? _ridRaw : 'suka-mallathalli';
 var PIN='',pbuf='',adminUser=null,activeTab='tables';
 
-// Rebuild ALL_FOOD_ITEMS for the current restaurant immediately
-// buildFoodItems() is defined in shared-menu.js
-if (typeof buildFoodItems === 'function') {
-  ALL_FOOD_ITEMS = buildFoodItems(RID);
+// Build ALL_FOOD_ITEMS from MESA_RESTO_CONFIG (loaded by dynamic menu file)
+function buildFoodItemsFromConfig(config) {
+  var items = [];
+  if (!config || !config.menu || !config.menu.food) return items;
+  Object.keys(config.menu.food).forEach(function(cat) {
+    (config.menu.food[cat] || []).forEach(function(item) {
+      items.push(Object.assign({}, item, {category: cat}));
+    });
+  });
+  return items;
 }
+var ALL_FOOD_ITEMS = buildFoodItemsFromConfig(window.MESA_RESTO_CONFIG);
 
 // Safe JSON fetch — never throws the 'Unexpected token <' error
 // Checks Content-Type before parsing, shows meaningful errors
@@ -846,8 +863,13 @@ async function restoreDish(id){
   try{await fetch('/api/admin/menu-items/'+id,{method:'PATCH',headers:H(),body:JSON.stringify({is_active:true})});toast('Dish restored ✓');loadMenuTab();}catch(e){toast(e.message,true);}
 }
 window.onload=function(){
-  // Rebuild food items for current restaurant before rendering sold-out menu
-  if(typeof buildFoodItems==='function') ALL_FOOD_ITEMS=buildFoodItems(RID);
+  ALL_FOOD_ITEMS = buildFoodItemsFromConfig(window.MESA_RESTO_CONFIG);
+  // Apply restaurant branding
+  var cfg = window.MESA_RESTO_CONFIG;
+  if (cfg) {
+    document.title = cfg.name + ' — Admin';
+    if (cfg.accent) document.documentElement.style.setProperty('--gold', cfg.accent);
+  }
   renderSOMenu('');
 };
 </script>

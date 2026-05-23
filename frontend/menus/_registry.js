@@ -1,9 +1,9 @@
 // ═══════════════════════════════════════════════════════════════
-// MESA Restaurant Registry — ONLY lists which IDs are active
+// MESA Restaurant Registry — lists which restaurant IDs are active
 // Menu data lives in menus/<id>.js — loaded on demand
 //
 // TO ADD A NEW RESTAURANT:
-//   1. Add its id to MESA_REGISTRY below
+//   1. Add its id here
 //   2. Create frontend/menus/<id>.js (copy the template)
 //   3. Run the SQL setup for that restaurant
 //   4. Push to GitHub — done
@@ -14,5 +14,5 @@ window.MESA_REGISTRY = [
   'legacy-rrnagar',
   'levels-nagarbhavi',
   'skydeck-rrnagar',
-  // 'new-resto-id',   ← add here when ready
+  // 'new-resto-id',
 ];
