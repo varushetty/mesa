@@ -13,5 +13,6 @@ window.MESA_REGISTRY = [
   'suka-mallathalli',
   'legacy-rrnagar',
   'levels-nagarbhavi',
+  'skydeck-rrnagar',
   // 'new-resto-id',   ← add here when ready
 ];

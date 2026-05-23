@@ -415,35 +415,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-
 
 <div class="toast" id="toast"></div>
 
-<script>
-// Load only this restaurant's config file (same as index.html)
-(function() {
-  var ap = new URLSearchParams(window.location.search);
-  var rid = ap.get('restaurant') || 'suka-mallathalli';
-  var allowed = ['suka-mallathalli','legacy-rrnagar','levels-nagarbhavi'];
-  if (allowed.indexOf(rid) === -1) rid = 'suka-mallathalli';
-  document.write('<scr'+'ipt src="menus/' + rid + '.js"><\/scr'+'ipt>');
-})();
-</script>
+<script src="shared-menu.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 var _ap = new URLSearchParams(window.location.search);
 var RID = _ap.get('restaurant') || 'suka-mallathalli';
 var PIN='',pbuf='',adminUser=null,activeTab='tables';
 
-// Build ALL_FOOD_ITEMS from the loaded restaurant config
-// MESA_RESTO_CONFIG is set by menus/<rid>.js (loaded above)
-function buildFoodItemsFromConfig(config) {
-  var items = [];
-  if (!config || !config.menu || !config.menu.food) return items;
-  Object.keys(config.menu.food).forEach(function(cat) {
-    (config.menu.food[cat] || []).forEach(function(item) {
-      items.push(Object.assign({}, item, {category: cat}));
-    });
-  });
-  return items;
+// Rebuild ALL_FOOD_ITEMS for the current restaurant immediately
+// buildFoodItems() is defined in shared-menu.js
+if (typeof buildFoodItems === 'function') {
+  ALL_FOOD_ITEMS = buildFoodItems(RID);
 }
-var ALL_FOOD_ITEMS = buildFoodItemsFromConfig(window.MESA_RESTO_CONFIG);
 
 // Safe JSON fetch — never throws the 'Unexpected token <' error
 // Checks Content-Type before parsing, shows meaningful errors
@@ -486,8 +469,8 @@ async function doLogin(){
     document.getElementById('app').style.display='block';
     document.getElementById('hrole').textContent=d.user.role+' · '+d.user.name;
     // Show which restaurant this admin panel manages
-    var restoConf = window.MESA_RESTO_CONFIG;
-    var restoName = (restoConf && restoConf.name) ? restoConf.name : RID;
+    var restoConf = (typeof RESTAURANT_REGISTRY!=='undefined') ? RESTAURANT_REGISTRY[RID] : null;
+    var restoName = restoConf ? restoConf.name : RID;
     document.getElementById('hbrand').textContent = restoName.toLowerCase();
     document.title = restoName + ' Admin';
     refreshSoldOut();loadTab();
@@ -863,8 +846,8 @@ async function restoreDish(id){
   try{await fetch('/api/admin/menu-items/'+id,{method:'PATCH',headers:H(),body:JSON.stringify({is_active:true})});toast('Dish restored ✓');loadMenuTab();}catch(e){toast(e.message,true);}
 }
 window.onload=function(){
-  // Rebuild ALL_FOOD_ITEMS from MESA_RESTO_CONFIG (may have loaded after initial build)
-  ALL_FOOD_ITEMS = buildFoodItemsFromConfig(window.MESA_RESTO_CONFIG);
+  // Rebuild food items for current restaurant before rendering sold-out menu
+  if(typeof buildFoodItems==='function') ALL_FOOD_ITEMS=buildFoodItems(RID);
   renderSOMenu('');
 };
 </script>
