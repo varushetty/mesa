@@ -801,7 +801,8 @@ html,body{background:var(--bg);color:var(--ink)}
       + '<div class="tip">If you believe this is an error, ask your waiter for the correct QR code or URL.</div>'
       + '</div></body></html>');
     document.close();
-    return;
+    // Stop all pending resource loads (images, scripts, stylesheets)
+    if (window.stop) window.stop();
   }
 
   // No table param — still load the menu but warn
