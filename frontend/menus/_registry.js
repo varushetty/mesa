@@ -14,5 +14,5 @@ window.MESA_REGISTRY = [
   'legacy-rrnagar',
   'levels-nagarbhavi',
   'skydeck-rrnagar',
-  // 'new-resto-id',
+  'torye-rrnagar',
 ];

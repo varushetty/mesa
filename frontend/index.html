@@ -359,11 +359,10 @@ html,body{background:var(--bg);color:var(--ink)}
 
 <!-- ══ S0: WELCOME ══ -->
 <div class="screen show" id="s0">
-  <canvas id="welcome-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;border-radius:inherit"></canvas>
   <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:370px;margin:0 auto">
     <div class="logo-ring au"><span class="logo-m">m</span></div>
-    <div class="wtable au" style="animation-delay:.06s" id="welcome-table-num">Table</div>
-    <div class="wheading au" style="animation-delay:.1s" id="welcome-heading">Welcome.<br>What's the plan?</div>
+    <div class="wtable au" style="animation-delay:.06s" id="welcome-table-num">Table AA-14</div>
+    <div class="wheading au" style="animation-delay:.1s">Welcome to SUKA.<br>What's the plan?</div>
     <div class="wsub au" style="animation-delay:.14s">Your table. Your experience. Let's find your perfect order.</div>
     <button class="pop-btn primary-btn au" style="animation-delay:.16s" onclick="goPopularQuick()">
       <div class="pop-btn-icon">🔥</div>
@@ -730,7 +729,8 @@ html,body{background:var(--bg);color:var(--ink)}
   <div class="ty-icon">🙏</div>
   <div class="ty-h">Thank you for<br>dining with us</div>
   <div class="ty-sub">Your bill is being prepared. It was a pleasure serving you tonight.</div>
-  <button class="ty-feedback-link" onclick="tyFeedback()" style="margin-top:8px">Rate your experience →</button>
+  <button class="ty-bill-btn" onclick="requestBill()">📋 Generate & Print Bill</button>
+  <button class="ty-feedback-link" onclick="tyFeedback()">Rate your experience →</button>
 </div>
 
 <!-- ══ FEEDBACK SCREEN ══ -->
@@ -772,24 +772,44 @@ html,body{background:var(--bg);color:var(--ink)}
 </div>
 
 <script>
-// ── Synchronous restaurant config loader ─────────────────────────
-// document.write loads the script BEFORE the main script runs
-// This means all functions stay global — no timing issues
+// ── Dynamic restaurant loader ────────────────────────────────────
+// Loads ONLY the current restaurant's config file
+// No other restaurant's data is downloaded
 (function() {
   var params = new URLSearchParams(window.location.search);
   var rid = params.get('restaurant') || 'suka-mallathalli';
-  // Whitelist — prevent path traversal
+  // Validate against known IDs to prevent path traversal
   var allowed = ['suka-mallathalli','legacy-rrnagar','levels-nagarbhavi','skydeck-rrnagar'];
   if (allowed.indexOf(rid) === -1) rid = 'suka-mallathalli';
-  // Synchronous load — blocks until config is ready, then main script runs
-  document.write('<scr'+'ipt src="menus/' + rid + '.js"><\/scr'+'ipt>');
+  // Load only this restaurant's config file
+  var s = document.createElement('script');
+  s.src = 'menus/' + rid + '.js?v=1';
+  s.onload = function() {
+    // Config loaded — signal that page can initialise
+    window._mesaConfigLoaded = true;
+    if (window._mesaInitPending) window._mesaInitPending();
+  };
+  s.onerror = function() {
+    // Fallback to SUKA if restaurant file not found
+    console.warn('[mesa] Menu file not found for:', rid, '— falling back to SUKA');
+    var fallback = document.createElement('script');
+    fallback.src = 'menus/suka-mallathalli.js?v=1';
+    fallback.onload = function() {
+      window._mesaConfigLoaded = true;
+      if (window._mesaInitPending) window._mesaInitPending();
+    };
+    document.head.appendChild(fallback);
+  };
+  document.head.appendChild(s);
 })();
 </script>
 <script>
 /* ══════════ RESTAURANT CONFIG ══════════ */
+// Defer initialisation until the restaurant config file has loaded
+function _mesaInit() {
 // Read table + restaurant from QR URL (?table=AA-14&restaurant=suka-mallathalli)
 var _urlP = new URLSearchParams(window.location.search);
-var _urlTable = _urlP.get('table') || '';
+var _urlTable = _urlP.get('table') || 'AA-14';
 var _urlResto = _urlP.get('restaurant') || 'suka-mallathalli';
 
 // Use the dynamically loaded restaurant config
@@ -1281,12 +1301,7 @@ document.addEventListener('click', function(e) {
   }
   if (course === 'thankyou') {
     document.getElementById('success').classList.remove('show');
-    // Notify admin and go straight to feedback — no intermediate thank you screen
-    fetch('/api/orders/request-bill', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({restaurantId:RESTAURANT.id, tableNumber:RESTAURANT.table})
-    }).catch(function(){});
-    showFeedback();
+    showThankYou();
     return;
   }
   if (course === 'spq-recs') {
@@ -1706,7 +1721,7 @@ function renderPopularQuick() {
 function spqPlaceOrder() {
   if (!Object.keys(cart).length) { toast('Add something first!', true); return; }
   _orderSource = 'spq';
-  renderReview(); renderStepper('s6'); go('s6');
+  placeOrder();
 }
 
 function spqCartChanged() {
@@ -2067,175 +2082,6 @@ function renderBarBitesSuggestion() {
     +'</div>';
 }
 
-
-// ── "Others also ordered" panel shown on drinks screen ──────────
-// Shows 3 food items that pair well with current drink selection
-// Based on BAR_BITES_PAIRING + QUICK_PICKS social proof
-// ── Fetch live popular items from other tables ────────────────
-function fetchPopularNow() {
-  if (_popularFetched) return;
-  _popularFetched = true;
-  fetch('/api/orders/popular-now?restaurant='
-    + encodeURIComponent(RESTAURANT.id)
-    + '&table=' + encodeURIComponent(RESTAURANT.table))
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      _popularNow = data.items || [];
-      _popularTableCount = data.tableCount || 0;
-      // Re-render suggestion panels if drinks/course screen is open
-      var active = document.querySelector('.screen.show');
-      if (active && active.id === 'sd') renderDrinks();
-    })
-    .catch(function(){ _popularNow = []; });
-}
-var _popularTableCount = 0;
-
-// Build lookup: itemId -> order count from other tables
-function getPopularLookup() {
-  var map = {};
-  _popularNow.forEach(function(p){ map[p.id] = p.count; });
-  return map;
-}
-
-function addCartSuggestion(btn) {
-  var id = btn.getAttribute('data-id');
-  var price = parseInt(btn.getAttribute('data-price'));
-  var item = null;
-  Object.values(FOOD||{}).flat().forEach(function(i){ if(i.id===id) item=i; });
-  Object.values(DRINKS||{}).flat().forEach(function(i){ if(i.id===id) item=i; });
-  if (item) addCart(id, price, item.name, item.e||'🍽️', btn);
-}
-
-// ── Course-aware suggestion panel ────────────────────────────────
-// course: 'drinks' | 'starters' | 'mains' | 'desserts'
-// Uses live data from /api/orders/popular-now (other tables today)
-// Falls back to QUICK_PICKS + BAR_BITES_PAIRING if no live data
-
-function renderCourseSuggestion(course) {
-  var allItems = {};
-  Object.values(MENU.food||{}).flat().forEach(function(i){ allItems[i.id]=i; });
-  Object.values(MENU.drinks||{}).flat().forEach(function(i){ allItems[i.id]=i; });
-
-  // Which menu categories belong to each course
-  var cm = COURSE_MAP || {};
-  var courseCategories = {
-    starters: (cm.starters || []),
-    mains:    (cm.mains    || []),
-    desserts: (cm.desserts || ['desserts']),
-    drinks:   Object.keys(DRINKS||{})
-  };
-  var targetCats = courseCategories[course] || [];
-
-  // Build set of item IDs in this course
-  var courseItemIds = new Set();
-  if (course === 'drinks') {
-    Object.values(DRINKS||{}).flat().forEach(function(i){ courseItemIds.add(i.id); });
-    // Drinks screen also shows starters (bar bites)
-    (cm.starters||[]).forEach(function(cat){
-      (FOOD[cat]||[]).forEach(function(i){ courseItemIds.add(i.id); });
-    });
-    // And bar bites pairing for current tab
-    var bbp = (typeof BAR_BITES_PAIRING !== 'undefined') ? BAR_BITES_PAIRING : {};
-    (bbp[dTab]||[]).forEach(function(id){ courseItemIds.add(id); });
-  } else {
-    targetCats.forEach(function(cat){
-      (FOOD[cat]||[]).forEach(function(i){ courseItemIds.add(i.id); });
-    });
-  }
-
-  // Get candidates from live popular-now data (other tables today)
-  var popularLookup = getPopularLookup();
-  var candidates = [];
-  var alreadyOrdered = new Set(Object.keys(_sessionAllItems).concat(Object.keys(cart)));
-
-  // Priority 1: items ordered by other tables today, in this course
-  _popularNow.forEach(function(p) {
-    if (!courseItemIds.has(p.id)) return;
-    if (alreadyOrdered.has(p.id)) return;
-    if (SOLD_OUT_IDS.has(p.id)) return;
-    var item = allItems[p.id];
-    if (!item) return;
-    candidates.push({ item: item, count: p.count, live: true });
-  });
-
-  // Priority 2: fallback to QUICK_PICKS + static pairings if < 3 candidates
-  if (candidates.length < 3) {
-    var qp = (typeof QUICK_PICKS !== 'undefined') ? QUICK_PICKS : {};
-    var fallbackIds = [];
-    if (course === 'drinks') {
-      var bbp = (typeof BAR_BITES_PAIRING !== 'undefined') ? BAR_BITES_PAIRING : {};
-      (bbp[dTab]||[]).forEach(function(id){ fallbackIds.push(id); });
-      (qp.starters||[]).forEach(function(p){ fallbackIds.push(p.id); });
-    } else if (course === 'mains') {
-      (qp.mains||[]).forEach(function(p){ fallbackIds.push(p.id); });
-    } else if (course === 'desserts') {
-      (qp.desserts||[]).forEach(function(p){ fallbackIds.push(p.id); });
-    } else {
-      (qp.starters||[]).forEach(function(p){ fallbackIds.push(p.id); });
-    }
-    var existingIds = new Set(candidates.map(function(c){ return c.item.id; }));
-    fallbackIds.forEach(function(id){
-      if (existingIds.has(id) || alreadyOrdered.has(id) || SOLD_OUT_IDS.has(id)) return;
-      if (!courseItemIds.has(id) && course !== 'drinks') return;
-      var item = allItems[id];
-      if (!item) return;
-      existingIds.add(id);
-      candidates.push({ item: item, count: 0, live: false });
-    });
-  }
-
-  if (!candidates.length) return '';
-
-  var shown  = candidates.slice(0, 3);
-  var accent = (_restoConfig && _restoConfig.accent) || 'var(--green)';
-  var tableCount = _popularTableCount;
-
-  // Header label varies by whether we have live data
-  var hasLive = shown.some(function(c){ return c.live; });
-  var headerIcon = course === 'desserts' ? '🍰' : course === 'mains' ? '🍛' : course === 'drinks' ? '🍺' : '🍽️';
-  var headerText = hasLive && tableCount > 0
-    ? tableCount + ' table' + (tableCount > 1 ? 's' : '') + ' also ordered these'
-    : 'Popular tonight';
-
-  var cards = shown.map(function(c) {
-    var item = c.item;
-    var dc = item.diet === 'veg' ? 'v' : item.diet === 'nonveg' ? 'n' : 'e';
-    var dotCol = dc === 'v' ? '#2D7A3A' : '#c0392b';
-    var inCart = cart[item.id];
-    var badge  = c.live && c.count > 0
-      ? '<span style="font-size:.65rem;background:rgba(0,0,0,.08);padding:1px 6px;border-radius:10px;color:var(--ink3)">×'+c.count+' today</span>'
-      : '';
-    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border-radius:10px;border:1px solid var(--bdr)">'
-      + '<div style="font-size:1.55rem;flex-shrink:0;line-height:1">' + (item.e || '🍽️') + '</div>'
-      + '<div style="flex:1;min-width:0">'
-        + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:1px">'
-          + '<div style="font-size:.82rem;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + item.name + '</div>'
-          + badge
-        + '</div>'
-        + '<div style="font-size:.72rem;color:var(--ink3)">'
-          + '<span style="color:'+dotCol+';font-size:.6rem">●</span> ₹' + item.price
-        + '</div>'
-      + '</div>'
-      + (inCart
-        ? '<span style="font-size:.72rem;color:var(--ink3);background:var(--bg3);padding:3px 8px;border-radius:6px;flex-shrink:0">In cart ✓</span>'
-        : '<button onclick="addCartSuggestion(this)" data-id="' + item.id + '" data-price="' + item.price + '" style="padding:5px 13px;border-radius:8px;border:1.5px solid ' + accent + ';background:transparent;color:' + accent + ';font-size:.78rem;font-weight:500;cursor:pointer;font-family:inherit;flex-shrink:0;white-space:nowrap">+ Add</button>'
-      )
-      + '</div>';
-  }).join('');
-
-  return '<div style="margin-bottom:14px;padding:12px;background:var(--bg2);border-radius:12px;border:1px solid var(--bdr)">'
-    + '<div style="font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;display:flex;align-items:center;gap:5px">'
-      + '<span>' + headerIcon + '</span> ' + headerText
-    + '</div>'
-    + '<div style="display:flex;flex-direction:column;gap:6px">' + cards + '</div>'
-    + '</div>';
-}
-
-// Backwards compat alias used in drinks screen template
-function renderDrinksFoodSuggestion() {
-  return renderCourseSuggestion('drinks');
-}
-
 function renderDrinks() {
   const dbar = document.getElementById('dbar-sd');
   if (dbar) dbar.innerHTML = dbarHTML('sd');
@@ -2329,7 +2175,7 @@ function renderDrinks() {
       <div class="cs-title">What to <em>drink?</em></div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:8px"><div class="drink-hint" style="flex:1">${hint}</div><button class="pref-btn" onclick="changePreferences('sd')" title="Change preferences">⟳</button></div>
-    ${renderDrinksFoodSuggestion()}
+    ${drinkStyles.size > 0 ? '<div style="font-size:.72rem;color:#0891b2;background:rgba(8,145,178,.1);border-radius:8px;padding:7px 11px;margin-bottom:10px">🍢 Tap Bar Bites tab to see what pairs best with your drinks</div>' : ''}
     <div class="dtabs" id="dtabs-sd">${tabsHTML}</div>
     ${top.length===0?`<div class="rev-empty">No items in this category match your preferences — try another tab or adjust your filter.</div>`:''}
     ${top.map((it,i)=>rcCard(it,i,'sd')).join('')}
@@ -2341,7 +2187,7 @@ function renderDrinks() {
     `:''}
     ${dietQ.size&&depr.length&&!isOpen?`<div class="soft-notice">Some items hidden by your preferences · tap "See all" to view</div>`:''}
   `;
-
+  
   updBadge('sd');
   // Populate shownAsBarBites so starters screen skips these items
   shownAsBarBites = new Set();
@@ -2410,10 +2256,6 @@ function renderCourse(sid) {
       <div class="cs-title">${cfg.title}</div>
       <div class="cs-sub">${cfg.sub}</div>
     </div>
-    ${(function(){
-      var course = sid==='s3'?'mains':sid==='s4'?'desserts':sid==='s2'?'starters':'starters';
-      return renderCourseSuggestion(course);
-    })()}
     ${top.map((it,i)=>rcCard(it,i,sid)).join('')}
     ${rest.length?`
       <button class="see-all ${isOpen?'open':''}" onclick="toggleSeeAll('${sid}')">
@@ -2610,11 +2452,6 @@ function placeOrder(){
     if (sh) sh.textContent = firstItem.name + ' is on its way!';
     if (sp) sp.textContent = 'Your order is with the kitchen. Table ' + RESTAURANT.table + ' — sit back.';
   }
-  // Accumulate ALL items ordered this session (across all rounds)
-  // Used for: feedback rating, suggestion exclusions
-  Object.values(cart).forEach(function(item) {
-    _sessionAllItems[item.id] = item;
-  });
   sessionRound++;
   // Save to sessionStorage so QR rescan restores session
   saveSession();
@@ -2788,31 +2625,12 @@ function showResumeSession() {
   el.classList.add('show');
 }
 
-
-function showBillConfirmation() {
-  var el = document.getElementById('tyScreen');
-  if (!el) return;
-  var h   = document.querySelector('.ty-h');
-  var sub = document.querySelector('.ty-sub');
-  if (h)   h.innerHTML  = 'Your bill is<br>on its way';
-  if (sub) sub.textContent = "We've let your waiter know. They'll be with you shortly.";
-  // Hide the generate bill button — only admin generates bills
-  var billBtn = el.querySelector('.ty-bill-btn');
-  if (billBtn) billBtn.style.display = 'none';
-  el.classList.add('show');
-}
-
 function showThankYou() {
   document.getElementById('tyScreen').classList.add('show');
 }
 
 function tyFeedback() {
   document.getElementById('tyScreen').classList.remove('show');
-  // Notify admin that bill is requested
-  fetch('/api/orders/request-bill', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({restaurantId:RESTAURANT.id, tableNumber:RESTAURANT.table})
-  }).catch(function(){});
   showFeedback();
 }
 
@@ -2872,58 +2690,25 @@ function callWaiter(btn){btn.textContent='✅ Called!';setTimeout(()=>{btn.inner
 
 /* ══════════ FEEDBACK ══════════ */
 var fbStarRating = 0;
-var _sessionAllItems = {};  // ALL items ordered this session (all rounds) — for feedback + suggestions
-var _popularNow     = [];  // live popular items from other tables API
-var _popularFetched = false;
 var fbDishRatings = {};   // itemId -> true (up) | false (down) | null
 var fbRecommend   = null; // true | false | null
 var fbSessionId   = null; // set when order is placed
 
 function showFeedback() {
-  // Build dish rating list from ALL items ordered this session (all rounds)
-  // _sessionAllItems accumulates everything across placeOrder() calls
+  // Build dish rating list from cart
   var list = document.getElementById('dishFbList');
   if (!list) return;
   var html = '';
-  // Merge current cart into session items (in case first order)
-  Object.values(cart).forEach(function(item){ _sessionAllItems[item.id] = item; });
-  var allKeys = Object.keys(_sessionAllItems);
-  if (!allKeys.length) allKeys = Object.keys(cart);
-  // Group items by course for clear feedback UX
-  var drinkIds   = new Set(Object.values(DRINKS||{}).flat().map(function(d){ return d.id; }));
-  var dessertCats= (COURSE_MAP && COURSE_MAP.desserts) || ['desserts'];
-  var mainsCats  = (COURSE_MAP && COURSE_MAP.mains)    || [];
-  var dessertIds = new Set(), mainsIds = new Set();
-  dessertCats.forEach(function(c){ (FOOD[c]||[]).forEach(function(i){ dessertIds.add(i.id); }); });
-  mainsCats.forEach(function(c){ (FOOD[c]||[]).forEach(function(i){ mainsIds.add(i.id); }); });
-
-  var groups = { drinks:[], starters:[], mains:[], desserts:[] };
-  allKeys.forEach(function(id) {
-    var item = _sessionAllItems[id] || cart[id];
-    if (!item || !item.name) return;
-    fbDishRatings[id] = fbDishRatings[id] !== undefined ? fbDishRatings[id] : null;
-    if (drinkIds.has(id))        groups.drinks.push({id:id,item:item});
-    else if (dessertIds.has(id)) groups.desserts.push({id:id,item:item});
-    else if (mainsIds.has(id))   groups.mains.push({id:id,item:item});
-    else                         groups.starters.push({id:id,item:item});
+  Object.keys(cart).forEach(function(id) {
+    var item = cart[id];
+    fbDishRatings[id] = null;
+    html += '<div class="dish-fb" id="dish-fb-' + id + '">'
+          + '<span style="font-size:1.2rem;flex-shrink:0">' + (item.e||'🍽️') + '</span>'
+          + '<span class="dish-fb-name">' + item.name + '</span>'
+          + '<button class="thumb up" id="up-' + id + '" data-id="' + id + '" data-up="1" onclick="rateDish(this.dataset.id,true)">👍</button>'
+          + '<button class="thumb dn" id="dn-' + id + '" data-id="' + id + '" onclick="rateDish(this.dataset.id,false)">👎</button>'
+          + '</div>';
   });
-
-  function fbCard(id, item) {
-    var dc = item.diet === 'veg' ? 'v' : item.diet === 'nonveg' ? 'n' : 'e';
-    var dotCol = dc === 'v' ? '#2D7A3A' : '#c0392b';
-    return '<div class="dish-fb" id="dish-fb-' + id + '">'         + '<span style="font-size:1.2rem;flex-shrink:0">' + (item.e||'🍽️') + '</span>'         + '<div style="flex:1;min-width:0">'           + '<div class="dish-fb-name">' + item.name + '</div>'           + '<div style="font-size:.68rem;color:var(--ink3)">'             + '<span style="color:'+dotCol+';font-size:.6rem">●</span> ₹' + item.price             + (item.qty > 1 ? ' × ' + item.qty : '')           + '</div>'         + '</div>'         + '<button class="thumb up" id="up-' + id + '" data-id="' + id + '" onclick="rateDish(this.dataset.id,true)">👍</button>'         + '<button class="thumb dn" id="dn-' + id + '" data-id="' + id + '" onclick="rateDish(this.dataset.id,false)">👎</button>'         + '</div>';
-  }
-
-  function fbGroup(icon, label, arr) {
-    if (!arr.length) return '';
-    return '<div style="font-size:.62rem;letter-spacing:1.2px;text-transform:uppercase;'         + 'color:var(--ink3);margin:12px 0 6px;display:flex;align-items:center;gap:5px">'         + icon + ' ' + label + '</div>'         + arr.map(function(g){ return fbCard(g.id, g.item); }).join('');
-  }
-
-  html += fbGroup('🍸', 'Drinks',   groups.drinks);
-  html += fbGroup('🍢', 'Starters', groups.starters);
-  html += fbGroup('🍛', 'Mains',    groups.mains);
-  html += fbGroup('🍰', 'Desserts', groups.desserts);
-
   list.innerHTML = html || '<div style="font-size:.8rem;color:var(--i3);padding:8px 0">No items to rate</div>';
 
   // Reset star state
@@ -2964,26 +2749,21 @@ function pickRecommend(val) {
 
 function buildFeedbackPayload() {
   // Build dish list with recommendation context
-  // Include all items from all rounds
-  var allFbKeys = Object.keys(_sessionAllItems).length
-    ? Object.keys(_sessionAllItems)
-    : Object.keys(cart);
-  var dishes = allFbKeys.map(function(id) {
-    var item = _sessionAllItems[id] || cart[id] || {};
+  var dishes = Object.keys(cart).map(function(id) {
     return {
       itemId:    id,
-      name:      item.name,
-      qty:       item.qty,
-      price:     item.price,
-      thumbs:    fbDishRatings[id],
-      wasInterested: interestedIds.has(id),
+      name:      cart[id].name,
+      qty:       cart[id].qty,
+      price:     cart[id].price,
+      thumbs:    fbDishRatings[id],          // true=up, false=down, null=no rating
+      wasInterested: interestedIds.has(id),  // was it in the popular screen?
       wasPicked: POPULAR_BADGE[id] ? POPULAR_BADGE[id] : null,
     };
   });
 
   return {
     sessionId:      fbSessionId,
-    restaurantId:   RESTAURANT.id,
+    restaurantId:   'suka-mallathalli',
     tableNumber:    RESTAURANT.table,
     timestamp:      new Date().toISOString(),
     // What the customer told us
@@ -3273,8 +3053,7 @@ window.goPopularQuick = function() {
 window.spqConfirmOrder = function() {
   if (!Object.keys(cart).length) { toast('Add something first!', true); return; }
   _orderSource = 'spq';
-  // Show review screen first — customer confirms before order is placed
-  renderReview(); renderStepper('s6'); go('s6');
+  placeOrder();
 };
 
 // Update SPQ nav whenever cart changes — patch addCartQuick
@@ -3348,20 +3127,20 @@ window.renderCourse = function(sid) {
 };
 
 // BILL REQUEST — triggers feedback
+var _origRequestBill = window.requestBill;
 window.requestBill = function() {
-  // Notify backend — admin sees bill_requested on their table grid
-  fetch('/api/orders/request-bill', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({restaurantId: RESTAURANT.id, tableNumber: RESTAURANT.table})
-  }).catch(function(){});
-  // Customer sees: thank you screen → feedback
-  var ty = document.getElementById('tyScreen');
-  if (ty) ty.classList.remove('show');
-  showFeedback();
+  var billUrl = '/bill.html?table=' + encodeURIComponent(RESTAURANT.table)
+              + '&restaurant=' + RESTAURANT.id
+              + '&pin=0000';
+  window.open(billUrl, '_blank');
+  setTimeout(function() {
+    var ty = document.getElementById('tyScreen');
+    if (ty) ty.classList.remove('show');
+    showFeedback();
+  }, 1500);
 };
 
-// Fix updAllBadges to sync cn-spq
+// Fix updAllBadges to sync cn-spq 
 var _origUpdAllBadges = window.updAllBadges;
 window.updAllBadges = function() {
   _origUpdAllBadges.apply(this, arguments);
@@ -3410,7 +3189,7 @@ function renderCuisineChips() {
   });
 
   // Welcome screen heading
-  var wh = document.getElementById('welcome-heading') || document.querySelector('.wheading');
+  var wh = document.querySelector('.wheading');
 if (wh) wh.innerHTML = "Welcome to " + name + ".<br>What's the plan?";
 
   // Welcome table number
@@ -3428,475 +3207,15 @@ if (wh) wh.innerHTML = "Welcome to " + name + ".<br>What's the plan?";
   }
 })();
 
+} // end _mesaInit
 
-
-
-
-// ═══════════════════════════════════════════════════════════════
-// WELCOME SCREEN ANIMATION — per restaurant theme
-// Runs when the welcome screen is visible
-// ═══════════════════════════════════════════════════════════════
-var _animFrame = null;
-
-function startWelcomeAnimation() {
-  var canvas = document.getElementById('welcome-canvas');
-  if (!canvas) return;
-  var rid = RESTAURANT.id || 'suka-mallathalli';
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-  canvas.style.opacity = '1';
-  if (_animFrame) cancelAnimationFrame(_animFrame);
-
-  if (rid === 'suka-mallathalli') animSUKA(canvas);
-  else if (rid === 'levels-nagarbhavi') animLevels(canvas);
-  else if (rid === 'legacy-rrnagar')    animLegacy(canvas);
-  else animSUKA(canvas); // default
+// Run when config is ready
+if (window._mesaConfigLoaded) {
+  _mesaInit();
+} else {
+  window._mesaInitPending = _mesaInit;
 }
-
-function stopWelcomeAnimation() {
-  var canvas = document.getElementById('welcome-canvas');
-  if (canvas) canvas.style.opacity = '0';
-  if (_animFrame) { cancelAnimationFrame(_animFrame); _animFrame = null; }
-}
-
-// ── SUKA: floating spice ember particles ───────────────────────
-function animSUKA(canvas) {
-  var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
-  var accent = (_restoConfig && _restoConfig.accent) || '#2D7A3A';
-  // Parse accent to rgb for particles
-  var cols = [
-    '61,139,92', '80,160,100', '45,122,58',
-    '200,140,60', '240,180,80'
-  ];
-  var pts = [];
-  for (var i = 0; i < 60; i++) {
-    pts.push({
-      x: Math.random() * W, y: H + Math.random() * H,
-      r: Math.random() * 1.8 + 0.4,
-      vy: -(Math.random() * 0.5 + 0.2),
-      vx: (Math.random() - 0.5) * 0.4,
-      tw: Math.random() * Math.PI * 2,
-      col: cols[Math.floor(Math.random() * cols.length)]
-    });
-  }
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    pts.forEach(function(p) {
-      p.tw += 0.035;
-      var a = Math.abs(Math.sin(p.tw)) * 0.65 + 0.1;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(' + p.col + ',' + a + ')';
-      ctx.fill();
-      if (p.r > 1) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(' + p.col + ',' + (a * 0.12) + ')';
-        ctx.fill();
-      }
-      p.x += p.vx; p.y += p.vy;
-      if (p.y < -10) { p.y = H + 10; p.x = Math.random() * W; }
-    });
-    _animFrame = requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-// ── LEVELS: beer bubbles rising + bottom wave ───────────────────
-function animLevels(canvas) {
-  var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
-  var t = 0;
-  var bubbles = [];
-  for (var i = 0; i < 22; i++) {
-    bubbles.push({
-      x: Math.random() * W,
-      y: H + Math.random() * H * 0.4,
-      r: Math.random() * 3 + 1,
-      vy: Math.random() * 0.6 + 0.3,
-      vx: (Math.random() - 0.5) * 0.3,
-      a: Math.random() * 0.25 + 0.05
-    });
-  }
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    // Wave at bottom
-    var wH = H * 0.22;
-    ctx.beginPath();
-    ctx.moveTo(0, H);
-    for (var x = 0; x <= W; x += 6) {
-      var y = H - wH * 0.5 - Math.sin((x / W * 4 + t) * Math.PI * 2) * wH * 0.35
-                            - Math.sin((x / W * 2.5 + t * 1.3) * Math.PI * 2) * wH * 0.2;
-      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.lineTo(W, H); ctx.closePath();
-    ctx.fillStyle = 'rgba(212,160,23,0.1)';
-    ctx.fill();
-    // Second wave
-    ctx.beginPath();
-    for (var x2 = 0; x2 <= W; x2 += 6) {
-      var y2 = H - wH * 0.3 - Math.sin((x2 / W * 3 + t * 1.2 + 1) * Math.PI * 2) * wH * 0.25;
-      if (x2 === 0) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
-    }
-    ctx.lineTo(W, H); ctx.closePath();
-    ctx.fillStyle = 'rgba(212,160,23,0.07)';
-    ctx.fill();
-    // Bubbles
-    bubbles.forEach(function(b) {
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(212,160,23,' + b.a + ')';
-      ctx.lineWidth = 0.8;
-      ctx.stroke();
-      b.y -= b.vy; b.x += b.vx;
-      if (b.y < -10) { b.y = H + 10; b.x = Math.random() * W; }
-    });
-    t += 0.007;
-    _animFrame = requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-// ── LEGACY: IPL spinning rings ──────────────────────────────────
-function animLegacy(canvas) {
-  var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
-  var cx = W / 2, cy = H / 2;
-  var angle = 0, glowR = 60, glowDir = 1;
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    // Outer spinning ring
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(angle * Math.PI / 180);
-    ctx.beginPath();
-    ctx.arc(0, 0, Math.min(W, H) * 0.32, 0, Math.PI * 2);
-    ctx.setLineDash([10, 8]);
-    ctx.strokeStyle = 'rgba(201,148,58,0.2)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.restore();
-    // Inner counter-rotating ring
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(-angle * 1.5 * Math.PI / 180);
-    ctx.beginPath();
-    ctx.arc(0, 0, Math.min(W, H) * 0.22, 0, Math.PI * 2);
-    ctx.setLineDash([5, 10]);
-    ctx.strokeStyle = 'rgba(201,148,58,0.13)';
-    ctx.lineWidth = 0.75;
-    ctx.stroke();
-    ctx.restore();
-    // Pulsing center glow
-    glowR += glowDir * 0.15;
-    if (glowR > 70 || glowR < 50) glowDir *= -1;
-    var grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
-    grd.addColorStop(0, 'rgba(201,148,58,0.06)');
-    grd.addColorStop(1, 'rgba(201,148,58,0)');
-    ctx.beginPath();
-    ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
-    ctx.fillStyle = grd;
-    ctx.fill();
-    // Orbiting dots (like cricket balls)
-    var dotR = Math.min(W, H) * 0.32;
-    for (var d = 0; d < 6; d++) {
-      var da = (angle + d * 60) * Math.PI / 180;
-      var dx = cx + dotR * Math.cos(da);
-      var dy = cy + dotR * Math.sin(da);
-      ctx.beginPath();
-      ctx.arc(dx, dy, 2, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(201,148,58,' + (d % 2 === 0 ? '0.4' : '0.2') + ')';
-      ctx.fill();
-    }
-    angle += 0.2;
-    _animFrame = requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-// Start animation when welcome screen shows, stop when it hides
-var _origGo = window.go || function(){};
-// Hook into screen transitions
-document.addEventListener('DOMContentLoaded', function() {
-  // Start animation immediately on welcome screen
-  setTimeout(startWelcomeAnimation, 300);
-  // Fetch live popular items from other tables in background
-  setTimeout(fetchPopularNow, 1500);
-});
-// Stop animation when leaving welcome screen
-var _goOrig = window.go;
 
 </script>
-
-<!-- ── Smart Upsell Pop-up ──────────────────────────────── -->
-<div id="upsell-pop" style="position:fixed;bottom:0;left:0;right:0;z-index:9000;background:var(--bg);border-radius:20px 20px 0 0;border-top:1.5px solid var(--bdr);padding:20px 20px 36px;transform:translateY(110%);transition:transform .35s cubic-bezier(.34,1.2,.64,1);box-shadow:0 -6px 32px rgba(0,0,0,.2);max-width:480px;margin:0 auto">
-  <div style="width:36px;height:3px;background:var(--bdr2);border-radius:2px;margin:0 auto 16px"></div>
-  <div style="font-size:.68rem;letter-spacing:.5px;color:var(--ink3);margin-bottom:14px;display:flex;align-items:center;gap:6px">
-    <span id="up-icon">🔥</span><span id="up-ctx">Tables nearby also ordered this</span>
-  </div>
-  <div style="display:flex;gap:14px;align-items:flex-start">
-    <div id="up-emoji" style="font-size:2.4rem;flex-shrink:0;line-height:1">🍗</div>
-    <div style="flex:1;min-width:0">
-      <div id="up-name" style="font-size:.96rem;font-weight:500;color:var(--ink);margin-bottom:3px"></div>
-      <div id="up-desc" style="font-size:.75rem;color:var(--ink3);line-height:1.45;margin-bottom:6px"></div>
-      <div id="up-price" style="font-size:.88rem;font-weight:600;color:var(--green)"></div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px">
-    <button onclick="upsellDecline()" style="padding:13px;border-radius:10px;border:1.5px solid var(--bdr);background:transparent;color:var(--ink3);font-family:inherit;font-size:.82rem;cursor:pointer;transition:.14s">No thanks</button>
-    <button id="up-add-btn" onclick="upsellAccept()" style="padding:13px;border-radius:10px;border:none;background:var(--green);color:#fff;font-family:inherit;font-size:.83rem;font-weight:500;cursor:pointer;transition:.14s">✦ Add to order</button>
-  </div>
-</div>
-<div id="upsell-overlay" onclick="upsellDecline()" style="position:fixed;inset:0;z-index:8999;background:rgba(0,0,0,.3);display:none"></div>
-<script>
-// ══════════════════════════════════════════════════════════════
-// WELCOME SCREEN ANIMATION — per restaurant theme
-// ══════════════════════════════════════════════════════════════
-
-
-// ══════════════════════════════════════════════════════════════
-// SMART UPSELL POP-UP ENGINE
-// Shows after item added to cart — suggests a matching item
-// "Tables nearby also ordered..." / "Pairs perfectly with..."
-// ══════════════════════════════════════════════════════════════
-var _upsellItem    = null;    // item being suggested
-var _upsellSkipNext = false; // skip hook trigger when adding from popup
-var _upsellActive = false;   // pop-up currently showing
-var _upsellQueue  = [];      // unused — no queueing by design
-var _upsellShown  = new Set(); // ids shown this session — never repeat
-
-// Pairing rules: when item X is added, suggest Y
-// Driven by tags + category logic
-// ══════════════════════════════════════════════════════════════
-// SMART UPSELL ENGINE v2
-// Research-backed: Zomato's "also ordered", Amazon's "frequently
-// bought together", restaurant cross-sell best practices
-//
-// Rules (in priority order):
-// 1. SOCIAL PROOF  — "3 tables ordered X with Y today"
-// 2. DRINK PAIRING — food added, no drink yet
-// 3. FOOD PAIRING  — drink added, no food yet
-// 4. COMBO NUDGE   — suggest a discounted combo
-// 5. LAST ROUND    — when reviewing order, one last add
-// ══════════════════════════════════════════════════════════════
-var _upsellOrderCount = {};  // simulated "ordered by X tables" counts
-
-function buildAllItems() {
-  var all = {};
-  Object.values(MENU.food||{}).flat().forEach(function(i){ all[i.id]=i; });
-  Object.values(MENU.drinks||{}).flat().forEach(function(i){ all[i.id]=i; });
-  return all;
-}
-
-function getUpsellSuggestion(addedItem) {
-  if (!addedItem) return null;
-  var allItems  = buildAllItems();
-  var inCart    = Object.keys(cart);
-  var cartItems = inCart.map(function(id){ return allItems[id]; }).filter(Boolean);
-  var hasDrink  = Object.values(DRINKS||{}).flat().some(function(d){ return inCart.includes(d.id); });
-  var hasFood   = Object.values(FOOD||{}).flat().some(function(f){ return inCart.includes(f.id); });
-  var cartCount = inCart.length;
-  var suggestions = [];
-
-  function valid(item) {
-    return item && item.id !== addedItem.id &&
-           !inCart.includes(item.id) && !_upsellShown.has(item.id);
-  }
-
-  // ── RULE 1: SOCIAL PROOF (highest trust) ──────────────────
-  // "Tables nearby also ordered X" — use quickPicks as proxy
-  var picks = (typeof QUICK_PICKS !== 'undefined') ? QUICK_PICKS : {};
-  var allPickIds = Object.values(picks).flat().map(function(p){ return p.id; });
-  var picksBadges = {};
-  Object.values(picks).flat().forEach(function(p){ picksBadges[p.id] = p.badge; });
-
-  allPickIds.forEach(function(id){
-    if (!valid(allItems[id])) return;
-    var item = allItems[id];
-    // Social proof message varies by time of day
-    var hour = new Date().getHours();
-    var timeCtx = hour >= 20 ? '🌙 Tonight' : hour >= 17 ? '🌆 This evening' : '🌞 Today';
-    var tableCount = Math.floor(Math.random() * 4) + 2; // 2-5 tables (realistic)
-    suggestions.push({
-      item: item,
-      ctx:  '👥',
-      msg:  tableCount + ' tables ordered this ' + timeCtx.toLowerCase(),
-      priority: 10,
-      type: 'social_proof'
-    });
-  });
-
-  // ── RULE 2: DRINK PAIRING — food ordered, no drink ────────
-  if (!hasDrink && hasFood) {
-    var drinkPool = Object.values(DRINKS||{}).flat();
-    var spicy  = addedItem.tags && addedItem.tags.includes('spicy');
-    var hearty = addedItem.tags && addedItem.tags.includes('hearty');
-    var msgs = {
-      spicy:  {ctx:'🌶️', msg:'Spicy dish? A cold drink makes it perfect'},
-      hearty: {ctx:'🍖', msg:'Bold food pairs best with a bold drink'},
-      def:    {ctx:'🍻', msg:'Complete your meal with a drink'}
-    };
-    var m = spicy ? msgs.spicy : hearty ? msgs.hearty : msgs.def;
-    drinkPool.filter(function(d){
-      if (!valid(d)) return false;
-      if (spicy)  return d.tags && (d.tags.includes('light') || d.tags.includes('drinky'));
-      if (hearty) return d.tags && d.tags.includes('hearty');
-      return d.tags && d.tags.includes('drinky');
-    }).slice(0,2).forEach(function(d){
-      suggestions.push(Object.assign({item:d, priority:9, type:'drink_pair'}, m));
-    });
-  }
-
-  // ── RULE 3: FOOD PAIRING — drink ordered, no food ─────────
-  if (hasDrink && !hasFood) {
-    var foodPool = Object.values(FOOD||{}).flat();
-    // Bar bites first, then anything drinky-tagged
-    var barBites = (DRINKS['bar_bites'] || []).filter(valid);
-    if (barBites.length) {
-      suggestions.push({
-        item: barBites[0], ctx:'🍢', priority:8, type:'food_pair',
-        msg: 'Perfect bar bite to pair with your drink'
-      });
-    } else {
-      foodPool.filter(function(f){
-        return valid(f) && f.tags && f.tags.includes('drinky');
-      }).slice(0,2).forEach(function(f){
-        suggestions.push({
-          item:f, ctx:'🍢', priority:8, type:'food_pair',
-          msg:'Most popular with drinks tonight'
-        });
-      });
-    }
-  }
-
-  // ── RULE 4: GROUP FEAST NUDGE (4+ items in cart) ──────────
-  if (cartCount >= 4) {
-    var foodPool2 = Object.values(FOOD||{}).flat();
-    // Suggest a sharing/hearty item they haven't tried
-    var sharingItems = foodPool2.filter(function(f){
-      return valid(f) && f.tags && (f.tags.includes('sharing') || f.tags.includes('celebrate'));
-    });
-    if (sharingItems.length) {
-      suggestions.push({
-        item: sharingItems[0], ctx:'🎉', priority:7, type:'group',
-        msg:'Big table? Add a sharing platter for the group'
-      });
-    }
-  }
-
-  // ── RULE 5: DESSERT NUDGE — after mains ───────────────────
-  var hasMains = inCart.some(function(id){
-    var item = allItems[id];
-    return item && item.tags && (item.tags.includes('hearty') || item.tags.includes('comfort'));
-  });
-  var hasDessert = Object.values(FOOD||{}).flat()
-    .filter(function(f){ return f.tags && f.tags.includes('sweet'); })
-    .some(function(f){ return inCart.includes(f.id); });
-
-  if (hasMains && !hasDessert && cartCount >= 2) {
-    var desserts = Object.values(MENU.food||{})
-      .flat()
-      .filter(function(f){ return valid(f) && f.tags && f.tags.includes('sweet'); });
-    if (desserts.length) {
-      suggestions.push({
-        item: desserts[0], ctx:'🍰', priority:6, type:'dessert',
-        msg:"Don't forget dessert — it's a favourite here"
-      });
-    }
-  }
-
-  // ── Filter and sort by priority ────────────────────────────
-  var valid_suggestions = suggestions.filter(function(s){ return s.item && valid(s.item); });
-  valid_suggestions.sort(function(a,b){ return b.priority - a.priority; });
-
-  return valid_suggestions.length ? valid_suggestions[0] : null;
-}
-
-var _upsellLastShown = 0;  // timestamp of last popup — cooldown
-function showUpsell(addedItem) {
-  // Only show on food/drinks screens, not review/welcome
-  var activeScreen = document.querySelector('.screen.show');
-  if (!activeScreen) return;
-  var screenId = activeScreen.id;
-  if (!['sd','s2','s3','spq','spo'].includes(screenId)) return;
-  // Don't stack — and enforce 20 second cooldown between popups
-  if (_upsellActive) return;
-  if (Date.now() - _upsellLastShown < 20000) return; // cooldown
-
-  var suggestion = getUpsellSuggestion(addedItem);
-  if (!suggestion) return;
-
-  _upsellItem   = suggestion.item;
-  _upsellActive = true;
-  _upsellLastShown = Date.now();
-  _upsellShown.add(suggestion.item.id);
-
-  document.getElementById('up-icon').textContent  = suggestion.ctx;
-  document.getElementById('up-ctx').textContent   = suggestion.msg;
-  document.getElementById('up-emoji').textContent  = suggestion.item.e || '🍽️';
-  document.getElementById('up-name').textContent  = suggestion.item.name;
-  document.getElementById('up-desc').textContent  = suggestion.item.desc || '';
-  document.getElementById('up-price').textContent = '₹' + suggestion.item.price;
-
-  // Update add button colour to restaurant accent
-  var accent = (_restoConfig && _restoConfig.accent) ? _restoConfig.accent : 'var(--green)';
-  document.getElementById('up-add-btn').style.background = accent;
-
-  document.getElementById('upsell-pop').style.transform     = 'translateY(0)';
-  document.getElementById('upsell-overlay').style.display   = 'block';
-
-  // No auto-dismiss — user taps No thanks or Add to order
-}
-
-function upsellAccept() {
-  if (!_upsellItem) { upsellDecline(); return; }
-  // Capture item before closing (upsellDecline nulls _upsellItem)
-  var item = _upsellItem;
-  // Close popup first — prevents double-trigger from addCart hook
-  upsellDecline();
-  // Add to cart with a flag so the hook doesn't re-trigger another popup
-  _upsellSkipNext = true;
-  addCart(item.id, item.price, item.name, item.e || '🍽️', null);
-  toast('✦ ' + item.name + ' added!');
-}
-
-function upsellDecline() {
-  document.getElementById('upsell-pop').style.transform   = 'translateY(110%)';
-  document.getElementById('upsell-overlay').style.display = 'none';
-  _upsellActive = false;
-  _upsellItem   = null;
-  // No queue — one popup per interaction
-}
-
-// ── Hook into addCart (main cart function) ──────────────────
-var _origAddCart = window.addCart;
-if (typeof _origAddCart === 'function') {
-  window.addCart = function(id, price, name, emoji, btn) {
-    _origAddCart.apply(this, arguments);
-    // Skip upsell trigger if called from upsellAccept to avoid infinite loop
-    if (_upsellSkipNext) { _upsellSkipNext = false; return; }
-    var allItems = {};
-    Object.values(MENU.food||{}).flat().forEach(function(i){ allItems[i.id]=i; });
-    Object.values(MENU.drinks||{}).flat().forEach(function(i){ allItems[i.id]=i; });
-    var addedItem = allItems[id];
-    if (addedItem) setTimeout(function(){ showUpsell(addedItem); }, 700);
-  };
-}
-// Also hook addCartFromData (item card button)
-var _origAddCartFromData = window.addCartFromData;
-if (typeof _origAddCartFromData === 'function') {
-  window.addCartFromData = function(btn) {
-    var id = btn ? btn.dataset.id : null;
-    _origAddCartFromData.apply(this, arguments);
-    if (id) {
-      var allItems = {};
-      Object.values(MENU.food||{}).flat().forEach(function(i){ allItems[i.id]=i; });
-      Object.values(MENU.drinks||{}).flat().forEach(function(i){ allItems[i.id]=i; });
-      var addedItem = allItems[id];
-      if (addedItem) setTimeout(function(){ showUpsell(addedItem); }, 700);
-    }
-  };
-}
-</script></body>
+</body>
 </html>
